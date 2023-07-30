@@ -1,0 +1,9 @@
+[submodule "submodules/nlohmanjson/json"]
+	path = submodules/nlohmanjson/json
+	url = https://github.com/nlohmann/json.git
+[submodule "submodules/json"]
+	path = submodules/json
+	url = https://github.com/nlohmann/json.git
+[submodule "3rd/json"]
+	path = 3rd/json
+	url = https://github.com/nlohmann/json.git

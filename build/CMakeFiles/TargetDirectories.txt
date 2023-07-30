@@ -1,0 +1,3 @@
+/home/nikita/CppSolyanka/build/CMakeFiles/CppSolyanka.dir
+/home/nikita/CppSolyanka/build/CMakeFiles/edit_cache.dir
+/home/nikita/CppSolyanka/build/CMakeFiles/rebuild_cache.dir
