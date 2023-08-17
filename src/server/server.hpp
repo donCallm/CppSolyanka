@@ -13,6 +13,6 @@ class server
 
     public:
         server(boost::asio::io_service& io_service);
-        void handle_accept(con_handler::ptr& connection, const boost::system::error_code& err);
+        void handle_accept(con_handler::ptr connection, const boost::system::error_code& err);
         std::string get_client_status();
 };

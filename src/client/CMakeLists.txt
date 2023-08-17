@@ -1,7 +1,10 @@
 project(client)
 
-file(GLOB_RECURSE CLIENT_CPPS ${PROJECT_SOURCE_DIR}/*.cpp)
+include_directories(${CMAKE_SOURCE_DIR}/src/client)
 
-add_executable(client ${CLIENT_CPPS})
+add_executable(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/src/client/main.cpp
+                        ${CMAKE_SOURCE_DIR}/src/client/client.cpp)
 
-target_link_libraries(client PUBLIC Boost::system)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src/client)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC Boost::system)

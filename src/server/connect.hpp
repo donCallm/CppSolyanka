@@ -9,8 +9,7 @@ class con_handler : public boost::enable_shared_from_this<con_handler>
 {
     private:
         boost::asio::ip::tcp::socket sock;
-        enum {max_length = 1024};
-        char _data[max_length];
+        boost::asio::streambuf _buf;
 
     public:
         typedef boost::shared_ptr<con_handler> ptr;
@@ -20,4 +19,8 @@ class con_handler : public boost::enable_shared_from_this<con_handler>
         void start();
         void handle_read(const boost::system::error_code& err, size_t byte_transferred);
         void handle_write(const boost::system::error_code& err, size_t byte_transferred);
+        ~con_handler()
+        {
+            logger::get_info("DESTRUCTOR CON_HANDLER");
+        }
 };
