@@ -3,6 +3,7 @@
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <memory>
 #include "logger.hpp"
 
 class con_handler : public boost::enable_shared_from_this<con_handler>
@@ -13,7 +14,9 @@ class con_handler : public boost::enable_shared_from_this<con_handler>
 
     public:
         typedef boost::shared_ptr<con_handler> ptr;
-        con_handler(boost::asio::io_service& io_service): sock(io_service) {}
+        std::string deserialize_from_buf();
+        std::vector<uint8_t> serialize_in_buf(const std::string msg);
+        explicit con_handler(boost::asio::io_service& io_service): sock(io_service) {}
         static ptr create(boost::asio::io_service& io_service);
         boost::asio::ip::tcp::socket& get_socket();
         void start();
