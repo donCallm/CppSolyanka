@@ -3,21 +3,15 @@
 #include <chrono>
 
 void client::connect()
-{   
-    std::cout << "\n" << std::endl;
-    std::cout << "CONNECT" << std::endl;
+{
     auto endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string("0.0.0.0"), 8080);
     _socket.connect(endpoint);
     std::cout << "Connect to: " << endpoint << std::endl;
     sent_request();
-    std::cout << "\n" << std::endl;
 }
 
 std::vector<uint8_t> client::serialize_in_buf(std::string msg)
 {
-    std::cout << "\n" << std::endl;
-    std::cout << "SERIALIZE" << std::endl;
-
     uint64_t msg_size = msg.size();
     std::vector<uint8_t> size_bites(sizeof(uint64_t));
     for (size_t i = 0; i < sizeof(uint64_t); ++i) 
@@ -27,16 +21,12 @@ std::vector<uint8_t> client::serialize_in_buf(std::string msg)
     serialize_msg.insert(serialize_msg.end(), size_bites.begin(), size_bites.end());
     serialize_msg.insert(serialize_msg.end(), msg.begin(), msg.end());
 
-    std::cout << "\n" << std::endl;
     return serialize_msg;
 }
 
 std::string client::deserialize_from_buf()
 {
-    std::cout << "\n" << std::endl;
-    std::cout << "DESERIALIZE" << std::endl;
     boost::asio::streambuf::const_buffers_type bufs = _buf.data();
-
     
     if (boost::asio::buffer_size(bufs) == 0)
         return "EMPTY:(";
@@ -45,44 +35,35 @@ std::string client::deserialize_from_buf()
     
     std::string message(boost::asio::buffer_cast<const char*>(bufs) + 1, message_size);
 
-    std::cout << "\n" << std::endl;
     return message;
 }
 
 void client::sent_request()
 {
-    std::cout << "\n" << std::endl;
-    std::cout << "SENT REQUEST" << std::endl;
-
     boost::system::error_code err;
-
-    std::cout << "SERIALIZE MESSAGE" << std::endl;
     std::vector<uint8_t> msg = serialize_in_buf("EGOR PIDOR");
-
-    std::cout << "MESSAGE AFTER SERIALIZE" << std::endl;
-    std::cout << std::string(msg.begin(), msg.end()) << std::endl;
-    std::cout << std::to_string(msg.size()) << std::endl;
-
     boost::asio::write(_socket, boost::asio::buffer(msg), err);
     get_response();
-
-    std::cout << "\n" << std::endl;
 }
 
 void client::get_response()
 {
-    std::cout << "\n" << std::endl;
-    std::cout << "GET REPONSE" << std::endl;
-    boost::system::error_code err;
-    boost::asio::read(_socket, _buf, err);
-    if(err) 
+    try
     {
-        std::cout << "ERROR: " << err.message() << std::endl;
+        uint64_t received_value;
+        boost::asio::read(_socket, boost::asio::buffer(_read_size));
+        std::memcpy(&received_value, _read_size.data(), sizeof(uint64_t));
+        std::cout << "Received uint64_t msg size: " << received_value << std::endl;
+
+        _recv_msg.resize(received_value);
+        boost::asio::read(_socket, boost::asio::buffer(_recv_msg));
+
+        std::cout << "Received MESSAGE: " << std::string(_recv_msg.begin(), _recv_msg.end());
+        std::cout << std::endl;
+    }
+    catch (const boost::system::system_error& e)
+    {
+        std::cerr << "error: " << e.what() << std::endl;
         _socket.close();
     }
-    else 
-    {
-        std::cout << "Get: " << deserialize_from_buf() << std::endl;
-    }
-    std::cout << "\n" << std::endl;
 }

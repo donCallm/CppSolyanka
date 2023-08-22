@@ -11,6 +11,8 @@ class con_handler : public boost::enable_shared_from_this<con_handler>
     private:
         boost::asio::ip::tcp::socket sock;
         boost::asio::streambuf _buf;
+        std::array<uint8_t, sizeof(uint64_t)> _read_size;
+        std::vector<uint8_t> _recv_msg;
 
     public:
         typedef boost::shared_ptr<con_handler> ptr;
