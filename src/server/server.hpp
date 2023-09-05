@@ -2,13 +2,13 @@
 
 #include "connect.hpp"
 #include "utlis.hpp"
-#include <thread>
 
 class server
 {
     private:
         boost::asio::ip::tcp::acceptor _acceptor;
         boost::asio::io_service& _io_service;
+        int _connection_count;
 
     void start_accept();
 

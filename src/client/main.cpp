@@ -1,8 +1,8 @@
-#include "connect.hpp"
+#include "client.hpp"
 
 int main()
 {
     std::cout << "START" << std::endl;
-    con_handler user;
+    client user;
     std::cout << "END" << std::endl;
 }
