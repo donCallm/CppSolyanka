@@ -8,7 +8,7 @@ int main()
     {
         boost::asio::io_service io_service;
         boost::asio::io_service::work work(io_service);
-        server server(io_service);
+        core::server server(io_service);
         io_service.run();
     }
     catch(const std::exception& e)

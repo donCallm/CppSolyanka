@@ -3,6 +3,6 @@
 int main()
 {
     std::cout << "START" << std::endl;
-    client user;
+    core::client user;
     std::cout << "END" << std::endl;
 }

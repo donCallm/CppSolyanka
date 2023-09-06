@@ -1,23 +1,27 @@
 #pragma once
 
 #include "connect.hpp"
-#include "utlis.hpp"
 
-class server
+namespace core
 {
-    private:
-        boost::asio::ip::tcp::acceptor _acceptor;
-        boost::asio::io_service& _io_service;
-        int _connection_count;
+    class server
+    {
+        private:
+            boost::asio::ip::tcp::acceptor _acceptor;
+            boost::asio::io_service& _io_service;
 
-    void start_accept();
+        private:
+            void start_accept();    
 
-    public:
-        server(boost::asio::io_service& io_service);
-        void handle_accept(con_handler::ptr connection, const boost::system::error_code& err);
-        std::string get_client_status();
-        ~server()
-        {
-            logger::get_info("DESTRUCTOR SERVER");
-        }
-};
+        public:
+            server(boost::asio::io_service& io_service);
+            ~server()
+            {
+                spdlog::info("DESTRUCTOR SERVER");
+            }
+
+        public:
+            void handle_accept(net::con_handler::ptr connection, const boost::system::error_code& err);
+            std::string get_client_status();
+    };
+}
