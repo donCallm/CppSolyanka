@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
@@ -7,7 +8,6 @@
 #include <thread>
 #include <chrono>
 #include <spdlog/spdlog.h>
-#include "logger.hpp"
 
 namespace net
 {
