@@ -1,13 +1,8 @@
 #pragma once
 
-#include <iostream>
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include <memory>
-#include <thread>
-#include <chrono>
-#include <spdlog/spdlog.h>
 
 namespace net
 {
@@ -30,10 +25,6 @@ namespace net
         public:
             typedef boost::shared_ptr<con_handler> ptr;
             explicit con_handler(boost::asio::io_service& io_service): _sock(io_service) {}
-            ~con_handler()
-            {
-                spdlog::info("DESTRUCTOR CON_HANDLER");
-            }
 
         public:
             void start();

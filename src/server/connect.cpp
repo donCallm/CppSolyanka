@@ -1,4 +1,9 @@
 #include "connect.hpp"
+#include <iostream>
+#include <memory>
+#include <thread>
+#include <chrono>
+#include <spdlog/spdlog.h>
 
 namespace net
 {
@@ -9,7 +14,6 @@ namespace net
 
     std::vector<std::string> con_handler::split_string(const std::string& input)
     { 
-        spdlog::info("SPLIT STRING");
         std::vector<std::string> result;
 
         if (input.empty())
@@ -30,8 +34,6 @@ namespace net
 
     void con_handler::read_message(std::function<void(std::string)> callback)
     {
-        spdlog::info("READ MESSAGE");
-
         boost::asio::async_read(_sock,
             boost::asio::buffer(_read_size),
             [self = shared_from_this(), callback](const boost::system::error_code& error, size_t bytes_transferred) {
@@ -61,8 +63,7 @@ namespace net
                 }
                 else
                 {
-                    spdlog::info("HANDLE RAD");
-                    std::cerr << "error: " << error.message() << std::endl;
+                    spdlog::error( "error: ", error.message());
                     self->_sock.close();
                     callback("");
                 }
@@ -71,8 +72,6 @@ namespace net
 
     void con_handler::start()
     {
-        spdlog::info("START");
-
         read_message([this](const std::string& message) {
             if (!message.empty()) 
             {
@@ -90,8 +89,6 @@ namespace net
 
     std::vector<uint8_t> con_handler::serialize(const std::string msg)
     {
-        spdlog::info("SERIALIZE");
-
         std::vector<uint8_t> serialized_msg;
 
         if (msg.empty())
@@ -114,7 +111,6 @@ namespace net
 
     void con_handler::write_message(std::string message)
     { 
-        spdlog::info("WRITE");
         auto msg = serialize(message);
 
     boost::asio::async_write(_sock,

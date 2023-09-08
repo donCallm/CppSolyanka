@@ -1,10 +1,12 @@
 #include "server.hpp"
+#include <iostream>
+#include <spdlog/spdlog.h>
 
 namespace core
 {
     void server::start_accept()
     {
-        spdlog::info("Wait new user\n");
+        spdlog::info("Wait new user");
         net::con_handler::ptr connection = net::con_handler::create(_io_service);
         
         _acceptor.async_accept(connection->get_socket(), 
@@ -19,7 +21,6 @@ namespace core
 
     void server::handle_accept(net::con_handler::ptr connection, const boost::system::error_code& err)
     {
-        spdlog::info("HANDLE ACCEPT");
         if (!err)
         {
             connection->start();

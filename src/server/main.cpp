@@ -1,6 +1,5 @@
-#include <iostream>
-#include <fstream>
 #include "server.hpp"
+#include <spdlog/spdlog.h>
 
 int main()
 {
@@ -13,7 +12,8 @@ int main()
     }
     catch(const std::exception& e)
     {
-        std::cerr << e.what() << '\n';
+        spdlog::error("unhandled exception: {}", e.what());
+        return 1; 
     }
     
     return 0;

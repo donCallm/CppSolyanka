@@ -1,4 +1,10 @@
 #include "client.hpp"
+#include <iostream>
+#include <string>
+#include <vector>
+#include <thread>
+#include <chrono>
+#include <spdlog/spdlog.h>
 
 namespace core
 {

@@ -1,9 +1,5 @@
 project(client)
 
-hunter_add_package(spdlog)
-
-find_package(spdlog CONFIG REQUIRED)
-
 add_executable(${PROJECT_NAME} main.cpp
                         client.cpp)
 
