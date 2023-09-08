@@ -12,7 +12,7 @@ sudo apt install cmake
 ___Buil project___
 ```
 cd CppSolyanka
-cd build
+mkdir build && cd build
 cmake ..
 make -j
 ```
