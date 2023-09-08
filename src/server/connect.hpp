@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
@@ -7,7 +8,6 @@
 #include <thread>
 #include <chrono>
 #include <spdlog/spdlog.h>
-#include "logger.hpp"
 
 namespace net
 {
@@ -18,6 +18,7 @@ namespace net
             boost::asio::streambuf _buf;
             std::array<uint8_t, sizeof(uint64_t)> _read_size;
             std::vector<uint8_t> _recv_msg;
+            int penis;
 
         private:
             void read_message(std::function<void(std::string)> callback);
