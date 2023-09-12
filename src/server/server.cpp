@@ -1,4 +1,5 @@
 #include "server.hpp"
+#include <spdlog/spdlog.h>
 
 namespace core
 {
@@ -19,7 +20,6 @@ namespace core
 
     void server::handle_accept(net::con_handler::ptr connection, const boost::system::error_code& err)
     {
-        spdlog::info("HANDLE ACCEPT");
         if (!err)
         {
             connection->start();
