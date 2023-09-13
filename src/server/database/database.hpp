@@ -2,9 +2,15 @@
 
 #include <cpp_redis/cpp_redis>
 
-namespace db
+namespace db 
 {
     class database {
+
+        private:
+            database() 
+            {
+                _redis.connect("127.0.0.1", 6379);
+            }
 
         public:
             enum db_list{ clients_info = 0, transaction = 1 };
@@ -15,16 +21,10 @@ namespace db
             static std::string read(db_list db_name, int key);
 
         private:
-            cpp_redis::client _redis;
-
-        private:
             void select_db(db_list db_name);
 
         private:
-            database() 
-            {
-                _redis.connect("127.0.0.1", 6379);
-            }
+            cpp_redis::client _redis;
 
             database(const database&) = delete;
             database& operator=(const database&) = delete;
