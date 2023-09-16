@@ -21,10 +21,8 @@ namespace core
 
     void server::handle_accept(net::con_handler::ptr connection, const boost::system::error_code& err)
     {
-        if (!err)
-        {
-            connection->start();
-        }
+        if (!err) connection->start();
+        else spdlog::error("Connecting error: " + err.message());
 
         start_accept();
     }

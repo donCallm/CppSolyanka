@@ -1,5 +1,7 @@
 #include "connect.hpp"
 #include <iostream>
+#include <boost/make_shared.hpp>
+#include <boost/shared_ptr.hpp>
 #include <spdlog/spdlog.h>
 
 namespace net
@@ -28,79 +30,70 @@ namespace net
         
         return result;
     }
+    
+    void con_handler::read_size(const boost::shared_ptr<net::con_handler>& pointer)
+    {
+        if (pointer->_read_size.size() > 1024)
+        {
+            spdlog::info("Message size exceeds allowable limit");
+            pointer->write_message("Message size exceeds allowable limit");
+        }
+        else
+        {
+            uint64_t received_value;
+            std::memcpy(&received_value, _read_size.data(), sizeof(uint64_t));
+            pointer->_recv_msg.resize(received_value);
+        }
+    }
 
-    void con_handler::read_message(std::function<void(std::string)> callback)
+    void con_handler::read_message(const boost::shared_ptr<net::con_handler>& pointer, const boost::system::error_code& error)
+    {
+        if (!error)
+        {
+            std::string message = std::string(pointer->_recv_msg.begin(), pointer->_recv_msg.end());
+            spdlog::info("Received message from server: " + message);
+
+            if (message == "ping") pointer->write_message("pong");
+            pointer->accept_message();
+        }
+        else
+        {
+            spdlog::error("Read error: ", error.message());
+            pointer->_sock.close();
+        }
+    }
+
+    void con_handler::accept_message()
     {
         boost::asio::async_read(_sock,
             boost::asio::buffer(_read_size),
-            [self = shared_from_this(), callback](const boost::system::error_code& error, size_t bytes_transferred) {
+            [self =   shared_from_this()](const boost::system::error_code& error, size_t bytes_transferred) {
                 if (!error)
                 {
-                    if (self->_read_size.size() > 1024) callback("");
-
-                    uint64_t received_value;
-                    std::memcpy(&received_value, self->_read_size.data(), sizeof(uint64_t));
-                    self->_recv_msg.resize(received_value);
+                    self->read_size(self);
 
                     boost::asio::async_read(self->_sock,
                         boost::asio::buffer(self->_recv_msg),
-                        [self, callback](const boost::system::error_code& error, size_t bytes_transferred) {
-                            if (!error)
-                            {
-                                std::string message(self->_recv_msg.begin(), self->_recv_msg.end());
-                                callback(message);
-                            }
-                            else
-                            {
-                                std::cerr << "error: " << error.message() << std::endl;
-                                self->_sock.close();
-                                callback(""); 
-                            }
-                        });
+                        [self](const boost::system::error_code& error, size_t bytes_transferred) { self->read_message(self, error); });
                 }
                 else
                 {
-                    spdlog::error( "error: ", error.message());
+                    spdlog::error("Read error: ", error.message());
                     self->_sock.close();
-                    callback("");
                 }
             });
     }
 
     void con_handler::start()
     {
-        read_message([this](const std::string& message) {
-            if (!message.empty()) 
-            {
-                spdlog::info("Received message from server: " + message);
-                this->write_message("pong");
-                this->start();
-            } 
-            else 
-            {
-                spdlog::info("Received empty message or error from server");
-                this->write_message("Wrong message");
-            }
-        });
+        this->accept_message();
     }
 
     std::vector<uint8_t> con_handler::serialize(const std::string msg)
     {
         std::vector<uint8_t> serialized_msg;
-
-        if (msg.empty())
-        {
-            spdlog::info("EMPTY :(");
-            return serialized_msg;
-        }
-        
-        uint64_t msg_size = msg.size();
-
-        std::vector<uint8_t> size_bytes(sizeof(uint64_t));
-        for (size_t i = 0; i < sizeof(uint64_t); ++i) 
-            size_bytes[i] = (msg_size >> (i * 8)) & 0xFF;
-        
-        serialized_msg.insert(serialized_msg.end(), size_bytes.begin(), size_bytes.end());
+        serialized_msg.push_back(msg.size());
+        for (int i = 0; i < 7; ++i) serialized_msg.push_back(0);
         serialized_msg.insert(serialized_msg.end(), msg.begin(), msg.end());
 
         return serialized_msg;
@@ -110,7 +103,7 @@ namespace net
     { 
         auto msg = serialize(message);
 
-    boost::asio::async_write(_sock,
+        boost::asio::async_write(_sock,
             boost::asio::buffer(msg.data(), msg.size()),
             boost::bind(&con_handler::handle_write,
             shared_from_this(),
@@ -122,17 +115,16 @@ namespace net
     {
         if (!err)
         {
-            std::cout << "Server sent something" << std::endl;
+           spdlog::info("Server sent somhting");
         }
         else
         {
-            std::cerr << "error" << err.message() << std::endl;
+            spdlog::error("Write error: ", err.message());
             _sock.close();
         }
     }
 
-    con_handler::ptr con_handler::create(boost::asio::io_service& io_service)
-    {
-        return ptr(new con_handler(io_service));
+    net::con_handler::ptr con_handler::create(boost::asio::io_service& io_service) {
+        return boost::make_shared<con_handler>(io_service);
     }
 }
