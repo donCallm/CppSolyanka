@@ -31,7 +31,7 @@ namespace net
     
     void con_handler::read_size()
     {
-        if (this->_read_size.size() > 1024)
+        if (_read_size.size() > 1024)
         {
             spdlog::info("Message size exceeds allowable limit");
         }
@@ -39,7 +39,7 @@ namespace net
         {
             uint64_t received_value;
             std::memcpy(&received_value, _read_size.data(), sizeof(uint64_t));
-            this->_recv_msg.resize(received_value);
+            _recv_msg.resize(received_value);
         }
     }
 
@@ -47,16 +47,16 @@ namespace net
     {
         if (!error)
         {
-            std::string message = std::string(this->_recv_msg.begin(), this->_recv_msg.end());
+            std::string message = std::string(_recv_msg.begin(), _recv_msg.end());
             spdlog::info("Received message from server: " + message);
 
-            if (message == "ping") this->write_message("pong");
-            this->accept_message();
+            if (message == "ping") write_message("pong");
+            accept_message();
         }
         else
         {
             spdlog::error("Read error: ", error.message());
-            this->_sock.close();
+            _sock.close();
         }
     }
 
@@ -83,7 +83,7 @@ namespace net
 
     void con_handler::start()
     {
-        this->accept_message();
+        accept_message();
     }
 
     std::vector<uint8_t> con_handler::serialize(const std::string msg)
