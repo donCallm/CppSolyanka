@@ -2,23 +2,22 @@
 
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
-#include <boost/enable_shared_from_this.hpp>
 
 namespace net
 {
-    class con_handler : public boost::enable_shared_from_this<con_handler>
+    class con_handler : public std::enable_shared_from_this<con_handler>
     {
         public:
-            typedef boost::shared_ptr<con_handler> ptr;
+            typedef std::shared_ptr<con_handler> ptr;
             explicit con_handler(boost::asio::io_service& io_service): _sock(io_service) {}
 
         private:
             void write_message(std::string message);
             void handle_write(const boost::system::error_code& err, size_t byte_transferred);
             void handle_read();
-            void read_size(const boost::shared_ptr<net::con_handler>& pointer);
+            void read_size();
             void accept_message();
-            void read_message(const boost::shared_ptr<net::con_handler>& pointer, const boost::system::error_code& error);
+            void read_message(const boost::system::error_code& error);
             std::vector<uint8_t> serialize(const std::string msg);
             std::vector<std::string> split_string(const std::string& input);
 

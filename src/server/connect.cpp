@@ -1,7 +1,5 @@
 #include "connect.hpp"
 #include <iostream>
-#include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
 #include <spdlog/spdlog.h>
 
 namespace net
@@ -31,35 +29,34 @@ namespace net
         return result;
     }
     
-    void con_handler::read_size(const boost::shared_ptr<net::con_handler>& pointer)
+    void con_handler::read_size()
     {
-        if (pointer->_read_size.size() > 1024)
+        if (this->_read_size.size() > 1024)
         {
             spdlog::info("Message size exceeds allowable limit");
-            pointer->write_message("Message size exceeds allowable limit");
         }
         else
         {
             uint64_t received_value;
             std::memcpy(&received_value, _read_size.data(), sizeof(uint64_t));
-            pointer->_recv_msg.resize(received_value);
+            this->_recv_msg.resize(received_value);
         }
     }
 
-    void con_handler::read_message(const boost::shared_ptr<net::con_handler>& pointer, const boost::system::error_code& error)
+    void con_handler::read_message(const boost::system::error_code& error)
     {
         if (!error)
         {
-            std::string message = std::string(pointer->_recv_msg.begin(), pointer->_recv_msg.end());
+            std::string message = std::string(this->_recv_msg.begin(), this->_recv_msg.end());
             spdlog::info("Received message from server: " + message);
 
-            if (message == "ping") pointer->write_message("pong");
-            pointer->accept_message();
+            if (message == "ping") this->write_message("pong");
+            this->accept_message();
         }
         else
         {
             spdlog::error("Read error: ", error.message());
-            pointer->_sock.close();
+            this->_sock.close();
         }
     }
 
@@ -67,14 +64,14 @@ namespace net
     {
         boost::asio::async_read(_sock,
             boost::asio::buffer(_read_size),
-            [self =   shared_from_this()](const boost::system::error_code& error, size_t bytes_transferred) {
+            [self = shared_from_this()](const boost::system::error_code& error, size_t bytes_transferred) {
                 if (!error)
                 {
-                    self->read_size(self);
+                    self->read_size();
 
                     boost::asio::async_read(self->_sock,
                         boost::asio::buffer(self->_recv_msg),
-                        [self](const boost::system::error_code& error, size_t bytes_transferred) { self->read_message(self, error); });
+                        [self](const boost::system::error_code& error, size_t bytes_transferred) { self->read_message(error); });
                 }
                 else
                 {
@@ -125,6 +122,6 @@ namespace net
     }
 
     net::con_handler::ptr con_handler::create(boost::asio::io_service& io_service) {
-        return boost::make_shared<con_handler>(io_service);
+        return std::make_shared<con_handler>(io_service);
     }
 }
