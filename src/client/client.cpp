@@ -21,7 +21,7 @@ namespace core
     }
 
     void client::get_response()
-{
+    {
         try
         {
             uint64_t received_value;
