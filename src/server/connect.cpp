@@ -8,26 +8,6 @@ namespace net
     {
         return _sock;
     } 
-
-    std::vector<std::string> con_handler::split_string(const std::string& input)
-    { 
-        std::vector<std::string> result;
-
-        if (input.empty())
-        {
-            spdlog::info("EMPTY :(");
-            return result;
-        }
-
-        std::istringstream iss(input);
-        std::string token;
-
-        while (std::getline(iss, token, ' ')) {
-            result.push_back(token);
-        }
-        
-        return result;
-    }
     
     void con_handler::read_size()
     {
@@ -98,7 +78,7 @@ namespace net
 
     void con_handler::write_message(std::string message)
     { 
-        auto msg = serialize(message);
+        std::vector<uint8_t> msg = serialize(message);
 
         boost::asio::async_write(_sock,
             boost::asio::buffer(msg.data(), msg.size()),

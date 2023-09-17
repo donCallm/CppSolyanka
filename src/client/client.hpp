@@ -10,7 +10,7 @@ namespace core
             boost::asio::io_service _io_service;
             boost::asio::ip::tcp::socket _socket;
             boost::asio::streambuf _buf;
-            std::array<uint8_t, sizeof(uint64_t)> _read_size;
+            uint64_t _read_size;
             std::vector<uint8_t> _recv_msg;
 
         public:
