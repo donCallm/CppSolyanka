@@ -11,6 +11,10 @@ namespace net
     
     void con_handler::read_size()
     {
+        if (_read_size.empty())
+        {
+            spdlog::info("Message without size");
+        }
         if (_read_size.size() > 1024)
         {
             spdlog::info("Message size exceeds allowable limit");
@@ -28,7 +32,7 @@ namespace net
         if (!error)
         {
             std::string message = std::string(_recv_msg.begin(), _recv_msg.end());
-            spdlog::info("Received message from server: " + message);
+            spdlog::info("<<" + message);
 
             if (message == "ping") write_message("pong");
             accept_message();
@@ -55,7 +59,8 @@ namespace net
                 }
                 else
                 {
-                    spdlog::error("Read error: ", error.message());
+                    if (error == boost::asio::error::eof) spdlog::error("Clent disconnected");
+                    else spdlog::error("Read error: ", error.message());
                     self->_sock.close();
                 }
             });
@@ -90,18 +95,20 @@ namespace net
 
     void con_handler::handle_write(const boost::system::error_code& err, size_t byte_transferred)
     {
-        if (!err)
-        {
-           spdlog::info("Server sent somhting");
-        }
-        else
+        if (err)
         {
             spdlog::error("Write error: ", err.message());
             _sock.close();
         }
     }
 
-    net::con_handler::ptr con_handler::create(boost::asio::io_service& io_service) {
+    net::con_handler::ptr con_handler::create(boost::asio::io_service& io_service) 
+    {
         return std::make_shared<con_handler>(io_service);
+    }
+
+    con_handler::~con_handler() 
+    {
+         spdlog::info("Con_handler destructor"); 
     }
 }

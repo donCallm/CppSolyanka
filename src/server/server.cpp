@@ -21,8 +21,16 @@ namespace core
 
     void server::handle_accept(net::con_handler::ptr connection, const boost::system::error_code& err)
     {
-        if (!err) connection->start();
-        else spdlog::error("Connecting error: " + err.message());
+        if (!err)
+        {
+            boost::asio::ip::tcp::endpoint client_info = _acceptor.local_endpoint();
+            spdlog::info("New client - " +  client_info.address().to_string() + ":" + std::to_string(client_info.port()));
+            connection->start();
+        } 
+        else
+        {
+            spdlog::error("Connecting error: " + err.message());
+        } 
 
         start_accept();
     }

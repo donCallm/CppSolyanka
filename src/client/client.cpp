@@ -30,7 +30,7 @@ namespace core
             _recv_msg.resize(received_value);
             boost::asio::read(_socket, boost::asio::buffer(_recv_msg));
 
-            spdlog::info("Received message: " + std::string(_recv_msg.begin(), _recv_msg.end()));
+            spdlog::info("<<" + std::string(_recv_msg.begin(), _recv_msg.end()));
         }
         catch (const boost::system::system_error& e)
         {
