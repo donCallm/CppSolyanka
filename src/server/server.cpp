@@ -15,7 +15,9 @@ namespace core
 
     server::server(boost::asio::io_service& io_service): _acceptor(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 8080)),
     _io_service(io_service)
-    {
+    {   
+        boost::asio::ip::tcp::endpoint endpoint = _acceptor.local_endpoint();
+        spdlog::info("New client - " +  endpoint.address().to_string() + ":" + std::to_string(endpoint.port()));
         start_accept();
     }
 
@@ -23,8 +25,6 @@ namespace core
     {
         if (!err)
         {
-            boost::asio::ip::tcp::endpoint client_info = _acceptor.local_endpoint();
-            spdlog::info("New client - " +  client_info.address().to_string() + ":" + std::to_string(client_info.port()));
             connection->start();
         } 
         else

@@ -39,7 +39,7 @@ namespace net
         }
         else
         {
-            spdlog::error("Read error: ", error.message());
+            spdlog::error("Clent disconnected");
             _sock.close();
         }
     }
@@ -59,8 +59,7 @@ namespace net
                 }
                 else
                 {
-                    if (error == boost::asio::error::eof) spdlog::error("Clent disconnected");
-                    else spdlog::error("Read error: ", error.message());
+                    spdlog::error("Clent disconnected");
                     self->_sock.close();
                 }
             });
@@ -109,6 +108,6 @@ namespace net
 
     con_handler::~con_handler() 
     {
-         spdlog::info("Con_handler destructor"); 
+        spdlog::error("Clent disconnected"); 
     }
 }
