@@ -22,6 +22,5 @@ namespace core
             void write(std::string msg);
             void connect();
             std::vector<uint8_t> serialize_in_buf(std::string msg);
-            std::vector<std::string> split_string(const std::string& input);
     };
 }

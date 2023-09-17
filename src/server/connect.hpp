@@ -19,7 +19,6 @@ namespace net
             void accept_message();
             void read_message(const boost::system::error_code& error);
             std::vector<uint8_t> serialize(const std::string msg);
-            std::vector<std::string> split_string(const std::string& input);
 
         public:
             void start();

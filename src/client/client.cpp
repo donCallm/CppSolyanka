@@ -6,17 +6,6 @@
 
 namespace core
 {
-    std::vector<std::string> split_string(const std::string& input)
-    { 
-        std::vector<std::string> result;
-        std::istringstream iss(input);
-        std::string token;
-
-        while (std::getline(iss, token, ' ')) { result.push_back(token); }
-
-        return result;
-    }
-
     std::vector<uint8_t> client::serialize_in_buf(std::string msg)
     {
         uint64_t msg_size = msg.size();
