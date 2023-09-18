@@ -38,8 +38,9 @@ namespace net
             accept_message();
         }
         else
-        {
-            spdlog::error("Clent disconnected");
+        {   
+            boost::asio::ip::tcp::endpoint endpoint = _sock.local_endpoint();
+            spdlog::error("Clent " + endpoint.address().to_string() + ":" + std::to_string(endpoint.port()) + " disconnected");
             _sock.close();
         }
     }

@@ -17,7 +17,7 @@ namespace core
     _io_service(io_service)
     {   
         boost::asio::ip::tcp::endpoint endpoint = _acceptor.local_endpoint();
-        spdlog::info("New client - " +  endpoint.address().to_string() + ":" + std::to_string(endpoint.port()));
+        spdlog::info("Server - " +  endpoint.address().to_string() + ":" + std::to_string(endpoint.port()));
         start_accept();
     }
 
