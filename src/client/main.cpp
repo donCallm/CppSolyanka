@@ -1,8 +1,16 @@
 #include "client.hpp"
+#include <spdlog/spdlog.h>
 
 int main()
 {
-    std::cout << "START" << std::endl;
-    core::client user;
-    std::cout << "END" << std::endl;
+    try
+    {
+        core::client user;
+    }
+    catch(const std::exception& e)
+    {
+        spdlog::error("unhandled exception: {}", e.what());
+        return 1; 
+    }
+    
 }

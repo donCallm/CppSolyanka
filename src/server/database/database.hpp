@@ -24,8 +24,7 @@ namespace db
             void select_db(db_list db_name);
 
         private:
-            cpp_redis::client _redis;
-
+            cpp_redis::redis_client _redis;
             database(const database&) = delete;
             database& operator=(const database&) = delete;
     };

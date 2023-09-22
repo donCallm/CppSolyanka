@@ -1,9 +1,8 @@
 #include "connect.hpp"
 #include "database.hpp"
+#include <command.hpp>
+#include "connect.hpp"
 #include <iostream>
-#include <memory>
-#include <thread>
-#include <chrono>
 #include <spdlog/spdlog.h>
 
 namespace net
@@ -12,108 +11,78 @@ namespace net
     {
         return _sock;
     } 
-
-    std::vector<std::string> con_handler::split_string(const std::string& input)
-    { 
-        std::vector<std::string> result;
-
-        if (input.empty())
+    
+    void con_handler::read_size()
+    {
+        if (_read_size.empty())
         {
-            spdlog::info("EMPTY :(");
-            return result;
+            spdlog::info("Message without size");
         }
-
-        std::istringstream iss(input);
-        std::string token;
-
-        while (std::getline(iss, token, ' ')) {
-            result.push_back(token);
+        if (_read_size.size() > 1024)
+        {
+            spdlog::info("Message size exceeds allowable limit");
         }
-        
-        return result;
+        else
+        {
+            uint64_t received_value;
+            std::memcpy(&received_value, _read_size.data(), sizeof(uint64_t));
+            _recv_msg.resize(received_value);
+        }
     }
 
-    void con_handler::read_message(std::function<void(std::string)> callback)
+    void con_handler::read_message(const boost::system::error_code& error)
+    {
+        if (!error)
+        {
+            for_json::command comm;
+            std::string message = std::string(_recv_msg.begin(), _recv_msg.end());
+            nlohmann::json json_string = nlohmann::json::parse(message);
+            comm.from_json(json_string);
+
+            spdlog::info("<<" + comm.comm);
+
+            if (comm.comm == "ping") write_message("pong");
+            accept_message();
+        }
+        else
+        {   
+            boost::asio::ip::tcp::endpoint endpoint = _sock.local_endpoint();
+            spdlog::error("Clent " + endpoint.address().to_string() + ":" + std::to_string(endpoint.port()) + " disconnected");
+            _sock.close();
+        }
+    }
+
+    void con_handler::accept_message()
     {
         boost::asio::async_read(_sock,
             boost::asio::buffer(_read_size),
-            [self = shared_from_this(), callback](const boost::system::error_code& error, size_t bytes_transferred) {
+            [self = shared_from_this()](const boost::system::error_code& error, size_t bytes_transferred) {
                 if (!error)
                 {
-                    if (self->_read_size.size() > 1024) callback("");
-
-                    uint64_t received_value;
-                    std::memcpy(&received_value, self->_read_size.data(), sizeof(uint64_t));
-                    self->_recv_msg.resize(received_value);
+                    self->read_size();
 
                     boost::asio::async_read(self->_sock,
                         boost::asio::buffer(self->_recv_msg),
-                        [self, callback](const boost::system::error_code& error, size_t bytes_transferred) {
-                            if (!error)
-                            {
-                                std::string message(self->_recv_msg.begin(), self->_recv_msg.end());
-                                callback(message);
-                            }
-                            else
-                            {
-                                std::cerr << "error: " << error.message() << std::endl;
-                                self->_sock.close();
-                                callback(""); 
-                            }
-                        });
+                        [self](const boost::system::error_code& error, size_t bytes_transferred) { self->read_message(error); });
                 }
                 else
                 {
-                    std::cerr << "error: " << error.message() << std::endl;
+                    spdlog::error("Clent disconnected");
                     self->_sock.close();
-                    callback("");
                 }
             });
     }
 
     void con_handler::start()
     {
-        read_message([this](const std::string& message) {
-            if (!message.empty()) 
-            {
-                std::vector<std::string> split_message = split_string(message);
-                spdlog::info("Received message from server: " + message);
-                if (split_message[0] == "ping") 
-                {
-                    this->write_message("pong");
-                }
-                else if (split_message[0] == "write") 
-                {
-                    //db::database& db = db::database::instance();
-                    //db.write(db::database::db_list::clients_info, split_message[1], split_message[2]);
-                }
-                this->start();
-            } 
-            else 
-            {
-                spdlog::info("Received empty message or error from server");
-                this->write_message("Wrong message");
-            }
-        });
+        accept_message();
     }
 
     std::vector<uint8_t> con_handler::serialize(const std::string msg)
     {
         std::vector<uint8_t> serialized_msg;
-
-        if (msg.empty())
-        {
-            spdlog::info("EMPTY :(");
-            return serialized_msg;
-        }
-        
-        uint64_t msg_size = msg.size();
-
-        std::vector<uint8_t> size_bytes(sizeof(uint64_t));
-        for (size_t i = 0; i < sizeof(uint64_t); ++i) 
-            size_bytes[i] = (msg_size >> (i * 8)) & 0xFF;
-        
-        serialized_msg.insert(serialized_msg.end(), size_bytes.begin(), size_bytes.end());
+        serialized_msg.push_back(msg.size());
+        for (int i = 0; i < 7; ++i) serialized_msg.push_back(0);
         serialized_msg.insert(serialized_msg.end(), msg.begin(), msg.end());
 
         return serialized_msg;
@@ -121,9 +90,9 @@ namespace net
 
     void con_handler::write_message(std::string message)
     { 
-        auto msg = serialize(message);
+        std::vector<uint8_t> msg = serialize(message);
 
-    boost::asio::async_write(_sock,
+        boost::asio::async_write(_sock,
             boost::asio::buffer(msg.data(), msg.size()),
             boost::bind(&con_handler::handle_write,
             shared_from_this(),
@@ -133,19 +102,20 @@ namespace net
 
     void con_handler::handle_write(const boost::system::error_code& err, size_t byte_transferred)
     {
-        if (!err)
+        if (err)
         {
-            std::cout << "Server sent something" << std::endl;
-        }
-        else
-        {
-            std::cerr << "error" << err.message() << std::endl;
+            spdlog::error("Write error: ", err.message());
             _sock.close();
         }
     }
 
-    con_handler::ptr con_handler::create(boost::asio::io_service& io_service)
+    net::con_handler::ptr con_handler::create(boost::asio::io_service& io_service) 
     {
-        return ptr(new con_handler(io_service));
+        return std::make_shared<con_handler>(io_service);
+    }
+
+    con_handler::~con_handler() 
+    {
+        spdlog::error("Clent disconnected"); 
     }
 }
