@@ -1,6 +1,7 @@
 #include "connect.hpp"
 #include "database.hpp"
 #include <command.hpp>
+#include "request_methods.hpp"
 #include "connect.hpp"
 #include <iostream>
 #include <spdlog/spdlog.h>
@@ -42,6 +43,7 @@ namespace net
             spdlog::info("<<" + comm.comm);
 
             if (comm.comm == "ping") write_message("pong");
+            else if (comm.comm == "registration") 
             accept_message();
         }
         else
