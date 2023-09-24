@@ -33,6 +33,7 @@ namespace core
         {
             uint64_t received_value;
             boost::asio::read(_socket, boost::asio::buffer(&received_value, sizeof(uint64_t)));
+            boost::asio::read(_socket, boost::asio::buffer(&received_value, sizeof(uint64_t)));
 
             _recv_msg.resize(received_value);
             boost::asio::read(_socket, boost::asio::buffer(_recv_msg));
