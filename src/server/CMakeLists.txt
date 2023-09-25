@@ -5,11 +5,11 @@ add_executable(server main.cpp
                     server.cpp
                     connect.cpp)
 
-target_include_directories(server PRIVATE ${CMAKE_SOURCE_DIR}/src/server)
-target_include_directories(server PRIVATE ${CMAKE_SOURCE_DIR}/src/server/database)
-target_include_directories(server PRIVATE ${CMAKE_SOURCE_DIR}/src/server/json)
+target_include_directories(server PRIVATE ${CMAKE_SOURCE_DIR}/src/server
+                                            ${CMAKE_SOURCE_DIR}/src/server/database
+                                            ${CMAKE_SOURCE_DIR}/src/objects)
 
-target_link_libraries(server PRIVATE spdlog::spdlog)
-target_link_libraries(server PRIVATE cpp_redis::cpp_redis)
-target_link_libraries(server PRIVATE nlohmann_json::nlohmann_json)
-target_link_libraries(server PRIVATE database)
+target_link_libraries(server PRIVATE spdlog::spdlog
+                                        cpp_redis::cpp_redis
+                                        nlohmann_json::nlohmann_json
+                                        database)

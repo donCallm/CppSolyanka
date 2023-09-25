@@ -4,6 +4,11 @@
 
 namespace db
 {
+    database::database()
+    {
+        _redis.connect("127.0.0.1", 6379);
+    }
+
     database& database::instance()
     {
         static database instance;

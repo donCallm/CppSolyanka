@@ -3,7 +3,7 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 
-namespace for_json
+namespace objects
 {
     class user
     {

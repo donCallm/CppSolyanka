@@ -5,12 +5,11 @@
 namespace db 
 {
     class database {
-
+            
         private:
-            database() 
-            {
-                _redis.connect("127.0.0.1", 6379);
-            }
+            database();
+            database(const database&) = delete;
+            database& operator=(const database&) = delete;
 
         public:
             enum db_list{ clients_info = 0, transaction = 1 };
@@ -25,7 +24,5 @@ namespace db
 
         private:
             cpp_redis::redis_client _redis;
-            database(const database&) = delete;
-            database& operator=(const database&) = delete;
     };
 }

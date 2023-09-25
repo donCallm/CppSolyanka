@@ -15,7 +15,6 @@ namespace net
         private:
             void write_message(std::string message);
             void handle_write(const boost::system::error_code& err, size_t byte_transferred);
-            void handle_read();
             void read_size();
             void accept_message();
             void read_message(const boost::system::error_code& error);
@@ -30,7 +29,8 @@ namespace net
             boost::asio::ip::tcp::socket _sock;
             ptr _pointer;
             boost::asio::streambuf _buf;
-            std::array<uint8_t, sizeof(uint64_t)> _read_size;
+            std::array<uint8_t, sizeof(uint8_t)> _read_size;
             std::vector<uint8_t> _recv_msg;
+            const uint8_t max_size = 255;
     };
 }

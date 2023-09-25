@@ -3,10 +3,13 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 
-namespace for_json
+namespace objects
 {
-    class command
+    class commands
     {
+        public:
+            operator nlohmann::json() const { return nlohmann::json{ {"comm", comm}, {"params", params}}; }
+
         public:
             void from_json(nlohmann::json& json_data)
             {
@@ -17,7 +20,5 @@ namespace for_json
         public:
             std::string comm;
             std::vector<std::string> params;
-        
-        operator nlohmann::json() const { return nlohmann::json{ {"comm", comm}, {"params", params}}; }
     };
 }
