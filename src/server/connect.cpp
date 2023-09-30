@@ -1,5 +1,6 @@
 #include "connect.hpp"
 #include "commands.hpp"
+#include "message.hpp"
 #include <iostream>
 #include <spdlog/spdlog.h>
 
@@ -9,57 +10,43 @@ namespace net
     {
         return _sock;
     } 
-    
-    void con_handler::read_size()
+
+    void con_handler::on_msg_ready()
     {
-        if (_read_size.empty())
-        {
-            spdlog::info("Message without size");
-        }
-        if (_read_size.size() > max_size)
-        {
-            spdlog::info("Message size exceeds allowable limit");
-        }
-        else
-        {
-            uint8_t received_value;
-            std::memcpy(&received_value, _read_size.data(), sizeof(uint8_t));
-            _recv_msg.resize(received_value);
-        }
+        objects::commands comm;
+        core::message msg = core::deserialize_message(_read_buff, _msg_size);
+        
+        spdlog::info("<< " + msg.data);
+
+        write_message("pong");
+        accept_message();
     }
 
-    void con_handler::read_message(const boost::system::error_code& error)
+    void con_handler::read_message()
     {
-        if (!error)
-        {
-            objects::commands comm;
-            std::string message = std::string(_recv_msg.begin(), _recv_msg.end());
-            nlohmann::json json_string = nlohmann::json::parse(message);
-            comm.from_json(json_string);
-            
-            spdlog::info("<<" + comm.comm);
+        if (_read_buff.size() < _msg_size)
+            _read_buff.resize(_msg_size);
 
-            if (comm.comm == "ping") write_message("pong");
-            accept_message();
-        }
-        else
-        {   
-            _sock.close();
-        }
+        auto self = shared_from_this();
+        boost::asio::async_read(_sock, boost::asio::buffer(_read_buff.data(), _msg_size),
+            [self](const boost::system::error_code& e, std::size_t transferred)
+            {
+                if (e)
+                    std::runtime_error("Some error happened");
+
+                assert(transferred == self->_msg_size);
+                self->on_msg_ready();
+            });
     }
 
     void con_handler::accept_message()
     {
         boost::asio::async_read(_sock,
-            boost::asio::buffer(_read_size),
+            boost::asio::buffer(&_msg_size, sizeof(size_t)),
             [self = shared_from_this()](const boost::system::error_code& error, size_t bytes_transferred) {
                 if (!error)
                 {
-                    self->read_size();
-
-                    boost::asio::async_read(self->_sock,
-                        boost::asio::buffer(self->_recv_msg),
-                        [self](const boost::system::error_code& error, size_t bytes_transferred) { self->read_message(error); });
+                    self->read_message();
                 }
                 else
                 {
@@ -73,23 +60,14 @@ namespace net
         accept_message();
     }
 
-    std::vector<uint8_t> con_handler::serialize(std::string msg)
-    {
-        uint8_t msg_size = msg.size();
-
-        std::vector<uint8_t> serialize_msg;
-        serialize_msg.insert(serialize_msg.end(), msg_size);
-        serialize_msg.insert(serialize_msg.end(), msg.begin(), msg.end());
-
-        return serialize_msg;
-    }
-
-    void con_handler::write_message(std::string message)
+    void con_handler::write_message(const std::string& data)
     { 
-        std::vector<uint8_t> msg = serialize(message);
+        core::message msg;
+        msg.data = data;
+        _write_buff = core::serialize_message(msg);
 
         boost::asio::async_write(_sock,
-            boost::asio::buffer(msg.data(), msg.size()),
+            boost::asio::buffer(_write_buff.data(), _write_buff.size()),
             boost::bind(&con_handler::handle_write,
             shared_from_this(),
             boost::asio::placeholders::error,
@@ -100,7 +78,7 @@ namespace net
     {
         if (err)
         {
-            spdlog::error("Write error: ", err.message());
+            spdlog::error("Write error: {}", err.message());
             _sock.close();
         }
     }

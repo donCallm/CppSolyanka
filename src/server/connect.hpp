@@ -13,12 +13,11 @@ namespace net
             ~con_handler();
 
         private:
-            void write_message(std::string message);
+            void write_message(const std::string& message);
             void handle_write(const boost::system::error_code& err, size_t byte_transferred);
-            void read_size();
             void accept_message();
-            void read_message(const boost::system::error_code& error);
-            std::vector<uint8_t> serialize(const std::string msg);
+            void read_message();
+            void on_msg_ready();
 
         public:
             void start();
@@ -27,10 +26,9 @@ namespace net
 
         private:
             boost::asio::ip::tcp::socket _sock;
-            ptr _pointer;
             boost::asio::streambuf _buf;
-            std::array<uint8_t, sizeof(uint8_t)> _read_size;
-            std::vector<uint8_t> _recv_msg;
-            const uint8_t max_size = 255;
+            std::vector<uint8_t> _read_buff;
+            std::vector<uint8_t> _write_buff;
+            std::size_t _msg_size;
     };
 }

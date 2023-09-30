@@ -16,7 +16,7 @@ namespace core
             void write(std::string msg);
             void connect();
             void send_command();
-            void get_response();
+            void read_response();
             void set_command(objects::commands& comm, const std::string& input);
             std::vector<uint8_t> serialize_in_buf(std::string msg);
 
@@ -26,6 +26,7 @@ namespace core
             boost::asio::streambuf _buf;
             uint8_t _read_size;
             std::vector<uint8_t> _recv_msg;
+            std::vector<uint8_t> _write_buff;
             objects::user _user;
     };
 }

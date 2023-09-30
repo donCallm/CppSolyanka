@@ -1,5 +1,6 @@
 #include "client.hpp"
 #include "commands.hpp"
+#include "message.hpp"
 #include <iostream>
 #include <thread>
 #include <chrono>
@@ -7,40 +8,19 @@
 
 namespace core
 {
-    void client::set_command(objects::commands& comm, const std::string& input)
-    { 
-        std::vector<std::string> result;
-        std::istringstream iss(input);
-        std::string token;
-
-        std::getline(iss, token, ' ');
-        comm.comm = token;
-        while (std::getline(iss, token, ' ')) { comm.params.push_back(token); }
-        comm.params.push_back(std::to_string(_user.id));
-    }
-
-    std::vector<uint8_t> client::serialize_in_buf(std::string msg)
-    {
-        uint8_t msg_size = msg.size();
-
-        std::vector<uint8_t> serialize_msg;
-        serialize_msg.insert(serialize_msg.end(), msg_size);
-        serialize_msg.insert(serialize_msg.end(), msg.begin(), msg.end());
-
-        return serialize_msg;
-    }
-
-    void client::get_response()
+    void client::read_response()
     {
         try
         {
-            uint8_t received_value;
-            boost::asio::read(_socket, boost::asio::buffer(&received_value, sizeof(uint8_t)));
+            std::size_t msg_size;
+            boost::asio::read(_socket, boost::asio::buffer(&msg_size, sizeof(size_t)));
+            
+            if(_recv_msg.size() != msg_size)
+                _recv_msg.resize(msg_size);
 
-            _recv_msg.resize(received_value);
-            boost::asio::read(_socket, boost::asio::buffer(_recv_msg));
+            boost::asio::read(_socket, boost::asio::buffer(_recv_msg.data(), msg_size));
 
-            spdlog::info("<<" + std::string(_recv_msg.begin(), _recv_msg.end()));
+            spdlog::info("<< " + std::string(_recv_msg.begin(), _recv_msg.end()));
         }
         catch (const std::exception& e)
         {
@@ -53,26 +33,30 @@ namespace core
         }
     }
 
-    void client::write(std::string msg)
+    void client::write(std::string data)
     {
-        boost::system::error_code err;
-        std::vector<uint8_t> serialize_msg = serialize_in_buf(msg);
-        boost::asio::write(_socket, boost::asio::buffer(serialize_msg), err);
+        core::message msg;
+        msg.data = data;
+        _write_buff = core::serialize_message(msg);
+        boost::asio::write(_socket, boost::asio::buffer(_write_buff.data(), _write_buff.size()));
     }
 
     void client::send_command()
     {
         std::string message;
-        objects::commands comm;
         while (true)
         {
+            objects::commands comm;
             spdlog::info("Enter command");
             std::cin >> message;
-            set_command(comm, message);
+
+            comm.params.push_back(message);
+            comm.params.push_back(std::to_string(_user.id));
+
             nlohmann::json serialize_message = comm; 
             std::string json_string = serialize_message.dump();
             write(json_string);
-            get_response();
+            read_response();
         }
     }
 
