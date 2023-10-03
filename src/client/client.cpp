@@ -8,7 +8,12 @@
 
 namespace core
 {
-    void client::read_response()
+    void client::say_hello()
+    {   
+        _token = read_response();
+    }
+
+    std::string client::read_response()
     {
         try
         {
@@ -20,7 +25,7 @@ namespace core
 
             boost::asio::read(_socket, boost::asio::buffer(_recv_msg.data(), msg_size));
 
-            spdlog::info("<< " + std::string(_recv_msg.begin(), _recv_msg.end()));
+            return std::string(_recv_msg.begin(), _recv_msg.end());
         }
         catch (const std::exception& e)
         {
@@ -36,27 +41,42 @@ namespace core
     void client::write(std::string data)
     {
         core::message msg;
-        msg.data = data;
+
+        if (data.empty())
+        {
+            msg.data = "Error in server";
+            spdlog::error("Message for send is empty");
+        }
+        else
+        {
+            msg.data = data;
+        }
+
         _write_buff = core::serialize_message(msg);
         boost::asio::write(_socket, boost::asio::buffer(_write_buff.data(), _write_buff.size()));
     }
 
     void client::send_command()
     {
-        std::string message;
+        core::message msg;
+        objects::commands comm;
+
         while (true)
         {
-            objects::commands comm;
             spdlog::info("Enter command");
-            std::cin >> message;
+            std::cin >> msg.data;
 
-            comm.params.push_back(message);
+            comm.set_command(msg.data);
             comm.params.push_back(std::to_string(_user.id));
+            comm.token = _token;
 
             nlohmann::json serialize_message = comm; 
             std::string json_string = serialize_message.dump();
             write(json_string);
-            read_response();
+            spdlog::info(read_response());
+
+            spdlog::info(msg.data);
+            std::this_thread::sleep_for(std::chrono::seconds(2));
         }
     }
 
@@ -64,6 +84,7 @@ namespace core
     {
         auto endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string("0.0.0.0"), 8080);
         _socket.connect(endpoint);
+        say_hello();
         std::async(std::launch::async, &client::send_command, this);
     }
 }

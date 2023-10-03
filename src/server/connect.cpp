@@ -15,11 +15,30 @@ namespace net
     {
         objects::commands comm;
         core::message msg = core::deserialize_message(_read_buff, _msg_size);
+        comm.from_json(nlohmann::json::parse(msg.data));
         
-        spdlog::info("<< " + msg.data);
+        spdlog::info("<< " + comm.instruction);
 
-        write_message("pong");
-        accept_message();
+        if (comm.token != _token)
+        {
+            boost::asio::ip::tcp::endpoint remote_endpoint = _sock.remote_endpoint();
+            spdlog::error("client {} send message without token", remote_endpoint.address().to_string() + ":" + std::to_string(remote_endpoint.port()));
+            write_message("pls restart app");
+            _sock.close();
+        }
+        else
+        {
+            if (comm.instruction == "ping") write_message("pong");
+            else write_message("uncknow command");
+
+            accept_message();
+        }
+    }
+
+    void con_handler::say_hello()
+    {
+        spdlog::info(">> server say hello");
+        write_message(_token);
     }
 
     void con_handler::read_message()
@@ -32,7 +51,7 @@ namespace net
             [self](const boost::system::error_code& e, std::size_t transferred)
             {
                 if (e)
-                    std::runtime_error("Some error happened");
+                    spdlog::error("error: {}", e.message());
 
                 assert(transferred == self->_msg_size);
                 self->on_msg_ready();
@@ -57,6 +76,7 @@ namespace net
 
     void con_handler::start()
     {
+        say_hello();
         accept_message();
     }
 
@@ -78,7 +98,7 @@ namespace net
     {
         if (err)
         {
-            spdlog::error("Write error: {}", err.message());
+            spdlog::error("write error: {}", err.message());
             _sock.close();
         }
     }
@@ -90,6 +110,6 @@ namespace net
 
     con_handler::~con_handler() 
     {
-        spdlog::info("Client disconected");
+        spdlog::info("client disconected");
     }
 }

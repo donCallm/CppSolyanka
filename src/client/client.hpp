@@ -1,7 +1,6 @@
 #pragma once
 
 #include <boost/asio.hpp>
-#include "commands.hpp"
 #include "user.hpp"
 
 namespace core
@@ -13,11 +12,11 @@ namespace core
 
         public:
             void ping();
+            void say_hello();
             void write(std::string msg);
             void connect();
             void send_command();
-            void read_response();
-            void set_command(objects::commands& comm, const std::string& input);
+            std::string read_response();
             std::vector<uint8_t> serialize_in_buf(std::string msg);
 
         private:
@@ -28,5 +27,7 @@ namespace core
             std::vector<uint8_t> _recv_msg;
             std::vector<uint8_t> _write_buff;
             objects::user _user;
+            std::string _token;
+
     };
 }

@@ -18,6 +18,7 @@ namespace net
             void accept_message();
             void read_message();
             void on_msg_ready();
+            void say_hello();
 
         public:
             void start();
@@ -30,5 +31,6 @@ namespace net
             std::vector<uint8_t> _read_buff;
             std::vector<uint8_t> _write_buff;
             std::size_t _msg_size;
+            const std::string _token = "107610801084107232108310861093";
     };
 }
