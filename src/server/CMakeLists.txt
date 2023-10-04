@@ -1,6 +1,8 @@
 project(server)
 
 add_subdirectory(database)
+#add_subdirectory(${CMAKE_SOURCE_DIR}/src/objects ${CMAKE_BINARY_DIR}/objects)
+
 add_executable(server main.cpp
                     server.cpp
                     connect.cpp)
@@ -12,4 +14,5 @@ target_include_directories(server PRIVATE ${CMAKE_SOURCE_DIR}/src/server
 target_link_libraries(server PRIVATE spdlog::spdlog
                                         cpp_redis::cpp_redis
                                         nlohmann_json::nlohmann_json
-                                        database)
+                                        database
+                                        objects)

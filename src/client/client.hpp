@@ -12,10 +12,10 @@ namespace core
 
         public:
             void ping();
-            void say_hello();
+            void read_hello_msg();
             void write(std::string msg);
             void connect();
-            void send_command();
+            void start();
             std::string read_response();
             std::vector<uint8_t> serialize_in_buf(std::string msg);
 
@@ -26,7 +26,7 @@ namespace core
             uint8_t _read_size;
             std::vector<uint8_t> _recv_msg;
             std::vector<uint8_t> _write_buff;
-            objects::user _user;
+            core::user _user;
             std::string _token;
 
     };

@@ -8,7 +8,7 @@
 
 namespace core
 {
-    void client::say_hello()
+    void client::read_hello_msg()
     {   
         _token = read_response();
     }
@@ -56,10 +56,10 @@ namespace core
         boost::asio::write(_socket, boost::asio::buffer(_write_buff.data(), _write_buff.size()));
     }
 
-    void client::send_command()
+    void client::start()
     {
         core::message msg;
-        objects::commands comm;
+        core::commands comm;
 
         while (true)
         {
@@ -75,7 +75,6 @@ namespace core
             write(json_string);
             spdlog::info(read_response());
 
-            spdlog::info(msg.data);
             std::this_thread::sleep_for(std::chrono::seconds(2));
         }
     }
@@ -84,7 +83,7 @@ namespace core
     {
         auto endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string("0.0.0.0"), 8080);
         _socket.connect(endpoint);
-        say_hello();
-        std::async(std::launch::async, &client::send_command, this);
+        read_hello_msg();
+        std::async(std::launch::async, &client::start, this);
     }
 }

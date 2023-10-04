@@ -11,9 +11,11 @@ namespace net
         return _sock;
     } 
 
+    //void con_handler::lack_o
+
     void con_handler::on_msg_ready()
     {
-        objects::commands comm;
+        core::commands comm;
         core::message msg = core::deserialize_message(_read_buff, _msg_size);
         comm.from_json(nlohmann::json::parse(msg.data));
         
@@ -28,8 +30,16 @@ namespace net
         }
         else
         {
-            if (comm.instruction == "ping") write_message("pong");
-            else write_message("uncknow command");
+            if (comm.instruction == "ping")
+            {
+                write_message("pong");
+                spdlog::info("server sending pong");
+            }
+            else
+            {
+                write_message("uncknow command");
+                spdlog::info("server sending message about uncknow command");
+            }
 
             accept_message();
         }
@@ -37,6 +47,8 @@ namespace net
 
     void con_handler::say_hello()
     {
+        boost::asio::ip::tcp::endpoint remote_endpoint = _sock.remote_endpoint();
+        spdlog::info("client {} connected", remote_endpoint.address().to_string() + ":" + std::to_string(remote_endpoint.port()));
         spdlog::info(">> server say hello");
         write_message(_token);
     }

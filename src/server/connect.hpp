@@ -2,6 +2,7 @@
 
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
+#include "commands.hpp"
 
 namespace net
 {
@@ -19,6 +20,8 @@ namespace net
             void read_message();
             void on_msg_ready();
             void say_hello();
+            void lack_of_token();
+            void send_response(const core::commands& comm);
 
         public:
             void start();

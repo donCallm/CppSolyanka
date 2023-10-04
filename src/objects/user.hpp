@@ -3,23 +3,17 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 
-namespace objects
+namespace core
 {
     class user
     {
         public:
-            void from_json(nlohmann::json& json_data)
-            {
-                json_data.at("name").get_to(name);
-                json_data.at("sername").get_to(sername);
-                json_data.at("patranomic").get_to(patranomic);
-                json_data.at("id").get_to(id);
-            }
+            void from_json(nlohmann::json& json_data);
 
         public:
             std::string name;
             std::string sername;
             std::string patranomic;
-            int id;
+            uint64_t id;
     };
 }
