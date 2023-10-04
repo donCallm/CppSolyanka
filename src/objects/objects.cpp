@@ -10,9 +10,7 @@ namespace core
     {
         message msg;
 
-        if (msg_buff.size() < size) {
-            throw std::runtime_error("Not enought data for deserialize");
-        }
+        if (msg_buff.size() < size) throw std::runtime_error("Not enought data for deserialize");
 
         msg.data.resize(size);
         std::memcpy(msg.data.data(), msg_buff.data(), size);
@@ -35,6 +33,8 @@ namespace core
 
     void commands::from_json(const nlohmann::json& json_data)
     {
+        if (json_data.empty()) throw std::runtime_error("Empty json");
+
         json_data.at("id").get_to(id);
         json_data.at("instruction").get_to(instruction);
         json_data.at("params").get_to(params);
@@ -43,16 +43,21 @@ namespace core
 
     void commands::set_command(const std::string& input)
     { 
+        if (input.empty()) throw std::runtime_error("Empty message for set command");
+
         std::vector<std::string> result;
         std::istringstream iss(input);
         std::string token;
         std::getline(iss, token, ' ');
         instruction = token;
         while (std::getline(iss, token, ' ')) { params.push_back(token); }
+        id++;
     }
 
     void user::from_json(nlohmann::json& json_data)
     {
+        if (json_data.empty()) throw std::runtime_error("Empty json");
+
         json_data.at("name").get_to(name);
         json_data.at("sername").get_to(sername);
         json_data.at("patranomic").get_to(patranomic);

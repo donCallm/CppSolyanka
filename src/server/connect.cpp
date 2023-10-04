@@ -39,7 +39,7 @@ namespace net
         core::message msg = core::deserialize_message(_read_buff, _msg_size);
         comm.from_json(nlohmann::json::parse(msg.data));
         
-        spdlog::info("<< " + comm.instruction);
+        spdlog::info("<< receive: command - {}, command id - {}", comm.instruction, comm.id);
 
         if (comm.token != _token)
         {

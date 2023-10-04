@@ -73,7 +73,7 @@ namespace core
             nlohmann::json serialize_message = comm; 
             std::string json_string = serialize_message.dump();
             write(json_string);
-            spdlog::info(read_response());
+            spdlog::info("<< response: {}", read_response());
 
             std::this_thread::sleep_for(std::chrono::seconds(2));
         }
