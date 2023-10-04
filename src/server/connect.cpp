@@ -11,7 +11,27 @@ namespace net
         return _sock;
     } 
 
-    //void con_handler::lack_o
+    void con_handler::lack_of_token()
+    {
+        boost::asio::ip::tcp::endpoint remote_endpoint = _sock.remote_endpoint();
+        spdlog::error("client {} send message without token", remote_endpoint.address().to_string() + ":" + std::to_string(remote_endpoint.port()));
+        write_message("pls restart app");
+        _sock.close();
+    }
+
+    void con_handler::invok_func(core::commands& comm)
+    {
+        if (comm.instruction == "ping")
+        {
+            write_message("pong");
+            spdlog::info("server sending pong");
+        }
+        else
+        {
+            write_message("uncknow command");
+            spdlog::info("server sending message about uncknow command");
+        }
+    }
 
     void con_handler::on_msg_ready()
     {
@@ -23,24 +43,11 @@ namespace net
 
         if (comm.token != _token)
         {
-            boost::asio::ip::tcp::endpoint remote_endpoint = _sock.remote_endpoint();
-            spdlog::error("client {} send message without token", remote_endpoint.address().to_string() + ":" + std::to_string(remote_endpoint.port()));
-            write_message("pls restart app");
-            _sock.close();
+            lack_of_token();
         }
         else
         {
-            if (comm.instruction == "ping")
-            {
-                write_message("pong");
-                spdlog::info("server sending pong");
-            }
-            else
-            {
-                write_message("uncknow command");
-                spdlog::info("server sending message about uncknow command");
-            }
-
+            invok_func(comm);
             accept_message();
         }
     }

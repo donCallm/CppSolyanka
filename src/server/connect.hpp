@@ -21,7 +21,7 @@ namespace net
             void on_msg_ready();
             void say_hello();
             void lack_of_token();
-            void send_response(const core::commands& comm);
+            void invok_func(core::commands& comm);
 
         public:
             void start();
