@@ -4,8 +4,8 @@
 
 namespace db
 {
-    db::database* _db(nullptr);
-    std::mutex _mtx;
+    database* database::_db{nullptr};
+    std::mutex database::_mtx;
 
     database::database()
     {
@@ -15,7 +15,7 @@ namespace db
     database* database::get_instance()
     {
         std::lock_guard<std::mutex> lock(_mtx);
-        
+
         if (_db == nullptr) _db = new database();
         return _db;
     }
