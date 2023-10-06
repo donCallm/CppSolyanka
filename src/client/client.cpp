@@ -2,8 +2,6 @@
 #include "commands.hpp"
 #include "message.hpp"
 #include <iostream>
-#include <thread>
-#include <chrono>
 #include <spdlog/spdlog.h>
 
 namespace core
@@ -44,8 +42,7 @@ namespace core
 
         if (data.empty())
         {
-            msg.data = "Error in server";
-            spdlog::error("Message for send is empty");
+            throw std::runtime_error("data for write is empty");
         }
         else
         {
@@ -74,8 +71,6 @@ namespace core
             std::string json_string = serialize_message.dump();
             write(json_string);
             spdlog::info("<< response: {}", read_response());
-
-            std::this_thread::sleep_for(std::chrono::seconds(2));
         }
     }
 
