@@ -1,4 +1,6 @@
 #include "connect.hpp"
+#include "commands.hpp"
+#include "message.hpp"
 #include <iostream>
 #include <spdlog/spdlog.h>
 
@@ -8,59 +10,84 @@ namespace net
     {
         return _sock;
     } 
-    
-    void con_handler::read_size()
+
+    void con_handler::lack_of_token()
     {
-        if (_read_size.empty())
+        boost::asio::ip::tcp::endpoint remote_endpoint = _sock.remote_endpoint();
+        spdlog::error("client {} send message without token", remote_endpoint.address().to_string() + ":" + std::to_string(remote_endpoint.port()));
+        write_message("pls restart app");
+        _sock.close();
+    }
+
+    void con_handler::invok_func(core::commands& comm)
+    {
+        if (comm.instruction == "ping")
         {
-            spdlog::info("Message without size");
-        }
-        if (_read_size.size() > 1024)
-        {
-            spdlog::info("Message size exceeds allowable limit");
+            write_message("pong");
+            spdlog::info("server sending pong");
         }
         else
         {
-            uint64_t received_value;
-            std::memcpy(&received_value, _read_size.data(), sizeof(uint64_t));
-            _recv_msg.resize(received_value);
+            write_message("uncknow command");
+            spdlog::info("server sending message about uncknow command");
         }
     }
 
-    void con_handler::read_message(const boost::system::error_code& error)
+    void con_handler::on_msg_ready()
     {
-        if (!error)
-        {
-            std::string message = std::string(_recv_msg.begin(), _recv_msg.end());
-            spdlog::info("<<" + message);
+        core::commands comm;
+        core::message msg = core::deserialize_message(_read_buff, _msg_size);
+        comm.from_json(nlohmann::json::parse(msg.data));
+        
+        spdlog::info("<< receive: command - {}, command id - {}", comm.instruction, comm.id);
 
-            if (message == "ping") write_message("pong");
-            accept_message();
+        if (comm.token != _token)
+        {
+            lack_of_token();
         }
         else
-        {   
-            boost::asio::ip::tcp::endpoint endpoint = _sock.local_endpoint();
-            spdlog::error("Clent " + endpoint.address().to_string() + ":" + std::to_string(endpoint.port()) + " disconnected");
-            _sock.close();
+        {
+            invok_func(comm);
+            accept_message();
         }
+    }
+
+    void con_handler::say_hello()
+    {
+        boost::asio::ip::tcp::endpoint remote_endpoint = _sock.remote_endpoint();
+        spdlog::info("client {} connected", remote_endpoint.address().to_string() + ":" + std::to_string(remote_endpoint.port()));
+        spdlog::info(">> server say hello");
+        write_message(_token);
+    }
+
+    void con_handler::read_message()
+    {
+        if (_read_buff.size() < _msg_size)
+            _read_buff.resize(_msg_size);
+
+        auto self = shared_from_this();
+        boost::asio::async_read(_sock, boost::asio::buffer(_read_buff.data(), _msg_size),
+            [self](const boost::system::error_code& e, std::size_t transferred)
+            {
+                if (e)
+                    spdlog::error("error: {}", e.message());
+
+                assert(transferred == self->_msg_size);
+                self->on_msg_ready();
+            });
     }
 
     void con_handler::accept_message()
     {
         boost::asio::async_read(_sock,
-            boost::asio::buffer(_read_size),
+            boost::asio::buffer(&_msg_size, sizeof(size_t)),
             [self = shared_from_this()](const boost::system::error_code& error, size_t bytes_transferred) {
                 if (!error)
                 {
-                    self->read_size();
-
-                    boost::asio::async_read(self->_sock,
-                        boost::asio::buffer(self->_recv_msg),
-                        [self](const boost::system::error_code& error, size_t bytes_transferred) { self->read_message(error); });
+                    self->read_message();
                 }
                 else
                 {
-                    spdlog::error("Clent disconnected");
                     self->_sock.close();
                 }
             });
@@ -68,25 +95,18 @@ namespace net
 
     void con_handler::start()
     {
+        say_hello();
         accept_message();
     }
 
-    std::vector<uint8_t> con_handler::serialize(const std::string msg)
-    {
-        std::vector<uint8_t> serialized_msg;
-        serialized_msg.push_back(msg.size());
-        for (int i = 0; i < 7; ++i) serialized_msg.push_back(0);
-        serialized_msg.insert(serialized_msg.end(), msg.begin(), msg.end());
-
-        return serialized_msg;
-    }
-
-    void con_handler::write_message(std::string message)
+    void con_handler::write_message(const std::string& data)
     { 
-        std::vector<uint8_t> msg = serialize(message);
+        core::message msg;
+        msg.data = data;
+        _write_buff = core::serialize_message(msg);
 
         boost::asio::async_write(_sock,
-            boost::asio::buffer(msg.data(), msg.size()),
+            boost::asio::buffer(_write_buff.data(), _write_buff.size()),
             boost::bind(&con_handler::handle_write,
             shared_from_this(),
             boost::asio::placeholders::error,
@@ -97,7 +117,7 @@ namespace net
     {
         if (err)
         {
-            spdlog::error("Write error: ", err.message());
+            spdlog::error("write error: {}", err.message());
             _sock.close();
         }
     }
@@ -109,6 +129,6 @@ namespace net
 
     con_handler::~con_handler() 
     {
-        spdlog::error("Clent disconnected"); 
+        spdlog::info("client disconected");
     }
 }

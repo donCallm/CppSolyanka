@@ -15,6 +15,11 @@ int main()
         spdlog::error("unhandled exception: {}", e.what());
         return 1; 
     }
+    catch(...)
+    {
+        spdlog::error("unhandled exception");
+        return 1; 
+    }
     
     return 0;
 }

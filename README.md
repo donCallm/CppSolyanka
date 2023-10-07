@@ -19,18 +19,12 @@ make -j
 
 ___Server start___
 ```
-cd CppSolyanka
-cd build
-cd src
-cd server
+cd CppSolyanka/build/src/server
 ./server
 ```
 
 ___Client start___
 ```
-cd CppSolyanka
-cd build
-cd src
-cd client
+cd CppSolyanka/build/src/server
 ./client
 ```

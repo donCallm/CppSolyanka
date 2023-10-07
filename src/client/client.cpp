@@ -1,59 +1,76 @@
 #include "client.hpp"
+#include "commands.hpp"
+#include "message.hpp"
 #include <iostream>
-#include <thread>
-#include <chrono>
 #include <spdlog/spdlog.h>
 
 namespace core
 {
-    std::vector<uint8_t> client::serialize_in_buf(std::string msg)
-    {
-        uint64_t msg_size = msg.size();
-        std::vector<uint8_t> size_bites(sizeof(uint64_t));
-        for (size_t i = 0; i < sizeof(uint64_t); ++i) 
-            size_bites[i] = (msg_size >> (i * 8)) & 0xFF;
-
-        std::vector<uint8_t> serialize_msg;
-        serialize_msg.insert(serialize_msg.end(), size_bites.begin(), size_bites.end());
-        serialize_msg.insert(serialize_msg.end(), msg.begin(), msg.end());
-
-        return serialize_msg;
+    void client::read_hello_msg()
+    {   
+        _token = read_response();
     }
 
-    void client::get_response()
+    std::string client::read_response()
     {
         try
         {
-            uint64_t received_value;
-            boost::asio::read(_socket, boost::asio::buffer(&received_value, sizeof(uint64_t)));
+            std::size_t msg_size;
+            boost::asio::read(_socket, boost::asio::buffer(&msg_size, sizeof(size_t)));
+            
+            if(_recv_msg.size() != msg_size)
+                _recv_msg.resize(msg_size);
 
-            _recv_msg.resize(received_value);
-            boost::asio::read(_socket, boost::asio::buffer(_recv_msg));
+            boost::asio::read(_socket, boost::asio::buffer(_recv_msg.data(), msg_size));
 
-            spdlog::info("<<" + std::string(_recv_msg.begin(), _recv_msg.end()));
+            return std::string(_recv_msg.begin(), _recv_msg.end());
         }
-        catch (const boost::system::system_error& e)
+        catch (const std::exception& e)
         {
             std::cerr << "error: " << e.what() << std::endl;
             _socket.close();
         }
+        catch (...)
+        {
+            std::cerr << "underfind exception" << std::endl;
+        }
     }
 
-    void client::write(std::string msg)
+    void client::write(std::string data)
     {
-        boost::system::error_code err;
-        std::vector<uint8_t> serialize_msg = serialize_in_buf(msg);
-        boost::asio::write(_socket, boost::asio::buffer(serialize_msg), err);
+        core::message msg;
+
+        if (data.empty())
+        {
+            throw std::runtime_error("data for write is empty");
+        }
+        else
+        {
+            msg.data = data;
+        }
+
+        _write_buff = core::serialize_message(msg);
+        boost::asio::write(_socket, boost::asio::buffer(_write_buff.data(), _write_buff.size()));
     }
 
-    void client::ping()
+    void client::start()
     {
+        core::message msg;
+        core::commands comm;
+
         while (true)
         {
-            boost::system::error_code err;
-            write("ping");
-            get_response();
-            std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+            spdlog::info("Enter command");
+            std::cin >> msg.data;
+
+            comm.set_command(msg.data);
+            comm.params.push_back(std::to_string(_user.id));
+            comm.token = _token;
+
+            nlohmann::json serialize_message = comm; 
+            std::string json_string = serialize_message.dump();
+            write(json_string);
+            spdlog::info("<< response: {}", read_response());
         }
     }
 
@@ -61,6 +78,7 @@ namespace core
     {
         auto endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string("0.0.0.0"), 8080);
         _socket.connect(endpoint);
-        std::async(std::launch::async, &client::ping, this);
+        read_hello_msg();
+        std::async(std::launch::async, &client::start, this);
     }
 }
