@@ -22,6 +22,7 @@ namespace net
             void say_hello();
             void lack_of_token();
             void invok_func(core::commands& comm);
+            std::string get_adress();
 
         public:
             void start();

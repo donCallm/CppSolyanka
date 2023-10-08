@@ -8,7 +8,7 @@ namespace core
     class client
     {
         public:
-            client(): _socket(_io_service){connect();}
+            client(): _socket(_io_service), _user_id(0) {connect();}
 
         public:
             void ping();
@@ -26,7 +26,7 @@ namespace core
             uint8_t _read_size;
             std::vector<uint8_t> _recv_msg;
             std::vector<uint8_t> _write_buff;
-            core::user _user;
+            uint64_t _user_id;
             std::string _token;
 
     };

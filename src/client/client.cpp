@@ -1,6 +1,7 @@
 #include "client.hpp"
 #include "commands.hpp"
 #include "message.hpp"
+#include "reply.hpp"
 #include <iostream>
 #include <spdlog/spdlog.h>
 
@@ -57,20 +58,25 @@ namespace core
     {
         core::message msg;
         core::commands comm;
+        core::reply rpl;
 
         while (true)
         {
             spdlog::info("Enter command");
-            std::cin >> msg.data;
+            std::getline(std::cin, msg.data);
 
             comm.set_command(msg.data);
-            comm.params.push_back(std::to_string(_user.id));
+            comm.params.push_back(std::to_string(_user_id));
             comm.token = _token;
 
             nlohmann::json serialize_message = comm; 
             std::string json_string = serialize_message.dump();
             write(json_string);
-            spdlog::info("<< response: {}", read_response());
+
+            rpl.from_json(nlohmann::json::parse(read_response()));
+            spdlog::info("<< response: {}", rpl.msg);
+            if (comm.instruction == "registration") 
+                if (!rpl.params.empty()) _user_id = std::stoull(rpl.params[0]);
         }
     }
 

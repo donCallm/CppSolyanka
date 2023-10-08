@@ -1,6 +1,7 @@
 #include "commands.hpp"
 #include "user.hpp"
 #include "message.hpp"
+#include "reply.hpp"
 
 namespace core
 {
@@ -62,5 +63,27 @@ namespace core
         json_data.at("sername").get_to(sername);
         json_data.at("patranomic").get_to(patranomic);
         json_data.at("id").get_to(id);
+    }
+
+    void user::set_data(std::string string_data)
+    {
+        std::istringstream iss(string_data);
+        std::string token;
+        std::getline(iss, token, ' ');
+        name = token;
+        std::getline(iss, token, ' ');
+        sername = token;
+        std::getline(iss, token, ' ');
+        patranomic = token;
+        std::getline(iss, token, ' ');
+        id = std::stoull(token);
+    }
+
+    void reply::from_json(const nlohmann::json& json_data)
+    {
+        if (json_data.empty()) throw std::runtime_error("Empty json");
+
+        json_data.at("msg").get_to(msg);
+        json_data.at("params").get_to(params);
     }
 }
