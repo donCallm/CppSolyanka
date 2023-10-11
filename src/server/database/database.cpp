@@ -36,15 +36,7 @@ namespace db
     {
         std::lock_guard<std::mutex> lock(_mtx);
         select_db(db_name);
-        std::vector<std::string> vecKeys = {"0"};
-
-    _redis.del(vecKeys, [key](cpp_redis::reply& reply) {
-        if (reply.is_integer()) {
-            std::cout << "Key deleted successfully." << std::endl;
-        } else {
-            std::cout << "Failed to delete key." << std::endl;
-        }
-    });
+        
         std::promise<std::string> result_promise;
         auto res = result_promise.get_future();
 

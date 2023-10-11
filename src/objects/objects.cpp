@@ -59,6 +59,7 @@ namespace core
     {
         if (json_data.empty()) throw std::runtime_error("Empty json");
 
+        json_data.at("pasport").get_to(pasport);
         json_data.at("name").get_to(name);
         json_data.at("sername").get_to(sername);
         json_data.at("patranomic").get_to(patranomic);
@@ -77,6 +78,14 @@ namespace core
         patranomic = token;
         std::getline(iss, token, ' ');
         id = std::stoull(token);
+        std::getline(iss, token, ' ');
+        pasport = token;
+    }
+
+    bool user::is_empty()
+    {
+        if (!pasport.empty()) return false;
+        return true;
     }
 
     void reply::from_json(const nlohmann::json& json_data)

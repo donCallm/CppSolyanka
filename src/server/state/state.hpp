@@ -9,12 +9,13 @@ namespace server_state
     class state
     {   
         private:
-            static bool client_exist(uint64_t user_id);
+            static bool client_exist(std::string pasport);
             static bool valid_number_of_params(uint16_t correct_numb, core::commands& comm);
 
         public:
             static std::string registration(core::commands& comm);
-            static core::user get_user(uint64_t user_id);
+            static std::string loggin(core::commands& comm);
+            static core::user get_user(std::string parport);
             static void set_state();
 
         private:

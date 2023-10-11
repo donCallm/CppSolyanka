@@ -75,7 +75,7 @@ namespace core
 
             rpl.from_json(nlohmann::json::parse(read_response()));
             spdlog::info("<< response: {}", rpl.msg);
-            if (comm.instruction == "registration") 
+            if (comm.instruction == "registration" || comm.instruction == "login") 
                 if (!rpl.params.empty()) _user_id = std::stoull(rpl.params[0]);
         }
     }

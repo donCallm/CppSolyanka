@@ -35,10 +35,25 @@ namespace net
             std::string res = server_state::state::registration(comm);
             if (res != "already exist" && res != "wrong numbers of parametrs")
             {
+                spdlog::info("user {} registrated new acc");
                 rpl.msg = "registration was successful!";
                 rpl.params.push_back(res);
             } 
             else 
+            {
+                rpl.msg = res;
+            }
+        }
+        else if (comm.instruction == "login")
+        {
+            std::string res = server_state::state::loggin(comm);
+            if (res != "wrong numbers of parametrs" && res != "you already authorized" && "wrong pasport or password")
+            {
+                spdlog::info("user {} logged in acc", get_adress());
+                rpl.msg = "you have successfully logged in!";
+                rpl.params.push_back(res);
+            }
+            else
             {
                 rpl.msg = res;
             }
