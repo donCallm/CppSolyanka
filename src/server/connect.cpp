@@ -50,7 +50,6 @@ namespace net
                         break; }
                     case server::state::operation_result::already_authorized: {
                         rpl.msg = "already authorized";
-                        spdlog::info(rpl.msg);
                         break; }
                     case server::state::operation_result::wrong_pass: {
                         rpl.msg = "wrong password";
