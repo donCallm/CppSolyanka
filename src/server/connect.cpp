@@ -1,7 +1,6 @@
 #include "connect.hpp"
 #include "commands.hpp"
 #include "message.hpp"
-#include "state.hpp"
 #include "reply.hpp"
 #include <iostream>
 #include <spdlog/spdlog.h>
@@ -24,54 +23,61 @@ namespace net
     void con_handler::invok_func(core::commands& comm)
     {
         core::reply rpl;
-
-        if (comm.instruction == "ping")
+        switch (comm.instruction)
         {
-            rpl.msg = "pong";
-            spdlog::info("server sending pong");
+            case core::commands::registration: {
+                switch (server::state::operation_result res = _state.registration(comm, _client)) {
+                    case server::state::operation_result::wrong_params: {
+                        rpl.msg = "wrong_params";
+                        break; }
+                    case server::state::operation_result::already_exist: {
+                        rpl.msg = "already_exist";
+                        break; }
+                    case server::state::operation_result::already_authorized: {
+                        rpl.msg = "already_authorized";
+                        break; }
+                    case server::state::operation_result::successful_registration: {
+                        spdlog::info("user {} registrated new acc", get_adress());
+                        rpl.msg = "registration was successful!";
+                        break; }
+                    default:
+                        break; }
+                    break; }
+            case core::commands::login: {
+                switch (server::state::operation_result res = _state.login(comm, _client)) {
+                    case server::state::operation_result::wrong_params: {
+                        rpl.msg = "wrong params";
+                        break; }
+                    case server::state::operation_result::already_authorized: {
+                        rpl.msg = "already authorized";
+                        spdlog::info(rpl.msg);
+                        break; }
+                    case server::state::operation_result::wrong_pass: {
+                        rpl.msg = "wrong password";
+                        break; }
+                    case server::state::operation_result::wrong_pasport: {
+                        rpl.msg = "wrong pasport";
+                        break; }
+                    case server::state::operation_result::successful_logged: {
+                        spdlog::info("user {} logged in acc", get_adress());
+                        rpl.msg = "you have successfully logged in!";
+                        break; }
+                    default:
+                        break; }
+                    break; }
+            case core::commands::ping: {
+                rpl.msg = "pong";
+                spdlog::info("server sending pong");
+                break; }
+            case core::commands::end: {
+                spdlog::info("client {} wants to disconnect", get_adress());
+                _sock.close();
+                break; }
+            default: {
+                rpl.msg = "uncknow command";
+                spdlog::warn("server sending message about uncknow command");
+                break; }
         }
-        else if (comm.instruction == "registration")
-        {
-            std::string res = server_state::state::registration(comm);
-            if (res != "already exist" && res != "wrong numbers of parametrs")
-            {
-                spdlog::info("user {} registrated new acc");
-                rpl.msg = "registration was successful!";
-                rpl.params.push_back(res);
-            } 
-            else 
-            {
-                rpl.msg = res;
-            }
-        }
-        else if (comm.instruction == "login")
-        {
-            std::string res = server_state::state::loggin(comm);
-            if (res != "wrong numbers of parametrs" && res != "you already authorized" && "wrong pasport or password")
-            {
-                spdlog::info("user {} logged in acc", get_adress());
-                rpl.msg = "you have successfully logged in!";
-                rpl.params.push_back(res);
-            }
-            else
-            {
-                rpl.msg = res;
-            }
-        }
-        else if (comm.instruction == "end")
-        {
-            write_message("good bye!");
-            
-            spdlog::info("client {} wants to disconnect", get_adress());
-            _sock.close();
-            return;
-        }
-        else
-        {
-            rpl.msg = "uncknow command";
-            spdlog::info(">> server sending message about uncknow command");
-        }
-
         nlohmann::json serialize_message = rpl; 
         std::string json_string = serialize_message.dump();
         write_message(json_string);
@@ -144,7 +150,7 @@ namespace net
 
     void con_handler::start()
     {
-        server_state::state::set_state();
+        _state.initialize();
         say_hello();
         accept_message();
     }

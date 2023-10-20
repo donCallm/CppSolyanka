@@ -8,14 +8,17 @@ namespace core
     class user
     {
         public:
-            void from_json(nlohmann::json& json_data);
-            void set_data(std::string string_data);
+            operator nlohmann::json() const { return nlohmann::json{ {"name", name}, {"surname", surname}, {"patronymic", patronymic},
+                {"password", password}, {"pasport", pasport}, {"id", id} }; }
+
+        public:
+            void from_json(const nlohmann::json& json_data);
             bool is_empty();
 
         public:
             std::string name;
-            std::string sername;
-            std::string patranomic;
+            std::string surname;
+            std::string patronymic;
             std::string password;
             std::string pasport;
             uint64_t id;

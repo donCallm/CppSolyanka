@@ -2,6 +2,7 @@
 #include "user.hpp"
 #include "message.hpp"
 #include "reply.hpp"
+#include <boost/tokenizer.hpp>
 
 namespace core
 {
@@ -45,41 +46,31 @@ namespace core
     void commands::set_command(const std::string& input)
     { 
         if (input.empty()) throw std::runtime_error("Empty message for set command");
-
         std::vector<std::string> result;
         std::istringstream iss(input);
         std::string token;
         std::getline(iss, token, ' ');
-        instruction = token;
+
+        auto it = command_map.find(token);
+        if (it != command_map.end()) 
+            instruction = it->second;
+        else
+            instruction = uncknow;
+        
         while (std::getline(iss, token, ' ')) { params.push_back(token); }
         id++;
     }
 
-    void user::from_json(nlohmann::json& json_data)
+    void user::from_json(const nlohmann::json& json_data)
     {
         if (json_data.empty()) throw std::runtime_error("Empty json");
 
         json_data.at("pasport").get_to(pasport);
         json_data.at("name").get_to(name);
-        json_data.at("sername").get_to(sername);
-        json_data.at("patranomic").get_to(patranomic);
+        json_data.at("surname").get_to(surname);
+        json_data.at("patronymic").get_to(patronymic);
         json_data.at("id").get_to(id);
-    }
-
-    void user::set_data(std::string string_data)
-    {
-        std::istringstream iss(string_data);
-        std::string token;
-        std::getline(iss, token, ' ');
-        name = token;
-        std::getline(iss, token, ' ');
-        sername = token;
-        std::getline(iss, token, ' ');
-        patranomic = token;
-        std::getline(iss, token, ' ');
-        id = std::stoull(token);
-        std::getline(iss, token, ' ');
-        pasport = token;
+        json_data.at("password").get_to(password);
     }
 
     bool user::is_empty()

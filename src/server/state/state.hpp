@@ -4,22 +4,26 @@
 #include "user.hpp"
 #include "database.hpp"
 
-namespace server_state
+namespace server
 {
     class state
     {   
+        public:
+            enum operation_result { wrong_params, wrong_pass, already_exist,
+                already_authorized, wrong_pasport, successful_registration, successful_logged };
+            state(): _last_user_id(1), _db(db::database::get_instance()) {}
+
         private:
-            static bool client_exist(std::string pasport);
-            static bool valid_number_of_params(uint16_t correct_numb, core::commands& comm);
+            bool client_exist(std::string& pasport);
 
         public:
-            static std::string registration(core::commands& comm);
-            static std::string loggin(core::commands& comm);
-            static core::user get_user(std::string parport);
-            static void set_state();
+            operation_result registration(core::commands& comm, core::user& client);
+            operation_result login(core::commands& comm, core::user& client);
+            core::user get_user(std::string& parport);
+            void initialize();
 
         private:
-            static uint64_t _last_user_id;
-            static db::database* _db;
+            uint64_t _last_user_id;
+            db::database* _db;
     };
 }

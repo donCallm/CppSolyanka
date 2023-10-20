@@ -3,6 +3,7 @@
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
 #include "commands.hpp"
+#include "state.hpp"
 
 namespace net
 {
@@ -36,5 +37,8 @@ namespace net
             std::vector<uint8_t> _write_buff;
             std::size_t _msg_size;
             const std::string _token = "107610801084107232108310861093";
+            server::state _state;
+            core::user _client;
+            
     };
 }

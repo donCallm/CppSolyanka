@@ -66,17 +66,14 @@ namespace core
             std::getline(std::cin, msg.data);
 
             comm.set_command(msg.data);
-            comm.params.push_back(std::to_string(_user_id));
             comm.token = _token;
 
             nlohmann::json serialize_message = comm; 
             std::string json_string = serialize_message.dump();
             write(json_string);
-
             rpl.from_json(nlohmann::json::parse(read_response()));
             spdlog::info("<< response: {}", rpl.msg);
-            if (comm.instruction == "registration" || comm.instruction == "login") 
-                if (!rpl.params.empty()) _user_id = std::stoull(rpl.params[0]);
+            comm.params.clear();
         }
     }
 
