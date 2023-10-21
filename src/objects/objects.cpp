@@ -7,7 +7,12 @@
 namespace core
 {
     uint64_t commands::id = 0;
-
+    const std::unordered_map<std::string, commands::type> commands::command_map = {
+                {"ping", commands::type::ping},
+                {"login", commands::type::login},
+                {"registration", commands::type::registration},
+                {"end", commands::type::end}
+            };
     message deserialize_message(const std::vector<uint8_t>& msg_buff, std::size_t size)
     {
         message msg;

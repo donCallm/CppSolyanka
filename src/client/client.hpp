@@ -8,7 +8,7 @@ namespace core
     class client
     {
         public:
-            client(): _socket(_io_service) {connect();}
+            client();
 
         public:
             void ping();

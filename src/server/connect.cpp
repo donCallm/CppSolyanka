@@ -7,6 +7,8 @@
 
 namespace net
 {
+    con_handler::con_handler(boost::asio::io_service& io_service): _sock(io_service) {}
+    
     boost::asio::ip::tcp::socket& con_handler::get_socket()
     {
         return _sock;
@@ -26,46 +28,13 @@ namespace net
         switch (comm.instruction)
         {
             case core::commands::registration: {
-                switch (server::state::operation_result res = _state.registration(comm, _client)) {
-                    case server::state::operation_result::wrong_params: {
-                        rpl.msg = "wrong_params";
-                        break; }
-                    case server::state::operation_result::already_exist: {
-                        rpl.msg = "already_exist";
-                        break; }
-                    case server::state::operation_result::already_authorized: {
-                        rpl.msg = "already_authorized";
-                        break; }
-                    case server::state::operation_result::successful_registration: {
-                        spdlog::info("user {} registrated new acc", get_adress());
-                        rpl.msg = "registration was successful!";
-                        break; }
-                    default:
-                        break; }
-                    break; }
+                rpl.msg = _state.registration(comm, _client);
+                break; }
             case core::commands::login: {
-                switch (server::state::operation_result res = _state.login(comm, _client)) {
-                    case server::state::operation_result::wrong_params: {
-                        rpl.msg = "wrong params";
-                        break; }
-                    case server::state::operation_result::already_authorized: {
-                        rpl.msg = "already authorized";
-                        break; }
-                    case server::state::operation_result::wrong_pass: {
-                        rpl.msg = "wrong password";
-                        break; }
-                    case server::state::operation_result::wrong_pasport: {
-                        rpl.msg = "wrong pasport";
-                        break; }
-                    case server::state::operation_result::successful_logged: {
-                        spdlog::info("user {} logged in acc", get_adress());
-                        rpl.msg = "you have successfully logged in!";
-                        break; }
-                    default:
-                        break; }
-                    break; }
+                rpl.msg = _state.login(comm, _client);
+                break; }
             case core::commands::ping: {
-                rpl.msg = "pong";
+                rpl.msg = core::reply::type::ping;
                 spdlog::info("server sending pong");
                 break; }
             case core::commands::end: {
@@ -73,7 +42,7 @@ namespace net
                 _sock.close();
                 break; }
             default: {
-                rpl.msg = "uncknow command";
+                rpl.msg = core::reply::type::uncknow_command;
                 spdlog::warn("server sending message about uncknow command");
                 break; }
         }

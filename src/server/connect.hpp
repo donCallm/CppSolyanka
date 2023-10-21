@@ -11,7 +11,7 @@ namespace net
     {
         public:
             typedef std::shared_ptr<con_handler> ptr;
-            explicit con_handler(boost::asio::io_service& io_service): _sock(io_service) {}
+            explicit con_handler(boost::asio::io_service& io_service);
             ~con_handler();
 
         private:

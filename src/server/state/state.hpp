@@ -3,23 +3,23 @@
 #include "commands.hpp"
 #include "user.hpp"
 #include "database.hpp"
+#include "reply.hpp"
+using namespace core;
 
 namespace server
 {
     class state
     {   
         public:
-            enum operation_result { wrong_params, wrong_pass, already_exist,
-                already_authorized, wrong_pasport, successful_registration, successful_logged };
-            state(): _last_user_id(1), _db(db::database::get_instance()) {}
+            state();
 
         private:
             bool client_exist(std::string& pasport);
 
         public:
-            operation_result registration(core::commands& comm, core::user& client);
-            operation_result login(core::commands& comm, core::user& client);
-            core::user get_user(std::string& parport);
+            reply::type registration(core::commands& comm, core::user& client);
+            reply::type login(core::commands& comm, core::user& client);
+            user get_user(std::string& parport);
             void initialize();
 
         private:
