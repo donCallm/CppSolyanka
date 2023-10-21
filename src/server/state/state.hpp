@@ -17,8 +17,8 @@ namespace server
             bool client_exist(std::string& pasport);
 
         public:
-            reply::type registration(core::commands& comm, core::user& client);
-            reply::type login(core::commands& comm, core::user& client);
+            reply registration(core::commands& comm, core::user& client);
+            reply login(core::commands& comm, core::user& client);
             user get_user(std::string& parport);
             void initialize();
 

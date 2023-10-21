@@ -8,12 +8,14 @@ namespace core
     class commands
     {
         public:
-            enum type { ping = 0,
+            operator nlohmann::json() const { return nlohmann::json{ {"id", id}, {"instruction", instruction}, {"params", params}, {"token", token} }; }
+            enum type {
+                        ping = 0,
                         registration = 1,
                         login = 2,
                         end = 3,
-                        uncknow = 4 };
-            operator nlohmann::json() const { return nlohmann::json{ {"id", id}, {"instruction", instruction}, {"params", params}, {"token", token} }; }
+                        uncknow_command = 4
+                        };
 
         public:
             void from_json(const nlohmann::json& json_data);

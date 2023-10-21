@@ -3,16 +3,22 @@ using db::database;
 
 namespace server
 {
-    state::state(): _last_user_id(1), _db(db::database::get_instance()) {}
+    state::state(): _last_user_id(0), _db(db::database::get_instance()) {}
 
-    reply::type state::registration(core::commands& comm, core::user& client)
+    reply state::registration(core::commands& comm, core::user& client)
     {
-        if (!client.is_empty())
-            return reply::type::already_authorized;
+        reply rpl;
+
+        if (!client.is_empty()) 
+            rpl.err =  reply::already_authorized;
         if (comm.params.size() != 5)
-            return  reply::type::wrong_params;
+            rpl.err = reply::wrong_params;
         if (client_exist(comm.params[3]))
-            return  reply::type::already_exist;
+            rpl.err = reply::already_exist;
+
+        auto err = reply::error_messages.find(rpl.err);
+        if (err != reply::error_messages.end())
+            return rpl;
 
         client.name = comm.params[0];
         client.surname = comm.params[1];
@@ -27,24 +33,32 @@ namespace server
         _db->write(database::clients_info, client.pasport,
             json_string);
         _db->write(database::last_id, "last_user_id", std::to_string(_last_user_id));
-        return reply::type::successful_registration;
+        rpl.msg = reply::successful_registration;
+        return rpl;
     }
 
-    reply::type state::login(core::commands& comm, core::user& client)
+    reply state::login(core::commands& comm, core::user& client)
     {
+        reply rpl;
         if (!client.is_empty())
-            return reply::type::already_authorized;
+            rpl.err = reply::already_authorized;
         if (comm.params.size() != 2)
-            return  reply::type::wrong_params; 
+            rpl.err = reply::wrong_params; 
+        
+        auto err = reply::error_messages.find(rpl.err);
+        if (err != reply::error_messages.end())
+            return rpl;
             
         client = get_user(comm.params[0]);
 
         if (client.is_empty())
-            return  reply::type::wrong_pasport;
-        if (client.password != comm.params[1])
-            return  reply::type::wrong_pass;
-        
-        return reply::type::successful_logged;
+            rpl.err = reply::wrong_pasport;
+        else if (client.password != comm.params[1])
+            rpl.err = reply::wrong_pass;
+        else
+            rpl.msg = reply::successful_logged;
+
+        return rpl;
     }
 
     user state::get_user(std::string& pasport)

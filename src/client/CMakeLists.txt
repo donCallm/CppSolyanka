@@ -1,7 +1,5 @@
 project(client)
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/src/objects ${CMAKE_BINARY_DIR}/objects)
-
 add_executable(${PROJECT_NAME} main.cpp
                         client.cpp)
 

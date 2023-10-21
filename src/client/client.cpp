@@ -1,7 +1,6 @@
 #include "client.hpp"
 #include "commands.hpp"
 #include "message.hpp"
-#include "reply.hpp"
 #include <iostream>
 #include <spdlog/spdlog.h>
 
@@ -74,37 +73,19 @@ namespace core
             std::string json_string = serialize_message.dump();
             write(json_string);
             rpl.from_json(nlohmann::json::parse(read_response()));
-            switch (rpl.msg)
+
+            auto err = reply::error_messages.find(rpl.err);
+            if (err != reply::error_messages.end())
             {
-            case core::reply::type::wrong_params: {
-                spdlog::info("<< response: wrong params");
-                break; }
-            case core::reply::type::wrong_pass: {
-                spdlog::info("<< response: wrong pass");
-                break; }
-            case core::reply::type::already_exist: {
-                spdlog::info("<< response: already_exist");
-                break; }
-            case core::reply::type::already_authorized: {
-                spdlog::info("<< response: already authorized");
-                break; }
-            case core::reply::type::wrong_pasport: {
-                spdlog::info("<< response: wrong pasport");
-                break; }
-            case core::reply::type::successful_registration: {
-                spdlog::info("<< response: successful registration");
-                break; }
-            case core::reply::type::successful_logged: {
-                spdlog::info("<< response: successful logged");
-                break; }
-            case core::reply::type::ping: {
-                spdlog::info("<< response: ping");
-                break; }
-            case core::reply::type::uncknow_command: {
-                spdlog::info("<< response: uncknow command");
-                break; }
-            default:
-                break;
+                spdlog::info("<< reponese; {}", err->second);
+            }
+            else
+            {
+                auto msg = reply::reply_messages.find(rpl.msg);
+                if (msg != reply::reply_messages.end())
+                    spdlog::info("<< response: {}", msg->second);
+                else
+                    spdlog::info("<< response: unknown message");
             }
             
             comm.params.clear();

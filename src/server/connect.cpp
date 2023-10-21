@@ -28,13 +28,13 @@ namespace net
         switch (comm.instruction)
         {
             case core::commands::registration: {
-                rpl.msg = _state.registration(comm, _client);
+                rpl = _state.registration(comm, _client);
                 break; }
             case core::commands::login: {
-                rpl.msg = _state.login(comm, _client);
+                rpl = _state.login(comm, _client);
                 break; }
             case core::commands::ping: {
-                rpl.msg = core::reply::type::ping;
+                rpl.msg = core::reply::ping;
                 spdlog::info("server sending pong");
                 break; }
             case core::commands::end: {
@@ -42,7 +42,7 @@ namespace net
                 _sock.close();
                 break; }
             default: {
-                rpl.msg = core::reply::type::uncknow_command;
+                rpl.msg = core::reply::uncknow_command;
                 spdlog::warn("server sending message about uncknow command");
                 break; }
         }

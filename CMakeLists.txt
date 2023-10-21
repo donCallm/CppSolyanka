@@ -21,5 +21,6 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(cpp_redis CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
+add_subdirectory(src/objects)
 add_subdirectory(src/client)
 add_subdirectory(src/server)

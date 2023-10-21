@@ -3,6 +3,7 @@
 #include "message.hpp"
 #include "reply.hpp"
 #include <boost/tokenizer.hpp>
+using core::reply;
 
 namespace core
 {
@@ -13,6 +14,22 @@ namespace core
                 {"registration", commands::type::registration},
                 {"end", commands::type::end}
             };
+
+    const std::unordered_map<core::reply::type, std::string> reply::reply_messages = {
+                {reply::successful_registration, "successful registration"},
+                {reply::successful_logged, "successful logged"},
+                {reply::ping, "ping"},
+                {reply::uncknow_command, "uncknow command"}
+            };
+
+    const std::unordered_map<core::reply::error, std::string> reply::error_messages = {
+                {reply::wrong_params, "wrong params"},
+                {reply::wrong_pass, "wrong pass"},
+                {reply::already_exist, "already_exist"},
+                {reply::already_authorized, "already authorized"},
+                {reply::wrong_pasport, "wrong pasport"}
+            };
+            
     message deserialize_message(const std::vector<uint8_t>& msg_buff, std::size_t size)
     {
         message msg;
@@ -60,7 +77,7 @@ namespace core
         if (it != command_map.end()) 
             instruction = it->second;
         else
-            instruction = uncknow;
+            instruction = uncknow_command;
         
         while (std::getline(iss, token, ' ')) { params.push_back(token); }
         id++;

@@ -2,6 +2,7 @@
 
 #include <boost/asio.hpp>
 #include "user.hpp"
+#include "reply.hpp"
 
 namespace core
 {
@@ -27,6 +28,5 @@ namespace core
             std::vector<uint8_t> _recv_msg;
             std::vector<uint8_t> _write_buff;
             std::string _token;
-
     };
 }
