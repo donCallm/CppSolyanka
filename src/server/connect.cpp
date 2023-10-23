@@ -2,6 +2,7 @@
 #include "commands.hpp"
 #include "message.hpp"
 #include "reply.hpp"
+#include "success_result.hpp"
 #include <iostream>
 #include <spdlog/spdlog.h>
 
@@ -24,17 +25,19 @@ namespace net
 
     void con_handler::invok_func(core::commands& comm)
     {
+        core::success_result res;
         core::reply rpl;
         switch (comm.instruction)
         {
             case core::commands::registration: {
-                rpl = _state.registration(comm, _client);
+                rpl.msg = _state.registration(comm, _client);
                 break; }
             case core::commands::login: {
-                rpl = _state.login(comm, _client);
+                rpl.msg = _state.login(comm, _client);
                 break; }
             case core::commands::ping: {
-                rpl.msg = core::reply::ping;
+                res.result_msg = "ping";
+                rpl.msg = res.get_json();
                 spdlog::info("server sending pong");
                 break; }
             case core::commands::end: {
@@ -42,7 +45,8 @@ namespace net
                 _sock.close();
                 break; }
             default: {
-                rpl.msg = core::reply::uncknow_command;
+                res.result_msg = "unknown_command";
+                rpl.msg = res.get_json();
                 spdlog::warn("server sending message about uncknow command");
                 break; }
         }
@@ -118,7 +122,7 @@ namespace net
 
     void con_handler::start()
     {
-        _state.initialize();
+        _state.setup();
         say_hello();
         accept_message();
     }

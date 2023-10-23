@@ -12,12 +12,17 @@ namespace db
             database& operator=(const database&) = delete;
 
         public:
-            enum db_list{ clients_info, transaction, last_id };
+            enum db_list
+            {
+                clients_info = 0,
+                transaction = 1,
+                last_id = 2
+            };
 
         public:
             static database* get_instance();
             void write(const db_list& db_name, const std::string& key, const std::string& to_write);
-            std::string read(const db_list& db_name, const std::string& key);
+            std::string read(const db_list& db_name, const std::string& key, const std::string& default_value);
 
         private:
             void select_db(const db_list& db_name);

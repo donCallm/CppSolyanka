@@ -32,7 +32,7 @@ namespace db
         _redis.sync_commit();
     }
     
-    std::string database::read(const db_list& db_name, const std::string& key)
+    std::string database::read(const db_list& db_name, const std::string& key, const std::string& default_value)
     {
         std::lock_guard<std::mutex> lock(_mtx);
         select_db(db_name);
@@ -40,8 +40,8 @@ namespace db
         std::promise<std::string> result_promise;
         auto res = result_promise.get_future();
 
-        _redis.get(key, [&result_promise](const cpp_redis::reply& reply){
-            if (reply.is_null()) result_promise.set_value("empty");
+        _redis.get(key, [&result_promise, &default_value](const cpp_redis::reply& reply){
+            if (reply.is_null()) result_promise.set_value(default_value);
             else result_promise.set_value(reply.as_string());
         });
         _redis.sync_commit();

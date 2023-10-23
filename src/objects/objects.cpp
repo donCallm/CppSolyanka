@@ -2,32 +2,22 @@
 #include "user.hpp"
 #include "message.hpp"
 #include "reply.hpp"
+#include "error.hpp"
+#include "success_result.hpp"
 #include <boost/tokenizer.hpp>
 using core::reply;
 
 namespace core
 {
     uint64_t commands::id = 0;
+    
+    uint64_t reply::id = 0;
+
     const std::unordered_map<std::string, commands::type> commands::command_map = {
                 {"ping", commands::type::ping},
                 {"login", commands::type::login},
                 {"registration", commands::type::registration},
                 {"end", commands::type::end}
-            };
-
-    const std::unordered_map<core::reply::type, std::string> reply::reply_messages = {
-                {reply::successful_registration, "successful registration"},
-                {reply::successful_logged, "successful logged"},
-                {reply::ping, "ping"},
-                {reply::uncknow_command, "uncknow command"}
-            };
-
-    const std::unordered_map<core::reply::error, std::string> reply::error_messages = {
-                {reply::wrong_params, "wrong params"},
-                {reply::wrong_pass, "wrong pass"},
-                {reply::already_exist, "already_exist"},
-                {reply::already_authorized, "already authorized"},
-                {reply::wrong_pasport, "wrong pasport"}
             };
             
     message deserialize_message(const std::vector<uint8_t>& msg_buff, std::size_t size)
@@ -77,7 +67,7 @@ namespace core
         if (it != command_map.end()) 
             instruction = it->second;
         else
-            instruction = uncknow_command;
+            instruction = unknown_command;
         
         while (std::getline(iss, token, ' ')) { params.push_back(token); }
         id++;
@@ -106,6 +96,35 @@ namespace core
         if (json_data.empty()) throw std::runtime_error("Empty json");
 
         json_data.at("msg").get_to(msg);
-        json_data.at("params").get_to(params);
+        json_data.at("id").get_to(id);
+    }
+
+    reply::reply() {++id;}
+
+    success_result::success_result(std::string data) : result_msg(data) {};
+    
+    success_result::success_result() : result_msg("") {}
+    
+    std::string success_result::get_json()
+    {
+        nlohmann::json json_res = *this; 
+        return json_res.dump();
+    }
+
+    void success_result::from_json(const nlohmann::json& json_data)
+    {
+        json_data.at("result_msg").get_to(result_msg);
+    }
+
+
+    std::string error::get_json()
+    {
+        nlohmann::json json_err = *this; 
+        return json_err.dump();
+    }
+
+    void error::from_json(const nlohmann::json& json_data)
+    {
+        json_data.at("error_msg").at(error_msg);
     }
 }

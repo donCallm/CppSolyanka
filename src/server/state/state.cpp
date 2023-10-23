@@ -1,24 +1,25 @@
 #include "state.hpp"
+#include "error.hpp"
+#include "success_result.hpp"
 using db::database;
 
 namespace server
 {
     state::state(): _last_user_id(0), _db(db::database::get_instance()) {}
 
-    reply state::registration(core::commands& comm, core::user& client)
+    std::string state::registration(core::commands& comm, core::user& client)
     {
-        reply rpl;
+        core::error err;
 
         if (!client.is_empty()) 
-            rpl.err =  reply::already_authorized;
+            err.error_msg =  "already_authorized";
         if (comm.params.size() != 5)
-            rpl.err = reply::wrong_params;
+            err.error_msg = "wrong_params";
         if (client_exist(comm.params[3]))
-            rpl.err = reply::already_exist;
+            err.error_msg = "already_exist";
 
-        auto err = reply::error_messages.find(rpl.err);
-        if (err != reply::error_messages.end())
-            return rpl;
+        if (!err.error_msg.empty())
+            return err.get_json();
 
         client.name = comm.params[0];
         client.surname = comm.params[1];
@@ -27,65 +28,63 @@ namespace server
         client.password = comm.params[4];
         client.id = _last_user_id++;
 
-        nlohmann::json serialize_message = client; 
-        std::string json_string = serialize_message.dump();
+        nlohmann::json json_client = client; 
+        std::string json_string = json_client.dump();
         
         _db->write(database::clients_info, client.pasport,
             json_string);
         _db->write(database::last_id, "last_user_id", std::to_string(_last_user_id));
-        rpl.msg = reply::successful_registration;
-        return rpl;
+
+        core::success_result res("successful registration");
+        return res.get_json();
     }
 
-    reply state::login(core::commands& comm, core::user& client)
+    std::string state::login(core::commands& comm, core::user& client)
     {
-        reply rpl;
+        core::error err;
         if (!client.is_empty())
-            rpl.err = reply::already_authorized;
+            err.error_msg = "already_authorized";
         if (comm.params.size() != 2)
-            rpl.err = reply::wrong_params; 
+            err.error_msg = "wrong_params"; 
         
-        auto err = reply::error_messages.find(rpl.err);
-        if (err != reply::error_messages.end())
-            return rpl;
+        if (!err.error_msg.empty())
+            return err.get_json();
             
         client = get_user(comm.params[0]);
 
         if (client.is_empty())
-            rpl.err = reply::wrong_pasport;
+            err.error_msg = "wrong_pasport";
         else if (client.password != comm.params[1])
-            rpl.err = reply::wrong_pass;
-        else
-            rpl.msg = reply::successful_logged;
+            err.error_msg = "wrong_pass";
 
-        return rpl;
+        if (!err.error_msg.empty())
+            return err.get_json();
+
+        core::success_result res("successful_logged");
+        return res.get_json();
     }
 
     user state::get_user(std::string& pasport)
     {
         user client;
-        std::string reply = _db->read(database::clients_info, pasport);
-        if (reply != "empty") 
+        std::string reply = _db->read(database::clients_info, pasport, "client not found");
+        if (reply != "client not found") 
             client.from_json(nlohmann::json::parse(reply));
         return client;
     }
 
     bool state::client_exist(std::string& pasport)
     {
-        if (_db->read(database::clients_info, pasport) != "empty") return true;
+        if (_db->read(database::clients_info, pasport, "client not found") != "client not found") return true;
         return false;
     }
 
-    void state::initialize()
+    void state::setup()
     {
-        try
-        {
-            _last_user_id = std::stoull(_db->read(database::last_id, "last_user_id"));
-        }
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
-        }
-        
+        std::string res = _db->read(database::last_id, "last_user_id", "id not found");
+        if (res != "id not found")
+            _last_user_id = std::stoull(res);
+        else 
+            _db->write(database::last_id, "last_user_id", std::to_string(_last_user_id));
     }
 }

@@ -14,7 +14,7 @@ namespace core
                         registration = 1,
                         login = 2,
                         end = 3,
-                        uncknow_command = 4
+                        unknown_command = 4
                         };
 
         public:

@@ -5,17 +5,16 @@
 
 namespace core
 {
-    class reply
+    class error
     {
         public:
-            operator nlohmann::json() const { return nlohmann::json{ {"msg", msg}, {"id", id} }; }
-            reply();
-
+            operator nlohmann::json() const { return nlohmann::json{ {"error_msg", error_msg} }; };
+            
         public:
+            std::string get_json();
             void from_json(const nlohmann::json& json_data);
 
         public:
-            static uint64_t id;
-            std::string msg;
+            std::string error_msg;
     };
 }

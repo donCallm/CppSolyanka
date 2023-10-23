@@ -17,10 +17,10 @@ namespace server
             bool client_exist(std::string& pasport);
 
         public:
-            reply registration(core::commands& comm, core::user& client);
-            reply login(core::commands& comm, core::user& client);
+            std::string registration(core::commands& comm, core::user& client);
+            std::string login(core::commands& comm, core::user& client);
             user get_user(std::string& parport);
-            void initialize();
+            void setup();
 
         private:
             uint64_t _last_user_id;

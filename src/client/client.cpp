@@ -1,6 +1,8 @@
 #include "client.hpp"
 #include "commands.hpp"
 #include "message.hpp"
+#include "error.hpp"
+#include  "success_result.hpp"
 #include <iostream>
 #include <spdlog/spdlog.h>
 
@@ -60,6 +62,8 @@ namespace core
         core::message msg;
         core::commands comm;
         core::reply rpl;
+        core::error err;
+        core::success_result res;
 
         while (true)
         {
@@ -73,19 +77,17 @@ namespace core
             std::string json_string = serialize_message.dump();
             write(json_string);
             rpl.from_json(nlohmann::json::parse(read_response()));
+            nlohmann::json json_data = nlohmann::json::parse(rpl.msg);
 
-            auto err = reply::error_messages.find(rpl.err);
-            if (err != reply::error_messages.end())
+            if (json_data.find("error_msg") != json_data.end())
             {
-                spdlog::info("<< reponese; {}", err->second);
+                err.from_json(json_data);
+                spdlog::info("error: {}", err.error_msg);
             }
             else
             {
-                auto msg = reply::reply_messages.find(rpl.msg);
-                if (msg != reply::reply_messages.end())
-                    spdlog::info("<< response: {}", msg->second);
-                else
-                    spdlog::info("<< response: unknown message");
+                res.from_json(json_data);
+                spdlog::info("<< response: {}", res.result_msg);
             }
             
             comm.params.clear();
