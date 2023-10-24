@@ -23,6 +23,7 @@ find_package(cpp_redis      CONFIG REQUIRED)
 find_package(nlohmann_json  CONFIG REQUIRED)
 find_package(Qt5            CONFIG REQUIRED Core Widgets)
 
+add_subdirectory(src/objects)
 add_subdirectory(src/client)
 add_subdirectory(src/server)
 add_subdirectory(src/ui)
