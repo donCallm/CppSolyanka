@@ -12,9 +12,9 @@ namespace server
 
         if (!client.is_empty()) 
             err.error_msg =  "already_authorized";
-        if (comm.params.size() != 5)
+        else if (comm.params.size() != 5)
             err.error_msg = "wrong_params";
-        if (client_exist(comm.params[3]))
+        else if (client_exist(comm.params[3]))
             err.error_msg = "already_exist";
 
         if (!err.error_msg.empty())

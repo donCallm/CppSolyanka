@@ -9,7 +9,6 @@ namespace core
     {
         public:
             msg();
-            operator nlohmann::json() const { return nlohmann::json{ {"id", id} }; }
 
         public:
             static uint64_t id;
