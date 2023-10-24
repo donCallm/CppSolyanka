@@ -1,11 +1,14 @@
 #include "connect.hpp"
 #include "commands.hpp"
 #include "message.hpp"
+#include "msg_objects.hpp"
 #include <iostream>
 #include <spdlog/spdlog.h>
 
 namespace net
 {
+    con_handler::con_handler(boost::asio::io_service& io_service): _sock(io_service) {}
+    
     boost::asio::ip::tcp::socket& con_handler::get_socket()
     {
         return _sock;
@@ -21,16 +24,44 @@ namespace net
 
     void con_handler::invok_func(core::commands& comm)
     {
-        if (comm.instruction == "ping")
+        core::success_result_msg res;
+        core::reply_msg rpl;
+        nlohmann::json json_data;
+
+        switch (comm.instruction)
         {
-            write_message("pong");
-            spdlog::info("server sending pong");
+            case core::commands::registration: {
+                rpl.reply_msg = _state.registration(comm, _client);
+                break; }
+            case core::commands::login: {
+                rpl.reply_msg = _state.login(comm, _client);
+                break; }
+            case core::commands::ping: {
+                res.result_msg = "pong";
+                json_data = res;
+                rpl.reply_msg = json_data.dump();
+                spdlog::info("server sending pong");
+                break; }
+            case core::commands::end: {
+                spdlog::info("client {} wants to disconnect", get_adress());
+                _sock.close();
+                break; }
+            default: {
+                res.result_msg = "unknown_command";
+                json_data = res;
+                rpl.reply_msg = json_data.dump();
+                spdlog::warn("server sending message about uncknow command");
+                break; }
         }
-        else
-        {
-            write_message("uncknow command");
-            spdlog::info("server sending message about uncknow command");
-        }
+        json_data = rpl; 
+        std::string json_string = json_data.dump();
+        write_message(json_string);
+    }
+
+    std::string con_handler::get_adress()
+    {
+        boost::asio::ip::tcp::endpoint remote_endpoint = _sock.remote_endpoint();
+        return remote_endpoint.address().to_string() + ":" + std::to_string(remote_endpoint.port());
     }
 
     void con_handler::on_msg_ready()
@@ -39,7 +70,7 @@ namespace net
         core::message msg = core::deserialize_message(_read_buff, _msg_size);
         comm.from_json(nlohmann::json::parse(msg.data));
         
-        spdlog::info("<< receive: command - {}, command id - {}", comm.instruction, comm.id);
+        spdlog::info("<< receive from client {}: command - {}, command id - {}", get_adress(), comm.instruction, comm.id);
 
         if (comm.token != _token)
         {
@@ -54,8 +85,7 @@ namespace net
 
     void con_handler::say_hello()
     {
-        boost::asio::ip::tcp::endpoint remote_endpoint = _sock.remote_endpoint();
-        spdlog::info("client {} connected", remote_endpoint.address().to_string() + ":" + std::to_string(remote_endpoint.port()));
+        spdlog::info(">> client {} connected", get_adress());
         spdlog::info(">> server say hello");
         write_message(_token);
     }
@@ -95,6 +125,7 @@ namespace net
 
     void con_handler::start()
     {
+        _state.setup();
         say_hello();
         accept_message();
     }

@@ -28,7 +28,7 @@ message(STATUS "Qt5 Widgets version: ${Qt5Widgets_VERSION}")
 message(STATUS "Qt5 include directories: ${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS}")
 message(STATUS "Qt5 libraries: ${Qt5Core_LIBRARIES} ${Qt5Widgets_LIBRARIES}")
 
+add_subdirectory(src/objects)
 add_subdirectory(src/client)
 add_subdirectory(src/server)
-add_subdirectory(src/objects)
 add_subdirectory(src/ui)

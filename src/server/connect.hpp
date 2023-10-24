@@ -3,6 +3,7 @@
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
 #include "commands.hpp"
+#include "state.hpp"
 
 namespace net
 {
@@ -10,7 +11,7 @@ namespace net
     {
         public:
             typedef std::shared_ptr<con_handler> ptr;
-            explicit con_handler(boost::asio::io_service& io_service): _sock(io_service) {}
+            explicit con_handler(boost::asio::io_service& io_service);
             ~con_handler();
 
         private:
@@ -22,6 +23,7 @@ namespace net
             void say_hello();
             void lack_of_token();
             void invok_func(core::commands& comm);
+            std::string get_adress();
 
         public:
             void start();
@@ -35,5 +37,8 @@ namespace net
             std::vector<uint8_t> _write_buff;
             std::size_t _msg_size;
             const std::string _token = "107610801084107232108310861093";
+            server::state _state;
+            core::user _client;
+            
     };
 }
