@@ -3,7 +3,6 @@
 #include "commands.hpp"
 #include "user.hpp"
 #include "database.hpp"
-#include "reply.hpp"
 using namespace core;
 
 namespace server

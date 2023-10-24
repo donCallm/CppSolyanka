@@ -1,6 +1,5 @@
 #include "state.hpp"
-#include "error.hpp"
-#include "success_result.hpp"
+#include "msg_objects.hpp"
 using db::database;
 
 namespace server
@@ -9,7 +8,7 @@ namespace server
 
     std::string state::registration(core::commands& comm, core::user& client)
     {
-        core::error err;
+        core::error_msg err;
 
         if (!client.is_empty()) 
             err.error_msg =  "already_authorized";
@@ -19,7 +18,10 @@ namespace server
             err.error_msg = "already_exist";
 
         if (!err.error_msg.empty())
-            return err.get_json();
+        {
+            nlohmann::json err_json = err; 
+            return err_json.dump();
+        }
 
         client.name = comm.params[0];
         client.surname = comm.params[1];
@@ -35,20 +37,24 @@ namespace server
             json_string);
         _db->write(database::last_id, "last_user_id", std::to_string(_last_user_id));
 
-        core::success_result res("successful registration");
-        return res.get_json();
+        core::success_result_msg res("successful registration");
+        nlohmann::json res_json = res;
+        return res_json.dump();
     }
 
     std::string state::login(core::commands& comm, core::user& client)
     {
-        core::error err;
+        core::error_msg err;
         if (!client.is_empty())
             err.error_msg = "already_authorized";
         if (comm.params.size() != 2)
             err.error_msg = "wrong_params"; 
         
         if (!err.error_msg.empty())
-            return err.get_json();
+        {
+            nlohmann::json err_json = err; 
+            return err_json.dump();
+        }
             
         client = get_user(comm.params[0]);
 
@@ -58,10 +64,14 @@ namespace server
             err.error_msg = "wrong_pass";
 
         if (!err.error_msg.empty())
-            return err.get_json();
+        {
+            nlohmann::json err_json = err; 
+            return err_json.dump();
+        }
 
-        core::success_result res("successful_logged");
-        return res.get_json();
+        core::success_result_msg res("successful_logged");
+        nlohmann::json res_json = res;
+        return res_json.dump();
     }
 
     user state::get_user(std::string& pasport)

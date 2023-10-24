@@ -1,8 +1,7 @@
 #include "client.hpp"
 #include "commands.hpp"
 #include "message.hpp"
-#include "error.hpp"
-#include  "success_result.hpp"
+#include "msg_objects.hpp"
 #include <iostream>
 #include <spdlog/spdlog.h>
 
@@ -45,13 +44,9 @@ namespace core
         core::message msg;
 
         if (data.empty())
-        {
             throw std::runtime_error("data for write is empty");
-        }
         else
-        {
             msg.data = data;
-        }
 
         _write_buff = core::serialize_message(msg);
         boost::asio::write(_socket, boost::asio::buffer(_write_buff.data(), _write_buff.size()));
@@ -61,9 +56,7 @@ namespace core
     {
         core::message msg;
         core::commands comm;
-        core::reply rpl;
-        core::error err;
-        core::success_result res;
+        core::reply_msg rpl;
 
         while (true)
         {
@@ -76,16 +69,19 @@ namespace core
             nlohmann::json serialize_message = comm; 
             std::string json_string = serialize_message.dump();
             write(json_string);
+
             rpl.from_json(nlohmann::json::parse(read_response()));
-            nlohmann::json json_data = nlohmann::json::parse(rpl.msg);
+            nlohmann::json json_data = nlohmann::json::parse(rpl.reply_msg);
 
             if (json_data.find("error_msg") != json_data.end())
             {
+                core::error_msg err;
                 err.from_json(json_data);
                 spdlog::info("error: {}", err.error_msg);
             }
             else
             {
+                core::success_result_msg res;
                 res.from_json(json_data);
                 spdlog::info("<< response: {}", res.result_msg);
             }

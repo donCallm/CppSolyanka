@@ -2,7 +2,6 @@
 
 #include <boost/asio.hpp>
 #include "user.hpp"
-#include "reply.hpp"
 
 namespace core
 {

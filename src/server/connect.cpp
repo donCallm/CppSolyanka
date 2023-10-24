@@ -1,8 +1,7 @@
 #include "connect.hpp"
 #include "commands.hpp"
 #include "message.hpp"
-#include "reply.hpp"
-#include "success_result.hpp"
+#include "msg_objects.hpp"
 #include <iostream>
 #include <spdlog/spdlog.h>
 
@@ -25,19 +24,22 @@ namespace net
 
     void con_handler::invok_func(core::commands& comm)
     {
-        core::success_result res;
-        core::reply rpl;
+        core::success_result_msg res;
+        core::reply_msg rpl;
+        nlohmann::json json_data;
+
         switch (comm.instruction)
         {
             case core::commands::registration: {
-                rpl.msg = _state.registration(comm, _client);
+                rpl.reply_msg = _state.registration(comm, _client);
                 break; }
             case core::commands::login: {
-                rpl.msg = _state.login(comm, _client);
+                rpl.reply_msg = _state.login(comm, _client);
                 break; }
             case core::commands::ping: {
-                res.result_msg = "ping";
-                rpl.msg = res.get_json();
+                res.result_msg = "pong";
+                json_data = res;
+                rpl.reply_msg = json_data.dump();
                 spdlog::info("server sending pong");
                 break; }
             case core::commands::end: {
@@ -46,12 +48,13 @@ namespace net
                 break; }
             default: {
                 res.result_msg = "unknown_command";
-                rpl.msg = res.get_json();
+                json_data = res;
+                rpl.reply_msg = json_data.dump();
                 spdlog::warn("server sending message about uncknow command");
                 break; }
         }
-        nlohmann::json serialize_message = rpl; 
-        std::string json_string = serialize_message.dump();
+        json_data = rpl; 
+        std::string json_string = json_data.dump();
         write_message(json_string);
     }
 
