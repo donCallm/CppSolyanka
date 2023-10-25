@@ -41,6 +41,6 @@ namespace net
             const std::string _token = "107610801084107232108310861093";
             server::state _state;
             core::user _client;
-            
+            bool client_is_active;
     };
 }

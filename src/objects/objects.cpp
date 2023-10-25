@@ -11,7 +11,8 @@ namespace core
                 {"ping", commands::type::ping},
                 {"login", commands::type::login},
                 {"registration", commands::type::registration},
-                {"end", commands::type::end}
+                {"end", commands::type::end},
+                {"help", commands::type::help}
             };
             
     message deserialize_message(const std::vector<uint8_t>& msg_buff, std::size_t size)

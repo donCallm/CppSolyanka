@@ -5,14 +5,14 @@ using db::database;
 
 namespace server
 {
-    state::state(): _last_user_id(1), _db(db::database::get_instance()) {} //so that those who are not authorized have ID 0
+    state::state(): _last_user_id(1), _db(db::database::get_instance()) {}
 
-    std::string state::registration(const core::commands& comm, const uint64_t& client_id)
+    std::string state::registration(const core::commands& comm, const bool& client_is_activ)
     {
         core::error_msg err;
         core::user client;
 
-        if (client_id != 0)
+        if (client_is_activ)
             err.error_msg =  "already_authorized";
         else if (comm.params.size() != 5)
             err.error_msg = "wrong_params";
@@ -44,11 +44,11 @@ namespace server
         return res_json.dump();
     }
 
-    std::string state::login(const core::commands& comm, core::user& client)
+    std::string state::login(const core::commands& comm, core::user& client, bool& client_is_activ)
     {
         core::error_msg err;
 
-        if (!client.is_empty())
+        if (client_is_activ)
             err.error_msg = "already_authorized";
         if (comm.params.size() != 2)
             err.error_msg = "wrong_params"; 
@@ -72,6 +72,7 @@ namespace server
             return err_json.dump();
         }
 
+        client_is_activ = true;
         core::success_result_msg res("successful_logged");
         nlohmann::json res_json = res;
         return res_json.dump();
@@ -103,7 +104,7 @@ namespace server
         }
         else
         {
-            spdlog::error("during setup last user id not found");
+            spdlog::warn("during setup last user id not found");
             _db->write(database::last_id, "last_user_id", std::to_string(_last_user_id));
         }
     }

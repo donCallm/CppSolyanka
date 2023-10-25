@@ -7,7 +7,7 @@
 
 namespace net
 {
-    con_handler::con_handler(boost::asio::io_service& io_service): _sock(io_service) {}
+    con_handler::con_handler(boost::asio::io_service& io_service): _sock(io_service), client_is_active(false) {}
     
     boost::asio::ip::tcp::socket& con_handler::get_socket()
     {
@@ -51,10 +51,10 @@ namespace net
         switch (comm.instruction)
         {
             case core::commands::registration: {
-                rpl.reply_msg = _state.registration(comm, _client.id);
+                rpl.reply_msg = _state.registration(comm, client_is_active);
                 break; }
             case core::commands::login: {
-                rpl.reply_msg = _state.login(comm, _client);
+                rpl.reply_msg = _state.login(comm, _client, client_is_active);
                 break; }
             case core::commands::ping: {
                 res.result_msg = "pong";
@@ -64,6 +64,11 @@ namespace net
             case core::commands::end: {
                 spdlog::info("client {} wants to disconnect", get_adress());
                 _sock.close();
+                break; }
+            case core::commands::help: {
+                res.result_msg = "avable commands:\nregistration <name> <surname> <patronymic> <pasport> <password>\nlogin <pasport> <password>\n";
+                json_data = res;
+                rpl.reply_msg = json_data.dump();
                 break; }
             default: {
                 res.result_msg = "unknown_command";
