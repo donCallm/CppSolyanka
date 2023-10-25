@@ -28,3 +28,8 @@ ___Client start___
 cd CppSolyanka/build/src/server
 ./client
 ```
+___Available commands___
+```
+<registration>:<name><surname><patronymic><pasport>password>
+<login>:<pasport><password>
+```
