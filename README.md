@@ -30,6 +30,6 @@ cd CppSolyanka/build/src/server
 ```
 ___Available commands___
 ```
-<registration>:<name><surname><patronymic><pasport>password>
-<login>:<pasport><password>
+registration <name> <surname> <patronymic> <pasport> <password>
+login <pasport> <password>
 ```
