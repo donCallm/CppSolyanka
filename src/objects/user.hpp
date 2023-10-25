@@ -23,5 +23,6 @@ namespace core
             std::string password;
             std::string pasport;
             uint64_t id;
+            bool already_authorized;
     };
 }

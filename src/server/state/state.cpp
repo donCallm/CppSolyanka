@@ -7,12 +7,12 @@ namespace server
 {
     state::state(): _last_user_id(1), _db(db::database::get_instance()) {}
 
-    std::string state::registration(const core::commands& comm, const bool& already_authorized)
+    std::string state::registration(const core::commands& comm, const core::user& client)
     {
         core::error_msg err;
-        core::user client;
+        core::user client_data;
 
-        if (already_authorized)
+        if (client.already_authorized)
             err.error_msg =  "already_authorized";
         else if (comm.params.size() != 5)
             err.error_msg = "wrong_params";
@@ -25,14 +25,14 @@ namespace server
             return err_json.dump();
         }
 
-        client.name = comm.params[0];
-        client.surname = comm.params[1];
-        client.patronymic = comm.params[2];
-        client.pasport = comm.params[3];
-        client.password = comm.params[4];
-        client.id = _last_user_id++;
+        client_data.name = comm.params[0];
+        client_data.surname = comm.params[1];
+        client_data.patronymic = comm.params[2];
+        client_data.pasport = comm.params[3];
+        client_data.password = comm.params[4];
+        client_data.id = _last_user_id++;
 
-        nlohmann::json json_client = client; 
+        nlohmann::json json_client = client_data; 
         std::string json_string = json_client.dump();
         
         _db->write(database::clients_info, client.pasport,
@@ -44,11 +44,11 @@ namespace server
         return res_json.dump();
     }
 
-    std::string state::login(const core::commands& comm, core::user& client, bool& already_authorized)
+    std::string state::login(const core::commands& comm, core::user& client)
     {
         core::error_msg err;
 
-        if (already_authorized)
+        if (client.already_authorized)
             err.error_msg = "already_authorized";
         if (comm.params.size() != 2)
             err.error_msg = "wrong_params"; 
@@ -72,7 +72,7 @@ namespace server
             return err_json.dump();
         }
 
-        already_authorized = true;
+        client.already_authorized = true;
         core::success_result_msg res("successful_logged");
         nlohmann::json res_json = res;
         return res_json.dump();

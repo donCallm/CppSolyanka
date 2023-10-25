@@ -7,7 +7,7 @@
 
 namespace net
 {
-    con_handler::con_handler(boost::asio::io_service& io_service): _sock(io_service), already_authorized(false) {}
+    con_handler::con_handler(boost::asio::io_service& io_service): _sock(io_service) {}
     
     boost::asio::ip::tcp::socket& con_handler::get_socket()
     {
@@ -51,10 +51,10 @@ namespace net
         switch (comm.instruction)
         {
             case core::commands::registration: {
-                rpl.reply_msg = _state.registration(comm, already_authorized);
+                rpl.reply_msg = _state.registration(comm, _client);
                 break; }
             case core::commands::login: {
-                rpl.reply_msg = _state.login(comm, _client, already_authorized);
+                rpl.reply_msg = _state.login(comm, _client);
                 break; }
             case core::commands::ping: {
                 res.result_msg = "pong";
