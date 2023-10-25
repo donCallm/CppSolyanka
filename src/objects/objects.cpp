@@ -58,7 +58,7 @@ namespace core
         std::getline(iss, token, ' ');
 
         auto it = command_map.find(token);
-        if (it != command_map.end()) 
+        if (it != command_map.end())
             instruction = it->second;
         else
             instruction = unknown_command;

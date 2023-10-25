@@ -1,16 +1,18 @@
 #include "state.hpp"
 #include "msg_objects.hpp"
+#include <spdlog/spdlog.h>
 using db::database;
 
 namespace server
 {
-    state::state(): _last_user_id(0), _db(db::database::get_instance()) {}
+    state::state(): _last_user_id(1), _db(db::database::get_instance()) {} //so that those who are not authorized have ID 0
 
-    std::string state::registration(core::commands& comm, core::user& client)
+    std::string state::registration(const core::commands& comm, const uint64_t& client_id)
     {
         core::error_msg err;
+        core::user client;
 
-        if (!client.is_empty()) 
+        if (client_id != 0)
             err.error_msg =  "already_authorized";
         else if (comm.params.size() != 5)
             err.error_msg = "wrong_params";
@@ -42,9 +44,10 @@ namespace server
         return res_json.dump();
     }
 
-    std::string state::login(core::commands& comm, core::user& client)
+    std::string state::login(const core::commands& comm, core::user& client)
     {
         core::error_msg err;
+
         if (!client.is_empty())
             err.error_msg = "already_authorized";
         if (comm.params.size() != 2)
@@ -65,7 +68,7 @@ namespace server
 
         if (!err.error_msg.empty())
         {
-            nlohmann::json err_json = err; 
+            nlohmann::json err_json = err;
             return err_json.dump();
         }
 
@@ -74,16 +77,18 @@ namespace server
         return res_json.dump();
     }
 
-    user state::get_user(std::string& pasport)
+    user state::get_user(const std::string& pasport)
     {
         user client;
+
         std::string reply = _db->read(database::clients_info, pasport, "client not found");
         if (reply != "client not found") 
             client.from_json(nlohmann::json::parse(reply));
+
         return client;
     }
 
-    bool state::client_exist(std::string& pasport)
+    bool state::client_exist(const std::string& pasport)
     {
         if (_db->read(database::clients_info, pasport, "client not found") != "client not found") return true;
         return false;
@@ -93,8 +98,13 @@ namespace server
     {
         std::string res = _db->read(database::last_id, "last_user_id", "id not found");
         if (res != "id not found")
+        {
             _last_user_id = std::stoull(res);
-        else 
+        }
+        else
+        {
+            spdlog::error("during setup last user id not found");
             _db->write(database::last_id, "last_user_id", std::to_string(_last_user_id));
+        }
     }
 }

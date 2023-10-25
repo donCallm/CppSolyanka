@@ -1,6 +1,7 @@
 #include "database.hpp"
 #include <iostream>
 #include <future>
+#include <spdlog/spdlog.h>
 
 namespace db
 {
@@ -24,8 +25,14 @@ namespace db
         _redis.select(db_name);
     }
     
-    void database::write(const db_list& db_name, const std::string& key, const std::string& to_write)
+    void database::write(const db_list& db_name, const std::string& key, const std::string& data)
     {
+        if (key.empty() || to_write.empty())
+        {
+            spdlog::error("in db::write key or data is empty");
+            return;
+        }
+
         std::lock_guard<std::mutex> lock(_mtx);
         select_db(db_name);
         _redis.set(key, to_write);
@@ -34,6 +41,12 @@ namespace db
     
     std::string database::read(const db_list& db_name, const std::string& key, const std::string& default_value)
     {
+        if (key.empty())
+        {
+            spdlog::error("in db::read key is empty");
+            return;
+        }
+
         std::lock_guard<std::mutex> lock(_mtx);
         select_db(db_name);
 
@@ -44,6 +57,7 @@ namespace db
             if (reply.is_null()) result_promise.set_value(default_value);
             else result_promise.set_value(reply.as_string());
         });
+        
         _redis.sync_commit();
         return res.get();
     }

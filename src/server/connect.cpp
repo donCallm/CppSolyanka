@@ -12,7 +12,7 @@ namespace net
     boost::asio::ip::tcp::socket& con_handler::get_socket()
     {
         return _sock;
-    } 
+    }
 
     void con_handler::lack_of_token()
     {
@@ -31,7 +31,7 @@ namespace net
         switch (comm.instruction)
         {
             case core::commands::registration: {
-                rpl.reply_msg = _state.registration(comm, _client);
+                rpl.reply_msg = _state.registration(comm, _client.id);
                 break; }
             case core::commands::login: {
                 rpl.reply_msg = _state.login(comm, _client);
@@ -53,7 +53,15 @@ namespace net
                 spdlog::warn("server sending message about uncknow command");
                 break; }
         }
-        json_data = rpl; 
+
+        if (json_data.find("error_msg") != json_data.end())
+        {
+            core::error_msg err;
+            err.from_json(json_data);
+            spdlog::error("error: {}", err.error_msg);
+        }
+
+        json_data = rpl;
         std::string json_string = json_data.dump();
         write_message(json_string);
     }
@@ -69,8 +77,19 @@ namespace net
         core::commands comm;
         core::message msg = core::deserialize_message(_read_buff, _msg_size);
         comm.from_json(nlohmann::json::parse(msg.data));
-        
-        spdlog::info("<< receive from client {}: command - {}, command id - {}", get_adress(), comm.instruction, comm.id);
+
+        std::string instruction_string;
+
+        for (const auto& entry : commands::command_map)
+        {
+            if (entry.second == comm.instruction)
+            {
+                instruction_string = entry.first;
+                break;
+            }
+        }
+
+        spdlog::info("<< receive from client {}: command - {}", get_adress(), instruction_string);
 
         if (comm.token != _token)
         {
@@ -85,8 +104,8 @@ namespace net
 
     void con_handler::say_hello()
     {
-        spdlog::info(">> client {} connected", get_adress());
-        spdlog::info(">> server say hello");
+        spdlog::info("client {} connected", get_adress());
+        spdlog::info("server say hello");
         write_message(_token);
     }
 
@@ -131,7 +150,7 @@ namespace net
     }
 
     void con_handler::write_message(const std::string& data)
-    { 
+    {
         core::message msg;
         msg.data = data;
         _write_buff = core::serialize_message(msg);
@@ -153,12 +172,12 @@ namespace net
         }
     }
 
-    net::con_handler::ptr con_handler::create(boost::asio::io_service& io_service) 
+    net::con_handler::ptr con_handler::create(boost::asio::io_service& io_service)
     {
         return std::make_shared<con_handler>(io_service);
     }
 
-    con_handler::~con_handler() 
+    con_handler::~con_handler()
     {
         spdlog::info("client disconected");
     }

@@ -30,7 +30,7 @@ namespace core
         else
         {
             spdlog::error("Connecting error: " + err.message());
-        } 
+        }
 
         start_accept();
     }

@@ -9,4 +9,3 @@ if [ -x "$EXECUTABLE" ]; then
 else
     echo "Error: Executable file not found."
 fi
-

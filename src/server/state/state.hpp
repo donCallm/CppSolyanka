@@ -13,12 +13,12 @@ namespace server
             state();
 
         private:
-            bool client_exist(std::string& pasport);
+            bool client_exist(const std::string& pasport);
 
         public:
-            std::string registration(core::commands& comm, core::user& client);
-            std::string login(core::commands& comm, core::user& client);
-            user get_user(std::string& parport);
+            std::string registration(const core::commands& comm, const uint64_t& client_id);
+            std::string login(const core::commands& comm, core::user& client);
+            user get_user(const std::string& parport);
             void setup();
 
         private:

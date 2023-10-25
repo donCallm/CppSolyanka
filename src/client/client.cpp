@@ -57,18 +57,24 @@ namespace core
         core::message msg;
         core::commands comm;
         core::reply_msg rpl;
+        spdlog::info("Enter command");
 
         while (true)
         {
-            spdlog::info("Enter command");
             std::getline(std::cin, msg.data);
 
             comm.set_command(msg.data);
             comm.token = _token;
 
-            nlohmann::json serialize_message = comm; 
+            nlohmann::json serialize_message = comm;
             std::string json_string = serialize_message.dump();
             write(json_string);
+
+            if (comm.instructon = commands::type::end)
+            {
+                _socket.close();
+                return;
+            }
 
             rpl.from_json(nlohmann::json::parse(read_response()));
             nlohmann::json json_data = nlohmann::json::parse(rpl.reply_msg);
@@ -77,7 +83,7 @@ namespace core
             {
                 core::error_msg err;
                 err.from_json(json_data);
-                spdlog::info("error: {}", err.error_msg);
+                spdlog::error("error: {}", err.error_msg);
             }
             else
             {

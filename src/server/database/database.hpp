@@ -21,7 +21,7 @@ namespace db
 
         public:
             static database* get_instance();
-            void write(const db_list& db_name, const std::string& key, const std::string& to_write);
+            void write(const db_list& db_name, const std::string& key, const std::string& data);
             std::string read(const db_list& db_name, const std::string& key, const std::string& default_value);
 
         private:

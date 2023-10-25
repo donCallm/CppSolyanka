@@ -17,4 +17,5 @@ int main()
         std::cerr << "unhandled exception" << std::endl;
     }
     
+    return 0;
 }
