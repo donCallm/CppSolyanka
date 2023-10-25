@@ -14,7 +14,7 @@ namespace net
             typedef std::shared_ptr<con_handler> ptr;
             explicit con_handler(boost::asio::io_service& io_service);
             ~con_handler();
-
+            
         private:
             void write_message(const std::string& message);
             void handle_write(const boost::system::error_code& err, size_t byte_transferred);
@@ -41,6 +41,6 @@ namespace net
             const std::string _token = "107610801084107232108310861093";
             server::state _state;
             core::user _client;
-            bool client_is_active;
+            bool already_authorized;
     };
 }

@@ -16,8 +16,8 @@ namespace server
             bool client_exist(const std::string& pasport);
 
         public:
-            std::string registration(const core::commands& comm, const bool& client_is_activ);
-            std::string login(const core::commands& comm, core::user& client, bool& client_is_activ);
+            std::string registration(const core::commands& comm, const bool& already_authorized);
+            std::string login(const core::commands& comm, core::user& client, bool& already_authorized);
             user get_user(const std::string& parport);
             void setup();
 

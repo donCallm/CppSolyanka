@@ -7,12 +7,12 @@ namespace server
 {
     state::state(): _last_user_id(1), _db(db::database::get_instance()) {}
 
-    std::string state::registration(const core::commands& comm, const bool& client_is_activ)
+    std::string state::registration(const core::commands& comm, const bool& already_authorized)
     {
         core::error_msg err;
         core::user client;
 
-        if (client_is_activ)
+        if (already_authorized)
             err.error_msg =  "already_authorized";
         else if (comm.params.size() != 5)
             err.error_msg = "wrong_params";
@@ -39,16 +39,16 @@ namespace server
             json_string);
         _db->write(database::last_id, "last_user_id", std::to_string(_last_user_id));
 
-        core::success_result_msg res("successful registration");
+        core::success_result_msg res("successful_registration");
         nlohmann::json res_json = res;
         return res_json.dump();
     }
 
-    std::string state::login(const core::commands& comm, core::user& client, bool& client_is_activ)
+    std::string state::login(const core::commands& comm, core::user& client, bool& already_authorized)
     {
         core::error_msg err;
 
-        if (client_is_activ)
+        if (already_authorized)
             err.error_msg = "already_authorized";
         if (comm.params.size() != 2)
             err.error_msg = "wrong_params"; 
@@ -72,7 +72,7 @@ namespace server
             return err_json.dump();
         }
 
-        client_is_activ = true;
+        already_authorized = true;
         core::success_result_msg res("successful_logged");
         nlohmann::json res_json = res;
         return res_json.dump();
