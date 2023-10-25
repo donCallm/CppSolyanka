@@ -7,4 +7,5 @@ target_include_directories(state PRIVATE ${CMAKE_SOURCE_DIR}/src/server/database
 
 target_link_libraries(state PRIVATE database
                                     objects
-                                    nlohmann_json::nlohmann_json)
+                                    nlohmann_json::nlohmann_json
+                                    spdlog::spdlog)

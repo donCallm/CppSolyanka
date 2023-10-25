@@ -25,7 +25,7 @@ namespace core
                 _recv_msg.resize(msg_size);
 
             boost::asio::read(_socket, boost::asio::buffer(_recv_msg.data(), msg_size));
-
+            
             return std::string(_recv_msg.begin(), _recv_msg.end());
         }
         catch (const std::exception& e)
@@ -70,7 +70,7 @@ namespace core
             std::string json_string = serialize_message.dump();
             write(json_string);
 
-            if (comm.instructon = commands::type::end)
+            if (comm.instruction == commands::type::end)
             {
                 _socket.close();
                 return;
@@ -78,7 +78,7 @@ namespace core
 
             rpl.from_json(nlohmann::json::parse(read_response()));
             nlohmann::json json_data = nlohmann::json::parse(rpl.reply_msg);
-
+            
             if (json_data.find("error_msg") != json_data.end())
             {
                 core::error_msg err;

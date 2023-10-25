@@ -4,6 +4,7 @@
 #include <boost/bind/bind.hpp>
 #include "commands.hpp"
 #include "state.hpp"
+#include "msg_objects.hpp"
 
 namespace net
 {
@@ -23,6 +24,7 @@ namespace net
             void say_hello();
             void lack_of_token();
             void invok_func(core::commands& comm);
+            void show_result(const core::reply_msg& rpl, nlohmann::json& json_data);
             std::string get_adress();
 
         public:

@@ -27,7 +27,7 @@ namespace db
     
     void database::write(const db_list& db_name, const std::string& key, const std::string& data)
     {
-        if (key.empty() || to_write.empty())
+        if (key.empty() || data.empty())
         {
             spdlog::error("in db::write key or data is empty");
             return;
@@ -35,7 +35,7 @@ namespace db
 
         std::lock_guard<std::mutex> lock(_mtx);
         select_db(db_name);
-        _redis.set(key, to_write);
+        _redis.set(key, data);
         _redis.sync_commit();
     }
     
@@ -44,7 +44,7 @@ namespace db
         if (key.empty())
         {
             spdlog::error("in db::read key is empty");
-            return;
+            return "error: key is value";
         }
 
         std::lock_guard<std::mutex> lock(_mtx);

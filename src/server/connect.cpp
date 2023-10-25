@@ -22,6 +22,26 @@ namespace net
         _sock.close();
     }
 
+    void con_handler::show_result(const core::reply_msg& rpl, nlohmann::json& json_data)
+    {
+        json_data = nlohmann::json::parse(rpl.reply_msg);
+        if (json_data.find("error_msg") != json_data.end())
+        {
+            core::error_msg err;
+            err.from_json(json_data);
+            spdlog::error("error: {}", err.error_msg);
+        }
+        else
+        {
+            core::success_result_msg res;
+            res.from_json(json_data);
+            if (res.result_msg == "unknown_command")
+                spdlog::warn("user {} sending unknown command", get_adress());
+            else
+                spdlog::info("result for user {} - {}",get_adress(), res.result_msg);
+        }
+    }
+
     void con_handler::invok_func(core::commands& comm)
     {
         core::success_result_msg res;
@@ -40,7 +60,6 @@ namespace net
                 res.result_msg = "pong";
                 json_data = res;
                 rpl.reply_msg = json_data.dump();
-                spdlog::info("server sending pong");
                 break; }
             case core::commands::end: {
                 spdlog::info("client {} wants to disconnect", get_adress());
@@ -50,17 +69,10 @@ namespace net
                 res.result_msg = "unknown_command";
                 json_data = res;
                 rpl.reply_msg = json_data.dump();
-                spdlog::warn("server sending message about uncknow command");
                 break; }
         }
 
-        if (json_data.find("error_msg") != json_data.end())
-        {
-            core::error_msg err;
-            err.from_json(json_data);
-            spdlog::error("error: {}", err.error_msg);
-        }
-
+        show_result(rpl, json_data);
         json_data = rpl;
         std::string json_string = json_data.dump();
         write_message(json_string);
@@ -132,13 +144,9 @@ namespace net
             boost::asio::buffer(&_msg_size, sizeof(size_t)),
             [self = shared_from_this()](const boost::system::error_code& error, size_t bytes_transferred) {
                 if (!error)
-                {
                     self->read_message();
-                }
                 else
-                {
                     self->_sock.close();
-                }
             });
     }
 
