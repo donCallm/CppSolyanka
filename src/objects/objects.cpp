@@ -77,6 +77,8 @@ namespace core
         json_data.at("surname").get_to(surname);
         json_data.at("id").get_to(id);
         json_data.at("password").get_to(password);
+        json_data.at("accouts").get_to(accounts);
+        json_data.at("cards").get_to(cards);
     }
 
     bool user::is_empty()

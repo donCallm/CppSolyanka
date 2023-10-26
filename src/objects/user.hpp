@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <vector>
+#include "finance.hpp"
 
 
 namespace core
@@ -10,7 +12,7 @@ namespace core
     {
         public:
             operator nlohmann::json() const { return nlohmann::json{ {"name", name}, {"surname", surname}, {"patronymic", patronymic},
-                {"password", password}, {"pasport", pasport}, {"id", id} }; }
+                {"password", password}, {"pasport", pasport}, {"id", id}, {"accounts", accounts}, {"cards", cards} }; }
 
         public:
             void from_json(const nlohmann::json& json_data);
@@ -24,5 +26,7 @@ namespace core
             std::string pasport;
             uint64_t id;
             bool already_authorized;
+            std::vector<bank_account> accounts;
+            std::vector<card> cards;
     };
 }
