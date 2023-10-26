@@ -10,7 +10,6 @@ namespace server
     std::string state::registration(const core::commands& comm, const core::user& client)
     {
         core::error_msg err;
-        core::user client_data;
 
         if (client.already_authorized)
             err.error_msg =  "already_authorized";
@@ -25,14 +24,15 @@ namespace server
             return err_json.dump();
         }
 
-        client_data.name = comm.params[0];
-        client_data.surname = comm.params[1];
-        client_data.patronymic = comm.params[2];
-        client_data.pasport = comm.params[3];
-        client_data.password = comm.params[4];
-        client_data.id = _last_user_id++;
+        core::user client_to_json;
+        client_to_json.name = comm.params[0];
+        client_to_json.surname = comm.params[1];
+        client_to_json.patronymic = comm.params[2];
+        client_to_json.pasport = comm.params[3];
+        client_to_json.password = comm.params[4];
+        client_to_json.id = _last_user_id++;
 
-        nlohmann::json json_client = client_data; 
+        nlohmann::json json_client = client_to_json; 
         std::string json_string = json_client.dump();
         
         _db->write(database::clients_info, client.pasport,
