@@ -14,7 +14,6 @@ namespace core
 
         public:
             void from_json(const nlohmann::json& json_data);
-            bool is_empty();
 
         public:
             std::string name;

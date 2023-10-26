@@ -4,59 +4,23 @@
 #include <objects/msg_objects.hpp>
 #include <iostream>
 #include <spdlog/spdlog.h>
+#include "utils.hpp"
 
 namespace net
 {
-    con_handler::con_handler(boost::asio::io_service& io_service): _sock(io_service) {}
+    con_handler::con_handler(boost::asio::io_service& io_service) : 
+        _sock(io_service) 
+    {}
+
+    con_handler::~con_handler() 
+    {
+        spdlog::info("Client disconected");
+    }
     
     boost::asio::ip::tcp::socket& con_handler::get_socket()
     {
         return _sock;
     } 
-
-    void con_handler::lack_of_token()
-    {
-        boost::asio::ip::tcp::endpoint remote_endpoint = _sock.remote_endpoint();
-        spdlog::error("client {} send message without token", remote_endpoint.address().to_string() + ":" + std::to_string(remote_endpoint.port()));
-        write_message("pls restart app");
-        _sock.close();
-    }
-
-    void con_handler::invok_func(core::commands& comm)
-    {
-        core::success_result_msg res;
-        core::reply_msg rpl;
-        nlohmann::json json_data;
-
-        switch (comm.instruction)
-        {
-            case core::commands::registration: {
-                rpl.reply_msg = _state.registration(comm, _client);
-                break; }
-            case core::commands::login: {
-                rpl.reply_msg = _state.login(comm, _client);
-                break; }
-            case core::commands::ping: {
-                res.result_msg = "pong";
-                json_data = res;
-                rpl.reply_msg = json_data.dump();
-                spdlog::info("server sending pong");
-                break; }
-            case core::commands::end: {
-                spdlog::info("client {} wants to disconnect", get_adress());
-                _sock.close();
-                break; }
-            default: {
-                res.result_msg = "unknown_command";
-                json_data = res;
-                rpl.reply_msg = json_data.dump();
-                spdlog::warn("server sending message about uncknow command");
-                break; }
-        }
-        json_data = rpl; 
-        std::string json_string = json_data.dump();
-        write_message(json_string);
-    }
 
     std::string con_handler::get_adress()
     {
@@ -66,28 +30,19 @@ namespace net
 
     void con_handler::on_msg_ready()
     {
-        core::commands comm;
+        core::command comm;
         core::message msg = core::deserialize_message(_read_buff, _msg_size);
         comm.from_json(nlohmann::json::parse(msg.data));
         
-        spdlog::info("<< receive from client {}: command - {}, command id - {}", get_adress(), comm.instruction, comm.id);
-
-        if (comm.token != _token)
-        {
-            lack_of_token();
-        }
-        else
-        {
-            invok_func(comm);
-            accept_message();
-        }
+        spdlog::info("<< {}", msg.data);
+        on_msg(shared_from_this(), comm);
     }
 
     void con_handler::say_hello()
     {
-        spdlog::info(">> client {} connected", get_adress());
-        spdlog::info(">> server say hello");
-        write_message(_token);
+        spdlog::info("client {} connected", get_adress());
+        spdlog::info("server say hello");
+        send(utils::TOKEN);
     }
 
     void con_handler::read_message()
@@ -125,12 +80,11 @@ namespace net
 
     void con_handler::start()
     {
-        _state.setup();
         say_hello();
         accept_message();
     }
 
-    void con_handler::write_message(const std::string& data)
+    void con_handler::send(const std::string& data)
     { 
         core::message msg;
         msg.data = data;
@@ -158,8 +112,8 @@ namespace net
         return std::make_shared<con_handler>(io_service);
     }
 
-    con_handler::~con_handler() 
+    void con_handler::drop()
     {
-        spdlog::info("client disconected");
+        _sock.close();
     }
 }

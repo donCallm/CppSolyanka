@@ -1,6 +1,7 @@
 #include <server/database/database.hpp>
 #include <iostream>
 #include <future>
+#include <spdlog/spdlog.h>
 
 namespace db
 {
@@ -10,12 +11,14 @@ namespace db
     database::database()
     {
         _redis.connect("127.0.0.1", 6379);
+        spdlog::info("Create database at 127.0.0.1:6379"); // TODO: move to var or constant to utils
     }
 
     database* database::get_instance()
     {
         std::lock_guard<std::mutex> lock(_mtx);
-        if (_db == nullptr) _db = new database();
+        if (_db == nullptr) 
+            _db = new database();
         return _db;
     }
 
@@ -32,7 +35,7 @@ namespace db
         _redis.sync_commit();
     }
     
-    std::string database::read(const db_list& db_name, const std::string& key, const std::string& default_value)
+    std::string database::read(const db_list& db_name, const std::string& key)
     {
         std::lock_guard<std::mutex> lock(_mtx);
         select_db(db_name);
@@ -40,9 +43,11 @@ namespace db
         std::promise<std::string> result_promise;
         auto res = result_promise.get_future();
 
-        _redis.get(key, [&result_promise, &default_value](const cpp_redis::reply& reply){
-            if (reply.is_null()) result_promise.set_value(default_value);
-            else result_promise.set_value(reply.as_string());
+        _redis.get(key, [&result_promise](const cpp_redis::reply& reply){
+            if (reply.is_null()) 
+                result_promise.set_value("");
+            else 
+                result_promise.set_value(reply.as_string());
         });
         _redis.sync_commit();
         return res.get();

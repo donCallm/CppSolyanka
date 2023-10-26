@@ -3,26 +3,29 @@
 #include <objects/commands.hpp>
 #include <objects/user.hpp>
 #include <server/database/database.hpp>
-using namespace core;
+#include <optional>
+#include <mutex>
 
-namespace server
+namespace core
 {
     class state
     {   
-        public:
-            state();
+    public:
+        state();
 
-        private:
-            bool client_exist(std::string& pasport);
+    private:
+        bool client_exist(std::string& pasport);
 
-        public:
-            std::string registration(core::commands& comm, core::user& client);
-            std::string login(core::commands& comm, core::user& client);
-            user get_user(std::string& parport);
-            void setup();
+    public:
+        uint64_t get_new_id();
+        
+        bool create_user(core::user& client);
+        std::optional<user> get_user(std::string& parport);
+        void setup();
 
-        private:
-            uint64_t _last_user_id;
-            db::database* _db;
+    private:
+        std::atomic<uint64_t> _last_user_id;
+        db::database* _db;
+        std::mutex _m;
     };
 }

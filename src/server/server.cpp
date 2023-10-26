@@ -27,6 +27,7 @@ namespace core
         if (!err)
         {
             connection->start();
+            on_accept_connection(connection);
         } 
         else
         {

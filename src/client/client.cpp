@@ -55,7 +55,7 @@ namespace core
     void client::start()
     {
         core::message msg;
-        core::commands comm;
+        core::command comm;
         core::reply_msg rpl;
 
         while (true)

@@ -5,13 +5,13 @@
 
 namespace core
 {
-    uint64_t commands::id = 0;
+    uint64_t command::id = 0;
 
-    const std::unordered_map<std::string, commands::type> commands::command_map = {
-                {"ping", commands::type::ping},
-                {"login", commands::type::login},
-                {"registration", commands::type::registration},
-                {"end", commands::type::end}
+    const std::unordered_map<std::string, command::type> command::command_map = {
+                {"ping", command::type::ping},
+                {"login", command::type::login},
+                {"registration", command::type::registration},
+                {"end", command::type::end}
             };
             
     message deserialize_message(const std::vector<uint8_t>& msg_buff, std::size_t size)
@@ -39,7 +39,7 @@ namespace core
         return buffer;
     }
 
-    void commands::from_json(const nlohmann::json& json_data)
+    void command::from_json(const nlohmann::json& json_data)
     {
         if (json_data.empty()) throw std::runtime_error("Empty json");
 
@@ -49,7 +49,7 @@ namespace core
         json_data.at("token").get_to(token);
     }
 
-    void commands::set_command(const std::string& input)
+    void command::set_command(const std::string& input)
     { 
         if (input.empty()) throw std::runtime_error("Empty message for set command");
         std::vector<std::string> result;
@@ -78,9 +78,4 @@ namespace core
         json_data.at("password").get_to(password);
     }
 
-    bool user::is_empty()
-    {
-        if (!pasport.empty()) return false;
-        return true;
-    }
 }
