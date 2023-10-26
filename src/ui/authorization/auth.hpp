@@ -33,18 +33,4 @@ private:
     std::shared_ptr<QPushButton>    _registration_button;
 };
 
-class app
-{
-public:
-    app();
-
-public:
-    int start();
-    int setup();
-
-private:
-    core::client user;
-    std::shared_ptr<login_window> _lw;
-};
-
 }

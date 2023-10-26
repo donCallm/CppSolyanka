@@ -1,15 +1,15 @@
-#include "authorization/auth.hpp"
+#include "app.hpp"
 #include <spdlog/spdlog.h>
 
 int main(int argc, char *argv[])
 {
     try
     {
-        QApplication app(argc, argv);
-        ui::app main_window;
-        main_window.setup();
-        main_window.start();
-        return app.exec();
+        QApplication qt_app(argc, argv);
+        ui::app ui_app;
+        ui_app.setup();
+        ui_app.start();
+        return qt_app.exec();
     }
     catch(const std::exception& e)
     {

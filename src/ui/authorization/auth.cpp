@@ -6,22 +6,6 @@
 namespace ui
 {
 
-app::app() 
-{
-    spdlog::info("Create app");
-}
-
-int app::start()
-{
-    _lw->show();
-}
-
-int app::setup()
-{
-    spdlog::info("Setup app");
-    _lw = std::make_shared<login_window>();
-}
-
 login_window::login_window()
 {
     spdlog::info("Create login_window");

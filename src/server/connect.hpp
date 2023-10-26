@@ -2,8 +2,8 @@
 
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
-#include "commands.hpp"
-#include "state.hpp"
+#include <objects/commands.hpp>
+#include <server/state/state.hpp>
 
 namespace net
 {

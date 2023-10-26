@@ -22,6 +22,8 @@ find_package(cpp_redis      CONFIG REQUIRED)
 find_package(nlohmann_json  CONFIG REQUIRED)
 find_package(Qt5            CONFIG REQUIRED Core Widgets)
 
+include_directories("src")
+
 message(STATUS "Qt5 found at ${Qt5_DIR}")
 message(STATUS "Qt5 Core version: ${Qt5Core_VERSION}")
 message(STATUS "Qt5 Widgets version: ${Qt5Widgets_VERSION}")

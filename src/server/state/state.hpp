@@ -1,8 +1,8 @@
 #pragma once
 
-#include "commands.hpp"
-#include "user.hpp"
-#include "database.hpp"
+#include <objects/commands.hpp>
+#include <objects/user.hpp>
+#include <server/database/database.hpp>
 using namespace core;
 
 namespace server
