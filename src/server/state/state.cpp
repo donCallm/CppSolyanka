@@ -1,5 +1,5 @@
 #include "state.hpp"
-#include "msg_objects.hpp"
+#include <objects/msg_objects.hpp>
 using db::database;
 
 namespace server

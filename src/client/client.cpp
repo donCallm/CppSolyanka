@@ -1,13 +1,13 @@
 #include "client.hpp"
-#include "commands.hpp"
-#include "message.hpp"
-#include "msg_objects.hpp"
+#include <objects/commands.hpp>
+#include <objects/message.hpp>
+#include <objects/msg_objects.hpp>
 #include <iostream>
 #include <spdlog/spdlog.h>
 
 namespace core
 {
-    client::client(): _socket(_io_service) {connect();}
+    client::client(bool console_mode): _socket(_io_service) {connect();}
 
     void client::read_hello_msg()
     {   

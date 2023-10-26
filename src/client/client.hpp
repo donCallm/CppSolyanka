@@ -1,14 +1,14 @@
 #pragma once
 
 #include <boost/asio.hpp>
-#include "user.hpp"
+#include <objects/user.hpp>
 
 namespace core
 {
     class client
     {
         public:
-            client();
+            client(bool console_mode = true);
 
         public:
             void ping();
@@ -27,5 +27,6 @@ namespace core
             std::vector<uint8_t> _recv_msg;
             std::vector<uint8_t> _write_buff;
             std::string _token;
+            bool _console_mode;
     };
 }

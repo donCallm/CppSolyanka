@@ -1,4 +1,12 @@
 project(AppUI)
 
-add_executable(${PROJECT_NAME} main.cpp)
-target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Widgets)
+add_executable(${PROJECT_NAME} 
+            app.cpp
+            main.cpp
+            api/api.cpp
+            authorization/auth.cpp)
+
+target_link_libraries(${PROJECT_NAME} 
+            spdlog::spdlog 
+            Qt5::Core 
+            Qt5::Widgets)

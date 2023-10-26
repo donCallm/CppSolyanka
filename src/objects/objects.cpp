@@ -1,6 +1,6 @@
-#include "commands.hpp"
-#include "user.hpp"
-#include "message.hpp"
+#include <objects/commands.hpp>
+#include <objects/user.hpp>
+#include <objects/message.hpp>
 #include <boost/tokenizer.hpp>
 
 namespace core

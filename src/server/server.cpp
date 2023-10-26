@@ -13,7 +13,8 @@ namespace core
             boost::bind(&server::handle_accept, this,  connection, boost::placeholders::_1));
     }
 
-    server::server(boost::asio::io_service& io_service): _acceptor(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 8080)),
+    server::server(boost::asio::io_service& io_service) : 
+    _acceptor(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 8080)),
     _io_service(io_service)
     {   
         boost::asio::ip::tcp::endpoint endpoint = _acceptor.local_endpoint();

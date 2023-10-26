@@ -1,7 +1,7 @@
 #include "connect.hpp"
-#include "commands.hpp"
-#include "message.hpp"
-#include "msg_objects.hpp"
+#include <objects/commands.hpp>
+#include <objects/message.hpp>
+#include <objects/msg_objects.hpp>
 #include <iostream>
 #include <spdlog/spdlog.h>
 
