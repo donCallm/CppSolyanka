@@ -1,6 +1,7 @@
 #include "state.hpp"
 #include <objects/msg_objects.hpp>
 #include <spdlog/spdlog.h>
+#include <server/database/database.hpp>
 
 using namespace db;
 
@@ -17,22 +18,47 @@ namespace core
     { 
         std::lock_guard<std::mutex> _(_m);
         uint64_t tmp = _last_user_id.fetch_add(1);
-        _db->write(database::last_id, "last_user_id", std::to_string(tmp));
+        database::get_instance()->write(database::last_id, "last_user_id", std::to_string(tmp));
         return tmp; 
     }
 
     bool state::create_user(core::user& usr)
     {
+        if (get_user(usr.pasport).has_value())
+            return false;
+        if (std::find(_active_users.begin(), _active_users.end(), usr.pasport) == _active_users.end())
+            return false;
+
         usr.id = get_new_id();
 
         nlohmann::json json_usr = usr; 
-        _db->write(database::clients_info, usr.pasport, json_usr.dump());
+        database::get_instance()->write(database::clients_info, usr.pasport, json_usr.dump());
         return true;
     }
 
-    std::optional<user> state::get_user(std::string& pasport)
+    bool state::login(const std::string& pasport, const std::string& password)
     {
-        std::string res = _db->read(database::clients_info, pasport);
+        std::optional<user> res  = get_user(pasport);
+
+        if (res.has_value())
+        {
+            if (std::find(_active_users.begin(), _active_users.end(), pasport) == _active_users.end())
+                return false;
+
+            core::user usr = res.value();
+            if (usr.password == password)
+            {
+                _active_users.push_back(pasport);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    std::optional<user> state::get_user(const std::string& pasport)
+    {
+        std::string res = database::get_instance()->read(database::clients_info, pasport);
         if (res.empty()) 
             return {};
 
@@ -43,10 +69,14 @@ namespace core
 
     void state::setup()
     {
-        std::string res = _db->read(database::last_id, "last_user_id");
+        std::string res = database::get_instance()->read(database::last_id, "last_user_id");
         if (!res.empty())
+        {
             _last_user_id = std::stoull(res);
+        }
         else 
-            _db->write(database::last_id, "last_user_id", std::to_string(_last_user_id));
+        {
+            database::get_instance()->write(database::last_id, "last_user_id", std::to_string(_last_user_id));
+        }
     }
 }

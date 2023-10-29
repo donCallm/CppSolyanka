@@ -4,8 +4,6 @@
 
 namespace db 
 {
-
-
     class database {
             
         private:

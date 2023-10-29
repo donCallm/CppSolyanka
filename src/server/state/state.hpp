@@ -2,7 +2,7 @@
 
 #include <objects/commands.hpp>
 #include <objects/user.hpp>
-#include <server/database/database.hpp>
+#include <atomic>
 #include <optional>
 #include <mutex>
 
@@ -13,19 +13,18 @@ namespace core
     public:
         state();
 
-    private:
-        bool client_exist(std::string& pasport);
-
     public:
         uint64_t get_new_id();
         
-        bool create_user(core::user& client);
-        std::optional<user> get_user(std::string& parport);
+        bool create_user(core::user& usr);
+        std::optional<user> get_user(const std::string& pasport);
+        bool login(const std::string& pasport, const std::string& password);
+
         void setup();
 
     private:
+        std::vector<std::string> _active_users;
         std::atomic<uint64_t> _last_user_id;
-        db::database* _db;
         std::mutex _m;
     };
 }

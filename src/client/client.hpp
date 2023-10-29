@@ -5,6 +5,8 @@
 
 namespace core
 {
+    class reply_msg;
+
     class client
     {
         public:
@@ -16,6 +18,7 @@ namespace core
             void write(std::string msg);
             void connect();
             void start();
+            void handler_result(const reply_msg& rpl);
             std::string read_response();
             std::vector<uint8_t> serialize_in_buf(std::string msg);
 

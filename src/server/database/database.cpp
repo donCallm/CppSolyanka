@@ -2,6 +2,7 @@
 #include <iostream>
 #include <future>
 #include <spdlog/spdlog.h>
+#include "../utils.hpp"
 
 namespace db
 {
@@ -10,8 +11,8 @@ namespace db
 
     database::database()
     {
-        _redis.connect("127.0.0.1", 6379);
-        spdlog::info("Create database at 127.0.0.1:6379"); // TODO: move to var or constant to utils
+        _redis.connect(utils::IP, utils::PORT);
+        spdlog::info(utils::CREATE_DB);
     }
 
     database* database::get_instance()
@@ -39,10 +40,9 @@ namespace db
     {
         std::lock_guard<std::mutex> lock(_mtx);
         select_db(db_name);
-
         std::promise<std::string> result_promise;
-        auto res = result_promise.get_future();
 
+        auto res = result_promise.get_future();
         _redis.get(key, [&result_promise](const cpp_redis::reply& reply){
             if (reply.is_null()) 
                 result_promise.set_value("");

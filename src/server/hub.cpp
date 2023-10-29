@@ -1,6 +1,7 @@
 #include "hub.hpp"
 #include "app.hpp"
 #include "server.hpp"
+#include "utils.hpp"
 #include <objects/commands.hpp>
 #include <objects/msg_objects.hpp>
 #include <spdlog/spdlog.h>
@@ -22,14 +23,14 @@ void hub::subscribe_on_server()
     _server->on_accept_connection.connect(boost::bind(&hub::on_new_connection, this, _1));
 }
 
-void hub::subscribe_on_connection(net::con_handler::ptr conn)
-{
-    conn->on_msg.connect(boost::bind(&hub::on_new_msg, this, _1, _2));
-}
-
 void hub::on_new_connection(net::con_handler::ptr conn)
 {
     subscribe_on_connection(conn);
+}
+
+void hub::subscribe_on_connection(net::con_handler::ptr conn)
+{
+    conn->on_msg.connect(boost::bind(&hub::on_new_msg, this, _1, _2));
 }
 
 void hub::on_new_msg(net::con_handler::ptr conn, command comm)
@@ -73,12 +74,40 @@ void hub::on_new_msg(net::con_handler::ptr conn, command comm)
 reply_msg hub::handle_login(command& comm)
 {
     reply_msg rpl;
+
+    if (_application.get_state()->login(comm.params[0], comm.params[1]))
+    {
+        rpl.reply_msg = "Successful login";
+    }
+    else
+    {
+        core::error_msg err;
+        err.error_msg = "error of login";
+        nlohmann::json json_error = err;
+        rpl.reply_msg = json_error.dump();
+    }
+
     return rpl;
 }
 
 reply_msg hub::handle_create_user(command& comm)
 {
     reply_msg rpl;
+    core::user usr(comm.params[0], comm.params[1], 
+        comm.params[2], comm.params[3], comm.params[4]);
+
+    if (_application.get_state()->create_user(usr))
+    {
+        rpl.reply_msg = "Successful registration";
+    }
+    else
+    {
+        core::error_msg err;
+        err.error_msg = "error of registration";
+        nlohmann::json json_error = err;
+        rpl.reply_msg = json_error.dump();
+    }
+
     return rpl;
 }
 
