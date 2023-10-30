@@ -2,7 +2,6 @@
 #include <iostream>
 #include <future>
 #include <spdlog/spdlog.h>
-#include "../utils.hpp"
 
 namespace db
 {
@@ -11,8 +10,8 @@ namespace db
 
     database::database()
     {
-        _redis.connect(utils::IP, utils::PORT);
-        spdlog::info(utils::CREATE_DB);
+        _redis.connect(IP, PORT);
+        spdlog::info("Create database at 127.0.0.1:6379");
     }
 
     database* database::get_instance()

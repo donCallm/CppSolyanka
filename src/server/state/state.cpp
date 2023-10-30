@@ -18,7 +18,7 @@ namespace core
     { 
         std::lock_guard<std::mutex> _(_m);
         uint64_t tmp = _last_user_id.fetch_add(1);
-        database::get_instance()->write(database::last_id, "last_user_id", std::to_string(tmp));
+        DB()->write(database::last_id, "last_user_id", std::to_string(tmp));
         return tmp; 
     }
 
@@ -32,7 +32,7 @@ namespace core
         usr.id = get_new_id();
 
         nlohmann::json json_usr = usr; 
-        database::get_instance()->write(database::clients_info, usr.pasport, json_usr.dump());
+        DB()->write(database::clients_info, usr.pasport, json_usr.dump());
         return true;
     }
 
@@ -58,7 +58,7 @@ namespace core
 
     std::optional<user> state::get_user(const std::string& pasport)
     {
-        std::string res = database::get_instance()->read(database::clients_info, pasport);
+        std::string res = DB()->read(database::clients_info, pasport);
         if (res.empty()) 
             return {};
 
@@ -69,14 +69,14 @@ namespace core
 
     void state::setup()
     {
-        std::string res = database::get_instance()->read(database::last_id, "last_user_id");
+        std::string res = DB()->read(database::last_id, "last_user_id");
         if (!res.empty())
         {
             _last_user_id = std::stoull(res);
         }
         else 
         {
-            database::get_instance()->write(database::last_id, "last_user_id", std::to_string(_last_user_id));
+            DB()->write(database::last_id, "last_user_id", std::to_string(_last_user_id));
         }
     }
 }

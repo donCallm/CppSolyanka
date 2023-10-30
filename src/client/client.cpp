@@ -55,19 +55,19 @@ namespace core
 
     void client::handler_result(const reply_msg& rpl)
     {
-        nlohmann::json json_data = nlohmann::json::parse(rpl.reply_msg);
+        nlohmann::json json_data = nlohmann::json::parse(rpl.rpl_msg);
 
-        if (json_data.find("error_msg") != json_data.end())
+        if (json_data.find("err_msg") != json_data.end())
         {
             error_msg err;
             err.from_json(json_data);
-            spdlog::info("error: {}", err.error_msg);
+            spdlog::info("error: {}", err.err_msg);
         }
         else
         {
             success_result_msg res;
             res.from_json(json_data);
-            spdlog::info("<< response: {}", res.result_msg);
+            spdlog::info("<< response: {}", res.res_msg);
         }
     }
 
@@ -76,13 +76,17 @@ namespace core
         message msg;
         command comm;
         reply_msg rpl;
+        spdlog::info("Enter command");
 
         while (true)
         {
-            spdlog::info("Enter command");
             std::getline(std::cin, msg.data);
 
             comm.set_command(msg.data);
+
+            if (comm.instruction == command::type::end)
+                _socket.close();
+                
             comm.token = _token;
 
             nlohmann::json serialize_message = comm; 
