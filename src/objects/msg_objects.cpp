@@ -6,17 +6,17 @@ namespace core
 
     msg::msg() {++id;}
 
-    success_result_msg::success_result_msg(std::string data) : res_msg(data) {};
-    
-    error_msg::error_msg(std::string data) : err_msg(data) {}
+    success_result_msg::success_result_msg(std::string data) {message = data;}
 
-    reply_msg::reply_msg(std::string data) : rpl_msg(data) {}
+    error_msg::error_msg(std::string data) {message = data;}
 
-    void reply_msg::from_json(const nlohmann::json& json_data)
+    msg::msg(std::string data) : message(data) {}
+
+    void msg::from_json(const nlohmann::json& json_data)
     {
         if (json_data.empty()) throw std::runtime_error("Empty json");
 
-        json_data.at("rpl_msg").get_to(rpl_msg);
+        json_data.at("message").get_to(message);
         json_data.at("id").get_to(id);
     }
 
@@ -24,7 +24,7 @@ namespace core
     {
         if (json_data.empty()) throw std::runtime_error("Empty json");
 
-        json_data.at("err_msg").get_to(err_msg);
+        json_data.at("err_msg").get_to(message);
         json_data.at("id").get_to(id);
     }
 
@@ -32,7 +32,7 @@ namespace core
     {
         if (json_data.empty()) throw std::runtime_error("Empty json");
 
-        json_data.at("res_msg").get_to(res_msg);
+        json_data.at("res_msg").get_to(message);
         json_data.at("id").get_to(id);
     }
 }

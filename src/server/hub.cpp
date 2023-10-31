@@ -34,8 +34,7 @@ void hub::subscribe_on_connection(net::con_handler::ptr conn)
 
 void hub::on_new_msg(net::con_handler::ptr conn, command comm)
 {
-    success_result_msg res;
-    reply_msg rpl;
+    msg rpl;
     nlohmann::json json_data;
 
     switch (comm.instruction)
@@ -47,9 +46,7 @@ void hub::on_new_msg(net::con_handler::ptr conn, command comm)
             rpl = handle_login(comm);
             break; }
         case command::ping: {
-            res.res_msg = "pong";
-            json_data = res;
-            rpl.rpl_msg = json_data.dump();
+            rpl.message = get_result("pong");
             spdlog::info("server sending pong");
             break; }
         case command::end: {
@@ -58,9 +55,7 @@ void hub::on_new_msg(net::con_handler::ptr conn, command comm)
             break; }
         default:
         {
-            res.res_msg = "unknown_command";
-            json_data = res;
-            rpl.rpl_msg = json_data.dump();
+            rpl.message = get_result("unknown_command");
             spdlog::warn("get unknown command");
             break; 
         }
@@ -70,39 +65,43 @@ void hub::on_new_msg(net::con_handler::ptr conn, command comm)
     conn->send(json_string);
 }
 
-reply_msg hub::handle_login(command& comm)
+std::string hub::get_result(const std::string& res_msg)
 {
-    if (comm.params.size() != 5)
+    core::error_msg res(res_msg);
+    nlohmann::json json_result = res;
+    return json_result.dump();
+}
+
+std::string hub::get_error(const std::string& err_msg)
+{
+    core::error_msg err(err_msg);
+    nlohmann::json json_error = err;
+    return json_error.dump();
+}
+
+msg hub::handle_login(command& comm)
+{
+    if (comm.params.size() != 2)
     {
-        core::error_msg err("wrong params");
-        nlohmann::json json_error = err;
-        reply_msg rpl(json_error.dump());
+        msg rpl(get_error("Wrong  params"));
         return rpl;
     }
 
     if (!_application.get_state()->login(comm.params[0], comm.params[1]))
     {
-        core::error_msg err("error of login");
-        nlohmann::json json_error = err;
-        reply_msg rpl(json_error.dump());
+        msg rpl(get_error("Error of login"));
         return rpl;
     }
 
-    success_result_msg res("Successful login");
-    nlohmann::json json_result = res;
-    reply_msg rpl(json_result.dump());
-
+    msg rpl(get_result("Successful login"));
     return rpl;
 }
 
-reply_msg hub::handle_create_user(command& comm)
+msg hub::handle_create_user(command& comm)
 {
-
     if (comm.params.size() != 5)
     {
-        core::error_msg err("wrong params");
-        nlohmann::json json_error = err;
-        reply_msg rpl(json_error.dump());
+        msg rpl(get_error("Wrong  params"));
         return rpl;
     }
 
@@ -111,16 +110,11 @@ reply_msg hub::handle_create_user(command& comm)
 
     if (_application.get_state()->create_user(usr))
     {
-        core::error_msg err("error of registration");
-        nlohmann::json json_error = err;
-        reply_msg rpl(json_error.dump());
+        msg rpl(get_error("Error of registration"));
         return rpl;
     }
-
-    success_result_msg res("Successful registration");
-    nlohmann::json json_result = res;
-    reply_msg rpl(json_result.dump());
-
+    
+    msg rpl(get_result("Successful registration"));
     return rpl;
 }
 

@@ -53,29 +53,29 @@ namespace core
         boost::asio::write(_socket, boost::asio::buffer(_write_buff.data(), _write_buff.size()));
     }
 
-    void client::handler_result(const reply_msg& rpl)
+    void client::handler_result(const core::msg& rpl)
     {
-        nlohmann::json json_data = nlohmann::json::parse(rpl.rpl_msg);
-
+        nlohmann::json json_data = nlohmann::json::parse(rpl.message);
+        
         if (json_data.find("err_msg") != json_data.end())
         {
             error_msg err;
             err.from_json(json_data);
-            spdlog::info("error: {}", err.err_msg);
+            spdlog::info("error: {}", err.message);
         }
         else
         {
             success_result_msg res;
             res.from_json(json_data);
-            spdlog::info("<< response: {}", res.res_msg);
+            spdlog::info("<< response: {}", res.message);
         }
     }
 
     void client::start()
     {
-        message msg;
-        command comm;
-        reply_msg rpl;
+        core::message msg;
+        core::command comm;
+        core::msg rpl;
         spdlog::info("Enter command");
 
         while (true)
