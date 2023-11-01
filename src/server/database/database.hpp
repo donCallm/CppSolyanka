@@ -2,12 +2,12 @@
 
 #include <cpp_redis/cpp_redis>
 
+#define DB() (database::get_instance())
+
 namespace db 
 {
-
-
-    class database {
-            
+    class database
+    {
         private:
             database();
             database(const database&) = delete;
@@ -33,5 +33,7 @@ namespace db
             static db::database* _db;
             static std::mutex _mtx;
             cpp_redis::redis_client _redis;
+            static constexpr const char IP[] = "127.0.0.1";
+            static constexpr const uint16_t PORT = 6379;
     };
 }

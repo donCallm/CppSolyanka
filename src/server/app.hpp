@@ -13,9 +13,6 @@ namespace core
         public:
             explicit app(boost::asio::io_service& io_service);
 
-        public:
-            void start();
-
             boost::asio::io_service& get_service()  { return _io_service; }
             std::shared_ptr<state> get_state()      { return _state; }
 

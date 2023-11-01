@@ -7,6 +7,15 @@ namespace core
 {
     uint64_t command::id = 0;
 
+    user::user(std::string& name_, std::string& surname_, std::string& patronymic_,
+            std::string& pasport_, std::string password_) :
+        name(name_),
+        surname(surname_),
+        patronymic(patronymic_),
+        pasport(pasport_),
+        password(password_)
+    {}
+
     const std::unordered_map<std::string, command::type> command::command_map = {
                 {"ping", command::type::ping},
                 {"login", command::type::login},

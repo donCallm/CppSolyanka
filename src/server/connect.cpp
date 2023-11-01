@@ -65,17 +65,20 @@ namespace net
     void con_handler::accept_message()
     {
         boost::asio::async_read(_sock,
-            boost::asio::buffer(&_msg_size, sizeof(size_t)),
-            [self = shared_from_this()](const boost::system::error_code& error, size_t bytes_transferred) {
-                if (!error)
-                {
-                    self->read_message();
-                }
-                else
-                {
-                    self->_sock.close();
-                }
-            });
+        boost::asio::buffer(&_msg_size, sizeof(size_t)),
+        [self = shared_from_this()](const boost::system::error_code& error, size_t bytes_transferred) {
+            if (!error)
+            {
+                self->read_message();
+                std::async(std::launch::async, [self]() {
+                    self->accept_message();
+                });
+            }
+            else
+            {
+                self->_sock.close();
+            }
+        });
     }
 
     void con_handler::start()

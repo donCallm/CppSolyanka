@@ -2,6 +2,7 @@
 #include <server/state/state.hpp>
 #include <server/hub.hpp>
 #include <spdlog/spdlog.h>
+#include <server/database/database.hpp>
 
 namespace core
 {
@@ -12,10 +13,5 @@ namespace core
     {
         spdlog::info("Start application");
         db::database::get_instance();
-    }
-
-    void app::start()
-    {
-        _hub = std::make_shared<hub>(*this);
     }
 }
