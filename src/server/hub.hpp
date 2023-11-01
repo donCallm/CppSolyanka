@@ -21,9 +21,6 @@ namespace core
         
         void subscribe_on_server();
 
-        std::string get_error(const std::string& err_msg);
-        std::string get_result(const std::string& res_msg);
-
         msg handle_create_user(command& comm);
         msg handle_login(command& comm);
 
