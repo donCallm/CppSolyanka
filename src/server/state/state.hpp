@@ -5,6 +5,7 @@
 #include <atomic>
 #include <optional>
 #include <mutex>
+#include <set>
 
 namespace core
 {
@@ -23,7 +24,7 @@ namespace core
         void setup();
 
     private:
-        std::vector<uint64_t> _active_users;
+        std::set<uint64_t> _active_users;
         std::atomic<uint64_t> _last_user_id;
         std::mutex _m;
     };

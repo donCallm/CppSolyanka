@@ -4,7 +4,6 @@
 #include <objects/msg_objects.hpp>
 #include <iostream>
 #include <spdlog/spdlog.h>
-using namespace core;
 
 namespace core
 {
@@ -63,11 +62,17 @@ namespace core
             err.from_json(json_data);
             spdlog::info("error: {}", err.message);
         }
-        else
+        else if (json_data.find("res_msg") != json_data.end())
         {
             success_result_msg res;
             res.from_json(json_data);
             spdlog::info("<< response: {}", res.message);
+        }
+        else
+        {
+            msg response;
+            response.from_json(json_data);
+            spdlog::info("<< response: {}", response.message);
         }
     }
 

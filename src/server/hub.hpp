@@ -21,10 +21,10 @@ namespace core
         
         void subscribe_on_server();
 
-        bool validate_params(const command& comm, const uint64_t& number_of_params);
+        std::optional<std::string> validate_params(const command& comm, const uint64_t& number_of_params);
 
-        msg handle_create_user(command& comm);
-        msg handle_login(command& comm);
+        std::optional<msg> handle_create_user(command& comm);
+        std::optional<msg> handle_login(command& comm);
 
     private:
         app& _application;

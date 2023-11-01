@@ -11,7 +11,7 @@ namespace db
     database::database()
     {
         _redis.connect(IP, PORT);
-        spdlog::info("Create database at 127.0.0.1:6379");
+        spdlog::info("Create database at {}:{}", IP, PORT);
     }
 
     database* database::get_instance()

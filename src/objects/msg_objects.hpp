@@ -14,6 +14,7 @@ namespace core
     
     public:
         void from_json(const nlohmann::json& json_data);
+        void set_message(const std::string& data);
 
     public:
         static uint64_t id;

@@ -41,13 +41,13 @@ void hub::on_new_msg(net::con_handler::ptr conn, command comm)
     switch (comm.instruction)
     {
         case command::registration: {
-            rpl = handle_create_user(comm);
+            rpl = handle_create_user(comm).value();
             break; }
         case command::login: {
-            rpl = handle_login(comm);
+            rpl = handle_login(comm).value();
             break; }
         case command::ping: {
-            rpl.message = to_str<success_result_msg>("pong");
+            rpl.message = to_str<msg>("pong");
             spdlog::info("server sending pong");
             break; }
         case command::end: {
@@ -56,7 +56,7 @@ void hub::on_new_msg(net::con_handler::ptr conn, command comm)
             break; }
         default:
         {
-            rpl.message = to_str<success_result_msg>("unknown_command");
+            rpl.message = to_str<msg>("unknown_command");
             spdlog::warn("get unknown command");
             break; 
         }
@@ -66,50 +66,41 @@ void hub::on_new_msg(net::con_handler::ptr conn, command comm)
     conn->send(json_string);
 }
 
-bool hub::validate_params(const command& comm,  const uint64_t& number_of_params)
+std::optional<std::string> hub::validate_params(const command& comm,  const uint64_t& number_of_params)
 {
     if (number_of_params != comm.params.size())
-        return false;
-    return true;
+        return std::string(to_str<error_msg>("Invalid number of parameters"));
+    return {};
 }
 
-msg hub::handle_login(command& comm)
+std::optional<msg> hub::handle_login(command& comm)
 {
-    if (!validate_params(comm, 2))
-    {
-        msg rpl(to_str<error_msg>("Wrong  params"));
-        return rpl;
-    }
+    std::optional<std::string> res = validate_params(comm, 2);
+    msg rpl;
 
-    if (!_application.get_state()->login(comm.params[0], comm.params[1]))
-    {
-        msg rpl(to_str<error_msg>("Error of login"));
-        return rpl;
-    }
+    if (res.has_value())
+        rpl.set_message(to_str<error_msg>(res.value()));
+    else if (!_application.get_state()->login(comm.params[0], comm.params[1]))
+        rpl.set_message(to_str<error_msg>("Error of login"));
+    else
+        rpl.set_message((to_str<success_result_msg>("Successful login")));
 
-    msg rpl(to_str<error_msg>("Successful login"));
     return rpl;
 }
 
 
-msg hub::handle_create_user(command& comm)
+std::optional<msg> hub::handle_create_user(command& comm)
 {
-    if (!validate_params(comm, 5))
-    {
-        msg rpl(to_str<error_msg>("Wrong  params"));
-        return rpl;
-    }
+    std::optional<std::string> res = validate_params(comm, 5);
+    msg rpl;
 
-    core::user usr(comm.params[0], comm.params[1], 
-        comm.params[2], comm.params[3], comm.params[4]);
+    if (res.has_value())
+        rpl.set_message(to_str<error_msg>(res.value()));
+    else if (!_application.get_state()->login(comm.params[0], comm.params[1]))
+        rpl.set_message(to_str<error_msg>("Error of registraton"));
+    else
+        rpl.set_message((to_str<success_result_msg>("Successful registration")));
 
-    if (_application.get_state()->create_user(usr))
-    {
-        msg rpl(to_str<error_msg>("Error of registration"));
-        return rpl;
-    }
-    
-    msg rpl(to_str<success_result_msg>("Successful registration"));
     return rpl;
 }
 

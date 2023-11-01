@@ -38,17 +38,17 @@ namespace core
 
     bool state::login(const std::string& pasport, const std::string& password)
     {
-        std::optional<user> res  = get_user(pasport);
+        std::optional<user> res = get_user(pasport);
 
         if (res.has_value())
         {
-            if (std::find(_active_users.begin(), _active_users.end(), res.value().id) == _active_users.end())
+            core::user usr = res.value();
+            if (_active_users.find(usr.id) != _active_users.end())
                 return false;
 
-            core::user usr = res.value();
             if (usr.password == password)
             {
-                _active_users.push_back(usr.id);
+                _active_users.insert(usr.id);
                 return true;
             }
         }

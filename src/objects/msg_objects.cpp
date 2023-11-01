@@ -35,4 +35,9 @@ namespace core
         json_data.at("res_msg").get_to(message);
         json_data.at("id").get_to(id);
     }
+
+    void msg::set_message(const std::string& data)
+    {
+        message = data;
+    }
 }
