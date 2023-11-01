@@ -6,7 +6,7 @@
 #include <objects/msg_objects.hpp>
 #include <spdlog/spdlog.h>
 #include <boost/bind.hpp>
-
+using namespace utils;;
 namespace core
 {
 
@@ -47,7 +47,7 @@ void hub::on_new_msg(net::con_handler::ptr conn, command comm)
             rpl = handle_login(comm);
             break; }
         case command::ping: {
-            rpl.message = utils::get_message<core::success_result_msg>("pong");
+            rpl.message = to_str<success_result_msg>("pong");
             spdlog::info("server sending pong");
             break; }
         case command::end: {
@@ -56,7 +56,7 @@ void hub::on_new_msg(net::con_handler::ptr conn, command comm)
             break; }
         default:
         {
-            rpl.message = utils::get_message<core::success_result_msg>("unknown_command");
+            rpl.message = to_str<success_result_msg>("unknown_command");
             spdlog::warn("get unknown command");
             break; 
         }
@@ -66,29 +66,37 @@ void hub::on_new_msg(net::con_handler::ptr conn, command comm)
     conn->send(json_string);
 }
 
+bool hub::valid_params(const command& comm,  const uint64_t& number_of_params)
+{
+    if (number_of_params != comm.params.size())
+        return false;
+    return true;
+}
+
 msg hub::handle_login(command& comm)
 {
-    if (comm.params.size() != 2)
+    if (!valid_params(comm, 2))
     {
-        msg rpl(utils::get_message<core::error_msg>("Wrong  params"));
+        msg rpl(to_str<error_msg>("Wrong  params"));
         return rpl;
     }
 
     if (!_application.get_state()->login(comm.params[0], comm.params[1]))
     {
-        msg rpl(utils::get_message<core::error_msg>("Error of login"));
+        msg rpl(to_str<error_msg>("Error of login"));
         return rpl;
     }
 
-    msg rpl(utils::get_message<core::error_msg>("Successful login"));
+    msg rpl(to_str<error_msg>("Successful login"));
     return rpl;
 }
 
+
 msg hub::handle_create_user(command& comm)
 {
-    if (comm.params.size() != 5)
+    if (!valid_params(comm, 5))
     {
-        msg rpl(utils::get_message<core::error_msg>("Wrong  params"));
+        msg rpl(to_str<error_msg>("Wrong  params"));
         return rpl;
     }
 
@@ -97,11 +105,11 @@ msg hub::handle_create_user(command& comm)
 
     if (_application.get_state()->create_user(usr))
     {
-        msg rpl(utils::get_message<core::error_msg>("Error of registration"));
+        msg rpl(to_str<error_msg>("Error of registration"));
         return rpl;
     }
     
-    msg rpl(utils::get_message<core::success_result_msg>("Successful registration"));
+    msg rpl(to_str<success_result_msg>("Successful registration"));
     return rpl;
 }
 

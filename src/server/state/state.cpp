@@ -26,12 +26,12 @@ namespace core
     {
         if (get_user(usr.pasport).has_value())
             return false;
-        if (std::find(_active_users.begin(), _active_users.end(), usr.pasport) == _active_users.end())
+        if (std::find(_active_users.begin(), _active_users.end(), usr.id) == _active_users.end())
             return false;
 
         usr.id = get_new_id();
 
-        nlohmann::json json_usr = usr; 
+        nlohmann::json json_usr = usr;
         DB()->write(database::clients_info, usr.pasport, json_usr.dump());
         return true;
     }
@@ -42,13 +42,13 @@ namespace core
 
         if (res.has_value())
         {
-            if (std::find(_active_users.begin(), _active_users.end(), pasport) == _active_users.end())
+            if (std::find(_active_users.begin(), _active_users.end(), res.value().id) == _active_users.end())
                 return false;
 
             core::user usr = res.value();
             if (usr.password == password)
             {
-                _active_users.push_back(pasport);
+                _active_users.push_back(usr.id);
                 return true;
             }
         }

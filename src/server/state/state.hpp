@@ -23,7 +23,7 @@ namespace core
         void setup();
 
     private:
-        std::vector<std::string> _active_users;
+        std::vector<uint64_t> _active_users;
         std::atomic<uint64_t> _last_user_id;
         std::mutex _m;
     };
