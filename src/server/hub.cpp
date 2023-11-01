@@ -66,7 +66,7 @@ void hub::on_new_msg(net::con_handler::ptr conn, command comm)
     conn->send(json_string);
 }
 
-bool hub::validate(const command& comm,  const uint64_t& number_of_params)
+bool hub::validate_params(const command& comm,  const uint64_t& number_of_params)
 {
     if (number_of_params != comm.params.size())
         return false;
@@ -75,7 +75,7 @@ bool hub::validate(const command& comm,  const uint64_t& number_of_params)
 
 msg hub::handle_login(command& comm)
 {
-    if (!validate(comm, 2))
+    if (!validate_params(comm, 2))
     {
         msg rpl(to_str<error_msg>("Wrong  params"));
         return rpl;
@@ -94,7 +94,7 @@ msg hub::handle_login(command& comm)
 
 msg hub::handle_create_user(command& comm)
 {
-    if (!validate(comm, 5))
+    if (!validate_params(comm, 5))
     {
         msg rpl(to_str<error_msg>("Wrong  params"));
         return rpl;

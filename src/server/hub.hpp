@@ -21,7 +21,7 @@ namespace core
         
         void subscribe_on_server();
 
-        bool validate(const command& comm, const uint64_t& number_of_params);
+        bool validate_params(const command& comm, const uint64_t& number_of_params);
 
         msg handle_create_user(command& comm);
         msg handle_login(command& comm);
