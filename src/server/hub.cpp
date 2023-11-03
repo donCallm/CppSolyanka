@@ -75,11 +75,11 @@ std::optional<std::string> hub::validate_params(const command& comm,  const uint
 
 std::optional<msg> hub::handle_login(command& comm)
 {
-    std::optional<std::string> res = validate_params(comm, 2);
+    std::optional<std::string> params_valid = validate_params(comm, 2);
     msg rpl;
 
-    if (res.has_value())
-        rpl.set_message(to_str<error_msg>(res.value()));
+    if (params_valid.has_value())
+        rpl.set_message(to_str<error_msg>(params_valid.value()));
     else if (!_application.get_state()->login(comm.params[0], comm.params[1]))
         rpl.set_message(to_str<error_msg>("Error of login"));
     else
