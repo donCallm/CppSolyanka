@@ -6,5 +6,6 @@ add_library(state STATIC
 target_link_libraries(state PRIVATE 
             database
             objects
-            nlohmann_json::nlohmann_json)
+            nlohmann_json::nlohmann_json
+            spdlog::spdlog)
 

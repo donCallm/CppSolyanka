@@ -6,7 +6,9 @@ add_subdirectory(database)
 add_executable(server 
             main.cpp
             server.cpp
-            connect.cpp)
+            connect.cpp
+            hub.cpp
+            app.cpp)
 
 target_link_libraries(server PRIVATE    
             spdlog::spdlog

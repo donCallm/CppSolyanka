@@ -10,7 +10,7 @@ namespace core
         net::con_handler::ptr connection = net::con_handler::create(_io_service);
         
         _acceptor.async_accept(connection->get_socket(), 
-            boost::bind(&server::handle_accept, this,  connection, boost::placeholders::_1));
+             boost::bind(&server::handle_accept, this,  connection, boost::placeholders::_1));
     }
 
     server::server(boost::asio::io_service& io_service) : 
@@ -27,6 +27,7 @@ namespace core
         if (!err)
         {
             connection->start();
+            on_accept_connection(connection);
         } 
         else
         {

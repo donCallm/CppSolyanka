@@ -9,28 +9,26 @@
 
 namespace ui
 {
+    class login_window
+    {
+    public:
+        login_window();
 
-class login_window
-{
-public:
-    login_window();
+    public:
+        void show();
 
-public:
-    void show();
+    private:
+        void setup_window();
 
-private:
-    void setup_window();
-
-private:
-    std::shared_ptr<QWidget>        _window;
-    std::shared_ptr<QVBoxLayout>    _main_layout;
-    std::shared_ptr<QHBoxLayout>    _login_layout;
-    std::shared_ptr<QHBoxLayout>    _password_layout;
-    std::shared_ptr<QHBoxLayout>    _button_layout;
-    std::shared_ptr<QLineEdit>      _login_edit;
-    std::shared_ptr<QLineEdit>      _password_edit;
-    std::shared_ptr<QPushButton>    _login_button;
-    std::shared_ptr<QPushButton>    _registration_button;
-};
-
+    private:
+        std::shared_ptr<QWidget>        _window;
+        std::shared_ptr<QVBoxLayout>    _main_layout;
+        std::shared_ptr<QHBoxLayout>    _login_layout;
+        std::shared_ptr<QHBoxLayout>    _password_layout;
+        std::shared_ptr<QHBoxLayout>    _button_layout;
+        std::shared_ptr<QLineEdit>      _login_edit;
+        std::shared_ptr<QLineEdit>      _password_edit;
+        std::shared_ptr<QPushButton>    _login_button;
+        std::shared_ptr<QPushButton>    _registration_button;
+    };
 }

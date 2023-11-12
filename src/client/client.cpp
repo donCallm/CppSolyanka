@@ -52,18 +52,46 @@ namespace core
         boost::asio::write(_socket, boost::asio::buffer(_write_buff.data(), _write_buff.size()));
     }
 
+    void client::handler_result(const core::msg& rpl)
+    {
+        nlohmann::json json_data = nlohmann::json::parse(rpl.message);
+        
+        if (json_data.find("err_msg") != json_data.end())
+        {
+            error_msg err;
+            err.from_json(json_data);
+            spdlog::info("error: {}", err.message);
+        }
+        else if (json_data.find("res_msg") != json_data.end())
+        {
+            success_result_msg res;
+            res.from_json(json_data);
+            spdlog::info("<< response: {}", res.message);
+        }
+        else
+        {
+            msg response;
+            response.from_json(json_data);
+            spdlog::info("<< response: {}", response.message);
+        }
+    }
+
     void client::start()
     {
         core::message msg;
-        core::commands comm;
-        core::reply_msg rpl;
+        core::command comm;
+        core::msg rpl;
+        spdlog::info("Enter command");
 
         while (true)
         {
-            spdlog::info("Enter command");
             std::getline(std::cin, msg.data);
 
             comm.set_command(msg.data);
+
+            if (comm.instruction == command::type::end)
+                _socket.close();
+                
             comm.token = _token;
 
             nlohmann::json serialize_message = comm; 
@@ -71,21 +99,8 @@ namespace core
             write(json_string);
 
             rpl.from_json(nlohmann::json::parse(read_response()));
-            nlohmann::json json_data = nlohmann::json::parse(rpl.reply_msg);
+            handler_result(rpl);
 
-            if (json_data.find("error_msg") != json_data.end())
-            {
-                core::error_msg err;
-                err.from_json(json_data);
-                spdlog::info("error: {}", err.error_msg);
-            }
-            else
-            {
-                core::success_result_msg res;
-                res.from_json(json_data);
-                spdlog::info("<< response: {}", res.result_msg);
-            }
-            
             comm.params.clear();
         }
     }

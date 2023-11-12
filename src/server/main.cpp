@@ -1,4 +1,4 @@
-#include "server.hpp"
+#include "app.hpp"
 #include <spdlog/spdlog.h>
 
 int main()
@@ -7,7 +7,7 @@ int main()
     {
         boost::asio::io_service io_service;
         boost::asio::io_service::work work(io_service);
-        core::server server(io_service);
+        core::app application(io_service);
         io_service.run();
     }
     catch(const std::exception& e)
