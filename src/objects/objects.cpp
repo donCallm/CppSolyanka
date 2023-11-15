@@ -20,6 +20,7 @@ namespace core
                 {"ping", command::type::ping},
                 {"login", command::type::login},
                 {"registration", command::type::registration},
+                {"create_bank_acc", command::type::create_bank_acc},
                 {"end", command::type::end}
             };
             
@@ -85,6 +86,14 @@ namespace core
         json_data.at("surname").get_to(surname);
         json_data.at("id").get_to(id);
         json_data.at("password").get_to(password);
+        json_data.at("bank_accounts").get_to(bank_accounts);
+    }
+
+    bool user::empty()
+    {
+        if (pasport.empty())
+            return true;
+        return false;
     }
 
 }

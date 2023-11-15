@@ -14,8 +14,10 @@ namespace core
             ping = 0,
             registration = 1,
             login = 2,
-            end = 3,
-            unknown_command = 4
+            create_bank_acc = 3,
+            balace = 4,
+            end = 5,
+            unknown_command = 6
         };
 
     public:

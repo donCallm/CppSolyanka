@@ -8,7 +8,7 @@ namespace core
     class msg
     {
     public:
-        operator nlohmann::json() const { return nlohmann::json{ {"message", message}, {"id", id} }; };
+        operator nlohmann::json() const { return nlohmann::json{ {"message", message}, {"id", id}, {"params", params} }; };
         msg(std::string data);
         msg();
     
@@ -19,12 +19,13 @@ namespace core
     public:
         static uint64_t id;
         std::string message;
+        std::vector<std::string> params;
     };
 
     class error_msg : public msg
     {
     public:
-        operator nlohmann::json() const { return nlohmann::json{ {"err_msg", message}, {"id", id} }; };
+        operator nlohmann::json() const { return nlohmann::json{ {"err_msg", message}, {"id", id}, {"params", params} }; };
         error_msg() {}
         error_msg(std::string data);
         
@@ -35,7 +36,7 @@ namespace core
     class success_result_msg : public msg
     {
     public:
-        operator nlohmann::json() const { return nlohmann::json{ {"res_msg", message}, {"id", id} }; }
+        operator nlohmann::json() const { return nlohmann::json{ {"res_msg", message}, {"id", id}, {"params", params}}; }
         success_result_msg() {}
         success_result_msg(std::string data);
 

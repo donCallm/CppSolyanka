@@ -18,6 +18,7 @@ namespace core
 
         json_data.at("message").get_to(message);
         json_data.at("id").get_to(id);
+        json_data.at("params").get_to(params);
     }
 
     void error_msg::from_json(const nlohmann::json& json_data)
@@ -26,6 +27,7 @@ namespace core
 
         json_data.at("err_msg").get_to(message);
         json_data.at("id").get_to(id);
+        json_data.at("params").get_to(params);
     }
 
     void success_result_msg::from_json(const nlohmann::json& json_data)
@@ -34,6 +36,7 @@ namespace core
 
         json_data.at("res_msg").get_to(message);
         json_data.at("id").get_to(id);
+        json_data.at("params").get_to(params);
     }
 
     void msg::set_message(const std::string& data)

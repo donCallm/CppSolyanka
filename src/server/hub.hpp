@@ -25,6 +25,7 @@ namespace core
 
         std::optional<msg> handle_create_user(command& comm);
         std::optional<msg> handle_login(command& comm);
+        std::optional<msg> handle_create_bank_acc(command& comm);
 
     private:
         app& _application;

@@ -2,10 +2,12 @@
 
 #include <boost/asio.hpp>
 #include <objects/user.hpp>
+#include <objects/commands.hpp>
 
 namespace core
 {
     class msg;
+    class command;
 
     class client
     {
@@ -18,7 +20,7 @@ namespace core
             void write(std::string msg);
             void connect();
             void start();
-            void handler_result(const core::msg& rpl);
+            void handler_result(const command::type comm, const core::msg& rpl);
             std::string read_response();
             std::vector<uint8_t> serialize_in_buf(std::string msg);
 
@@ -31,5 +33,6 @@ namespace core
             std::vector<uint8_t> _write_buff;
             std::string _token;
             bool _console_mode;
+            uint64_t _id;
     };
 }

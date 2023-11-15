@@ -7,7 +7,7 @@
 
 namespace core
 {
-    client::client(bool console_mode): _socket(_io_service) {connect();}
+    client::client(bool console_mode): _socket(_io_service), _id(0) {connect();}
 
     void client::read_hello_msg()
     {   
@@ -52,7 +52,7 @@ namespace core
         boost::asio::write(_socket, boost::asio::buffer(_write_buff.data(), _write_buff.size()));
     }
 
-    void client::handler_result(const core::msg& rpl)
+    void client::handler_result(const command::type comm, const core::msg& rpl)
     {
         nlohmann::json json_data = nlohmann::json::parse(rpl.message);
         
@@ -67,6 +67,17 @@ namespace core
             success_result_msg res;
             res.from_json(json_data);
             spdlog::info("<< response: {}", res.message);
+            switch (comm)
+            {
+                case command::type::registration: {
+                    _id = std::stoull(res.params[0]);
+                    break; }
+                case command::type::login: {
+                    _id = std::stoull(res.params[0]);
+                    break; }
+                default:
+                    break;
+            }
         }
         else
         {
@@ -91,7 +102,8 @@ namespace core
 
             if (comm.instruction == command::type::end)
                 _socket.close();
-                
+            
+            comm.params.push_back(std::to_string(_id));
             comm.token = _token;
 
             nlohmann::json serialize_message = comm; 
@@ -99,7 +111,7 @@ namespace core
             write(json_string);
 
             rpl.from_json(nlohmann::json::parse(read_response()));
-            handler_result(rpl);
+            handler_result(comm.instruction, rpl);
 
             comm.params.clear();
         }
