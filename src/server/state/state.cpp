@@ -1,8 +1,11 @@
 #include "state.hpp"
+#include "../utils.hpp"
 #include <objects/finance.hpp>
 #include <objects/msg_objects.hpp>
 #include <spdlog/spdlog.h>
 #include <server/database/database.hpp>
+#include <filesystem>
+#include <fstream>
 
 using namespace db;
 
@@ -16,7 +19,7 @@ namespace core
         setup();
     }
 
-    uint64_t state::get_new_id(identifier_type type, const std::string key)
+    uint64_t state::get_new_id(const identifier_type& type, const std::string key)
     { 
         std::lock_guard<std::mutex> _(_m);
         uint64_t tmp;
@@ -39,16 +42,23 @@ namespace core
 
     bool state::create_user(user& usr)
     {
-        if (get_user(usr.pasport).has_value())
+        if (get_user(usr.login).has_value())
             return false;
 
         if (std::find(_active_users.begin(), _active_users.end(), usr.id) != _active_users.end())
             return false;
 
         usr.id = get_new_id(last_user_id, "last_user_id");
+        _logins.insert(std::make_pair(usr.id, usr.login));
 
+        std::ofstream output_file(utils::LOGINS);
         nlohmann::json json_usr = usr;
-        DB()->write(database::clients_info, usr.pasport, json_usr.dump());
+        nlohmann::json json_logins = _logins;
+
+        output_file << json_logins.dump(4);
+        DB()->write(database::clients_info, usr.login, json_usr.dump());
+
+        output_file.close();
         return true;
     }
 
@@ -68,9 +78,9 @@ namespace core
         return true;
     }
 
-    bool state::login(const std::string& pasport, const std::string& password, user& client)
+    bool state::login(const std::string& login, const std::string& password, user& client)
     {
-        std::optional<user> res = get_user(pasport);
+        std::optional<user> res = get_user(login);
 
         if (res.has_value())
         {
@@ -89,9 +99,17 @@ namespace core
         return false;
     }
 
-    std::optional<user> state::get_user(const std::string& pasport)
+    std::optional<std::string> state::get_login(const uint64_t& id)
     {
-        std::string res = DB()->read(database::clients_info, pasport);
+        auto elem = _logins.find(id);
+        if (elem != _logins.end())
+            return elem->second;
+        return std::nullopt;
+    }
+
+    std::optional<user> state::get_user(const std::string& login)
+    {
+        std::string res = DB()->read(database::clients_info, login);
         if (res.empty()) 
             return {};
 
@@ -100,7 +118,7 @@ namespace core
         return usr;
     }
 
-    void state::set_value(const std::string& value, identifier_type type)
+    void state::set_value(const std::string& value, const identifier_type& type)
     {
         if (value.empty())
         {
@@ -132,9 +150,28 @@ namespace core
         }
     }
 
+    void state::set_logins()
+    {
+        if (!std::filesystem::exists(utils::LOGINS))
+        {
+            std::ofstream file(utils::LOGINS);
+            file << nlohmann::json(_logins).dump(4);
+            file.close();
+        }
+        else
+        {
+            std::ifstream file(utils::LOGINS);
+            nlohmann::json json_data;
+            file >> json_data;
+            _logins = json_data;
+            file.close();
+        }
+    }
+
     void state::setup()
     {
         set_value(DB()->read(database::last_id, "last_user_id"), last_user_id);
         set_value(DB()->read(database::last_id, "last_bank_acc_id"), last_bank_acc_id);
+        set_logins();
     }
 }

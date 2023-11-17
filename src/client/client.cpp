@@ -52,7 +52,7 @@ namespace core
         boost::asio::write(_socket, boost::asio::buffer(_write_buff.data(), _write_buff.size()));
     }
 
-    void client::handler_result(const command::type comm, const core::msg& rpl)
+    void client::handler_result(const command::type& comm, const core::msg& rpl)
     {
         nlohmann::json json_data = nlohmann::json::parse(rpl.message);
         
@@ -69,11 +69,9 @@ namespace core
             spdlog::info("<< response: {}", res.message);
             switch (comm)
             {
-                case command::type::registration: {
-                    _id = std::stoull(res.params[0]);
-                    break; }
                 case command::type::login: {
-                    _id = std::stoull(res.params[0]);
+                    if (!res.params.empty())
+                        _id = std::stoull(res.params[0]);
                     break; }
                 default:
                     break;

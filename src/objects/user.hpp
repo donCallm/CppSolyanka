@@ -10,9 +10,9 @@ namespace core
     {
         public:
             operator nlohmann::json() const { return nlohmann::json{ {"name", name}, {"surname", surname}, {"patronymic", patronymic},
-                {"password", password}, {"pasport", pasport}, {"id", id}, {"bank_accounts"}, bank_accounts}; }
+                {"password", password}, {"pasport", pasport}, {"id", id}, {"bank_accounts", bank_accounts}, {"login", login}}; }
             user() {}
-            user(std::string& name_, std::string& surname_, std::string& patronymic_,
+            user(std::string login_, std::string& name_, std::string& surname_, std::string& patronymic_,
                 std::string& pasport_, std::string password_);
 
 
@@ -22,6 +22,7 @@ namespace core
             bool empty();
 
         public:
+            std::string login;
             std::string name;
             std::string surname;
             std::string patronymic;

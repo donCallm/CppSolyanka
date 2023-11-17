@@ -103,7 +103,7 @@ std::optional<msg> hub::handle_login(command& comm)
 
 std::optional<msg> hub::handle_create_user(command& comm)
 {
-    std::optional<std::string> res = validate_params(comm, 6);
+    std::optional<std::string> res = validate_params(comm, 7);
     msg rpl;
 
     if (res.has_value())
@@ -112,23 +112,18 @@ std::optional<msg> hub::handle_create_user(command& comm)
         return rpl;
     }
 
-    user usr(comm.params[0], comm.params[1], comm.params[2], comm.params[3], comm.params[4]);
+    user usr(comm.params[0], comm.params[1], comm.params[2], comm.params[3], comm.params[4], comm.params[5]);
     if (!_application.get_state()->create_user(usr))
-    {
         rpl.set_message(to_str<error_msg>("Error of registraton"));
-    }
     else
-    {
         rpl.set_message((to_str<success_result_msg>("Successful registration")));
-        rpl.params.push_back(std::to_string(usr.id));
-    }
 
     return rpl;
 }
 
 std::optional<msg> hub::handle_create_bank_acc(command& comm)
 {
-    std::optional<std::string> res = validate_params(comm, 2);
+    std::optional<std::string> res = validate_params(comm, 1);
     msg rpl;
 
     if (res.has_value())
@@ -137,13 +132,32 @@ std::optional<msg> hub::handle_create_bank_acc(command& comm)
         return rpl;
     }
 
-    if (!_application.get_state()->get_user(comm.params[0]))
+    try
+    {
+        std::optional<std::string> login = _application.get_state()->get_login(std::stoull(comm.params[0])).value();
+        if (login.has_value())
+        {
+            std::optional<user> usr = _application.get_state()->get_user(login.value());
+            if (usr.has_value())
+            {
+                if (!_application.get_state()->create_bank_account(usr.value()))
+                    throw std::runtime_error("create error");
+                else
+                    rpl.set_message((to_str<success_result_msg>("Successful create new bank account")));
+            }
+            else
+            {
+                throw std::runtime_error("create error");
+            }
+        }
+        else
+        {
+            throw std::runtime_error("create error");
+        }
+    }
+    catch(const std::exception& e)
     {
         rpl.set_message(to_str<error_msg>("Error of create new bank account"));
-    }
-    else
-    {
-        rpl.set_message((to_str<success_result_msg>("Successful registration")));
     }
 
     return rpl;

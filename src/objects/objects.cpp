@@ -7,8 +7,9 @@ namespace core
 {
     uint64_t command::id = 0;
 
-    user::user(std::string& name_, std::string& surname_, std::string& patronymic_,
+    user::user(std::string login_, std::string& name_, std::string& surname_, std::string& patronymic_,
             std::string& pasport_, std::string password_) :
+        login(login_),
         name(name_),
         surname(surname_),
         patronymic(patronymic_),
@@ -81,6 +82,7 @@ namespace core
     {
         if (json_data.empty()) throw std::runtime_error("Empty json");
         
+        json_data.at("login").get_to(login);
         json_data.at("pasport").get_to(pasport);
         json_data.at("name").get_to(name);
         json_data.at("surname").get_to(surname);
@@ -91,7 +93,7 @@ namespace core
 
     bool user::empty()
     {
-        if (pasport.empty())
+        if (login.empty())
             return true;
         return false;
     }
