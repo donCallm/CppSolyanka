@@ -42,23 +42,25 @@ namespace core
 
     bool state::create_user(user& usr)
     {
-        if (get_user(usr.login).has_value())
-            return false;
-
-        if (std::find(_active_users.begin(), _active_users.end(), usr.id) != _active_users.end())
+        if (get_user(usr.login).has_value() ||
+            std::find(_active_users.begin(), _active_users.end(), usr.id) != _active_users.end())
             return false;
 
         usr.id = get_new_id(last_user_id, "last_user_id");
         _logins.insert(std::make_pair(usr.id, usr.login));
 
-        std::ofstream output_file(utils::LOGINS);
         nlohmann::json json_usr = usr;
-        nlohmann::json json_logins = _logins;
-
-        output_file << json_logins.dump(4);
         DB()->write(database::clients_info, usr.login, json_usr.dump());
 
-        output_file.close();
+        {
+            std::string file_path(std::filesystem::current_path().generic_string() + "/state/logins.json");
+            std::ofstream output_file(file_path);
+            if (!output_file.is_open())
+            return false;
+
+            output_file << utils::to_str(_logins);
+        }
+
         return true;
     }
 
@@ -73,7 +75,7 @@ namespace core
 
         usr.bank_accounts.insert(new_acc.id);
         nlohmann::json json_usr = usr;
-        DB()->write(database::clients_info, usr.pasport, json_usr.dump());
+        DB()->write(database::clients_info, usr.login, json_usr.dump());
 
         return true;
     }
@@ -152,19 +154,36 @@ namespace core
 
     void state::set_logins()
     {
-        if (!std::filesystem::exists(utils::LOGINS))
+        std::string file_path(std::filesystem::current_path().generic_string() + "/state/logins.json");
+        if (!std::filesystem::exists(file_path))
         {
             std::ofstream file(utils::LOGINS);
-            file << nlohmann::json(_logins).dump(4);
-            file.close();
+            if (file.is_open())
+            {
+                file << utils::to_str(_logins);
+                file.close();
+            }
+            else
+            {
+                std::runtime_error("Unable to open file for writing");
+            }
         }
         else
         {
-            std::ifstream file(utils::LOGINS);
-            nlohmann::json json_data;
-            file >> json_data;
-            _logins = json_data;
-            file.close();
+            std::fstream file(file_path);
+            if (file.is_open())
+            {
+                nlohmann::json json_data;
+                file >> json_data;
+                for (const auto& [key, value] : json_data.items()) {
+                    uint64_t numeric_key = std::stoull(key);
+                    _logins[numeric_key] = value;
+                }
+            }
+            else
+            {
+                std::runtime_error("Unable to open file for reading");
+            }
         }
     }
 

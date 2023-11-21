@@ -7,7 +7,7 @@ namespace core
 {
     uint64_t command::id = 0;
 
-    user::user(std::string login_, std::string& name_, std::string& surname_, std::string& patronymic_,
+    user::user(std::string& login_, std::string& name_, std::string& surname_, std::string& patronymic_,
             std::string& pasport_, std::string password_) :
         login(login_),
         name(name_),

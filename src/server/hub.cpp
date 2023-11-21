@@ -135,28 +135,16 @@ std::optional<msg> hub::handle_create_bank_acc(command& comm)
     try
     {
         std::optional<std::string> login = _application.get_state()->get_login(std::stoull(comm.params[0])).value();
-        if (login.has_value())
-        {
-            std::optional<user> usr = _application.get_state()->get_user(login.value());
-            if (usr.has_value())
-            {
-                if (!_application.get_state()->create_bank_account(usr.value()))
-                    throw std::runtime_error("create error");
-                else
-                    rpl.set_message((to_str<success_result_msg>("Successful create new bank account")));
-            }
-            else
-            {
-                throw std::runtime_error("create error");
-            }
-        }
+        std::optional<user> usr = _application.get_state()->get_user(login.value());
+        
+        if (!_application.get_state()->create_bank_account(usr.value()))
+            rpl.set_message(to_str<error_msg>("Error of create new bank account"));
         else
-        {
-            throw std::runtime_error("create error");
-        }
+            rpl.set_message((to_str<success_result_msg>("Successful create new bank account")));
     }
     catch(const std::exception& e)
     {
+        spdlog::info(e.what());
         rpl.set_message(to_str<error_msg>("Error of create new bank account"));
     }
 
