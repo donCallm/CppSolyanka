@@ -55,8 +55,9 @@ namespace core
         {
             std::string file_path(std::filesystem::current_path().generic_string() + "/state/logins.json");
             std::ofstream output_file(file_path);
+
             if (!output_file.is_open())
-            return false;
+                return false;
 
             output_file << utils::to_str(_logins);
         }
@@ -155,9 +156,17 @@ namespace core
     void state::set_logins()
     {
         std::string file_path(std::filesystem::current_path().generic_string() + "/state/logins.json");
+        spdlog::info(file_path);
         if (!std::filesystem::exists(file_path))
         {
-            std::ofstream file(utils::LOGINS);
+            spdlog::info("createfile");
+            std::ofstream file;
+            file.open(file_path);
+            if (std::filesystem::exists(file_path)) {
+                std::cout << "File exists." << std::endl;
+            } else {
+                std::cout << "File does not exist." << std::endl;
+            }
             if (file.is_open())
             {
                 file << utils::to_str(_logins);
@@ -170,14 +179,18 @@ namespace core
         }
         else
         {
-            std::fstream file(file_path);
+            std::ifstream file;
+            file.open(file_path);
+
             if (file.is_open())
             {
+                spdlog::info("readfile");
                 nlohmann::json json_data;
                 file >> json_data;
                 for (const auto& [key, value] : json_data.items()) {
                     uint64_t numeric_key = std::stoull(key);
                     _logins[numeric_key] = value;
+                    spdlog::info(_logins[numeric_key]);
                 }
             }
             else
