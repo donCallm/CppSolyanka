@@ -144,7 +144,7 @@ std::optional<msg> hub::handle_create_bank_acc(command& comm)
     }
     catch(const std::exception& e)
     {
-        spdlog::info(e.what());
+        spdlog::err(e.what());
         rpl.set_message(to_str<error_msg>("Error of create new bank account"));
     }
 

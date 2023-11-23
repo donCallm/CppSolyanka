@@ -53,11 +53,14 @@ namespace core
         DB()->write(database::clients_info, usr.login, json_usr.dump());
 
         {
-            std::string file_path(std::filesystem::current_path().generic_string() + "/state/logins.json");
-            std::ofstream output_file(file_path);
+            std::filesystem::path logins_path = std::filesystem::path(__FILE__).parent_path() / "logins.json";
+            std::ofstream output_file(logins_path);
 
             if (!output_file.is_open())
+            {
+                std::runtime_error("Unable to open file for reading");
                 return false;
+            }
 
             output_file << utils::to_str(_logins);
         }
@@ -155,18 +158,11 @@ namespace core
 
     void state::set_logins()
     {
-        std::string file_path(std::filesystem::current_path().generic_string() + "/state/logins.json");
-        spdlog::info(file_path);
-        if (!std::filesystem::exists(file_path))
+        std::filesystem::path logins_path = std::filesystem::path(__FILE__).parent_path() / "logins.json";
+
+        if (!std::filesystem::exists(logins_path))
         {
-            spdlog::info("createfile");
-            std::ofstream file;
-            file.open(file_path);
-            if (std::filesystem::exists(file_path)) {
-                std::cout << "File exists." << std::endl;
-            } else {
-                std::cout << "File does not exist." << std::endl;
-            }
+            std::ofstream file(logins_path);
             if (file.is_open())
             {
                 file << utils::to_str(_logins);
@@ -174,23 +170,20 @@ namespace core
             }
             else
             {
-                std::runtime_error("Unable to open file for writing");
+                spdlog::error("Unable to open file for writing");
             }
         }
         else
         {
-            std::ifstream file;
-            file.open(file_path);
+            std::ifstream file(logins_path);
 
             if (file.is_open())
             {
-                spdlog::info("readfile");
                 nlohmann::json json_data;
                 file >> json_data;
                 for (const auto& [key, value] : json_data.items()) {
                     uint64_t numeric_key = std::stoull(key);
                     _logins[numeric_key] = value;
-                    spdlog::info(_logins[numeric_key]);
                 }
             }
             else
