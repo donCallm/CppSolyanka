@@ -53,14 +53,11 @@ namespace core
         DB()->write(database::clients_info, usr.login, json_usr.dump());
 
         {
-            std::filesystem::path logins_path = std::filesystem::path(__FILE__).parent_path() / "logins.json";
-            std::ofstream output_file(logins_path);
+            std::string file_path(std::filesystem::current_path().generic_string() + "/state/logins.json");
+            std::ofstream output_file(file_path);
 
             if (!output_file.is_open())
-            {
-                std::runtime_error("Unable to open file for reading");
                 return false;
-            }
 
             output_file << utils::to_str(_logins);
         }
@@ -158,11 +155,11 @@ namespace core
 
     void state::set_logins()
     {
-        std::filesystem::path logins_path = std::filesystem::path(__FILE__).parent_path() / "logins.json";
+        std::string file_path(std::filesystem::current_path().generic_string() + "/state/logins.json");
 
-        if (!std::filesystem::exists(logins_path))
+        if (!std::filesystem::exists(file_path))
         {
-            std::ofstream file(logins_path);
+            std::ofstream file(file_path);
             if (file.is_open())
             {
                 file << utils::to_str(_logins);
@@ -175,7 +172,7 @@ namespace core
         }
         else
         {
-            std::ifstream file(logins_path);
+            std::ifstream file(file_path);
 
             if (file.is_open())
             {
