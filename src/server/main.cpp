@@ -1,7 +1,7 @@
 #include "app.hpp"
 #include <spdlog/spdlog.h>
 
-int main()
+int main(int argc, char** argv)
 {
     try
     {
