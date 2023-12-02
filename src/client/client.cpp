@@ -70,8 +70,18 @@ namespace core
             switch (comm)
             {
                 case command::type::login: {
+                    if (!res.params.empty())switch (comm)
+            {
+                case command::type::login: {
                     if (!res.params.empty())
-                        _id = std::stoull(res.params[0]);
+                    {
+                        _id = std::stoull(rpl.params[0]);
+                    }
+                    break; }
+                default:
+                    break;
+            }
+                        _id = std::stoull(rpl.params[0]);
                     break; }
                 default:
                     break;

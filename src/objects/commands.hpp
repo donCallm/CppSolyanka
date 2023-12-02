@@ -16,8 +16,14 @@ namespace core
             login = 2,
             create_bank_acc = 3,
             balace = 4,
-            end = 5,
-            unknown_command = 6
+            get_cards = 5,
+            get_balance = 6,
+            replenish_balance = 7,
+            debit_funds = 8,
+            get_bank_accounts = 9,
+            create_card = 10,
+            end = 11,
+            unknown_command = 12
         };
 
     public:

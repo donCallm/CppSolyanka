@@ -3,6 +3,8 @@
 #include <server/connect.hpp>
 #include <memory>
 
+#define STATE() (_application.get_state())
+
 namespace core
 {
     class app;
@@ -22,10 +24,15 @@ namespace core
         void subscribe_on_server();
 
         std::optional<std::string> validate_params(const command& comm, const uint64_t& number_of_params);
+        std::optional<user> get_user(const std::string& login);
 
         std::optional<msg> handle_create_user(command& comm);
         std::optional<msg> handle_login(command& comm);
         std::optional<msg> handle_create_bank_acc(command& comm);
+        std::optional<msg> handle_change_balance(command& comm);
+        std::optional<msg> handle_create_card(command& comm);
+
+        std::optional<msg> handle_get_bank_info(command& comm);
 
     private:
         app& _application;

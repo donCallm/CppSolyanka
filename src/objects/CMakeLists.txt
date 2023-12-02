@@ -5,4 +5,5 @@ add_library(objects STATIC
             msg_objects.cpp
             finance.cpp)
 
-target_link_libraries(objects PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(objects PRIVATE nlohmann_json::nlohmann_json
+                                                        database)
