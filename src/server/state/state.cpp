@@ -113,10 +113,8 @@ namespace core
 
         std::optional<bank_account> res_acc = get_bank_account(res_card.value().bank_account_id);
         if (!res_acc.has_value())
-        {
-            spdlog::info("TEST2");
             return std::nullopt;
-        }
+
         return res_acc.value().balance;
     }
 
@@ -177,10 +175,8 @@ namespace core
     {
         std::string res = DB()->read(database::clients_info, std::to_string(id));
         if (res.empty()) 
-        {
-            spdlog::info("EMPTY IN GET USER");
             return std::nullopt;
-        }
+
         user usr;
         usr.from_json(nlohmann::json::parse(res));
         return usr;
@@ -289,7 +285,6 @@ namespace core
         set_value(DB()->read(database::last_id, "last_user_id"), last_user_id);
         set_value(DB()->read(database::last_id, "last_bank_acc_id"), last_bank_acc_id);
         set_value(DB()->read(database::last_id, "last_card_id"), last_card_id);
-
 
         set_logins();
     }

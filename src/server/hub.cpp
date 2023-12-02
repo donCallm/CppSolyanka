@@ -108,7 +108,6 @@ namespace core
         auto id = STATE()->get_id(login);
         if (!id.has_value())
             return std::nullopt;
-        spdlog::info(id.value());
         
         auto usr = STATE()->get_user(id.value());
         if (!usr.has_value())
@@ -312,7 +311,6 @@ namespace core
             }
 
             auto iter = usr.value().cards.find(std::stoull(comm.params[0]));
-            spdlog::info(*iter);
             if (STATE()->change_balance(comm.instruction, std::stoull(comm.params[1]), *iter))
                 rpl.set_message(to_str<success_result_msg>("Successful change balance"));
             else
