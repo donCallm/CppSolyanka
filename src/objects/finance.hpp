@@ -8,6 +8,9 @@
 #include <optional>
 #include "user.hpp"
 
+#define MAX_CARDS_COUNT 20
+#define NAX_BANK_ACCS_COUNT 20
+
 namespace core
 {
 
@@ -15,11 +18,11 @@ class bank_account
 {
     public:
         operator nlohmann::json() const { return nlohmann::json{ {"id", id}, {"balance", balance}, {"transactions_id", transactions_id} }; }
-        bank_account(uint64_t id_);
+        explicit bank_account(uint64_t id_);
         bank_account() {};
 
     public:
-        void from_json(const nlohmann::json& json_data);
+        void bank_acc_from_json(const nlohmann::json& json_data);
 
     public:
         uint64_t id;
@@ -36,7 +39,7 @@ class card
         card() {};
         
     public:
-        void from_json(const nlohmann::json& json_data);
+        void card_from_json(const nlohmann::json& json_data);
 
     public:
         uint64_t id;

@@ -7,6 +7,7 @@
 #include <optional>
 #include <mutex>
 #include <unordered_set>
+#include <objects/commands.hpp>
 
 namespace core
 {
@@ -38,7 +39,7 @@ namespace core
         bool login(uint64_t id, const std::string& password, user& client);
         bool create_bank_account(user& usr);
         std::optional<int> get_balance(uint64_t crd);
-        bool change_balance(uint64_t operation, uint64_t sum, uint64_t card_id);
+        bool change_balance(command::type& operation, uint64_t sum, uint64_t card_id);
         void create_card(user& usr, uint64_t bank_account_id);
 
         void setup();

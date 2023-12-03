@@ -10,13 +10,11 @@ namespace core
     public:
         operator nlohmann::json() const { return nlohmann::json{ {"message", message}, {"id", id}, {"params", params} }; };
         explicit msg(std::string data);
-        explicit msg();
-        ~msg()
-        {
-        }
+        msg();
+        ~msg(){}
     
     public:
-        void from_json(const nlohmann::json& json_data);
+        void msg_from_json(const nlohmann::json& json_data);
         void set_message(const std::string& data);
 
     public:
@@ -30,11 +28,11 @@ namespace core
     public:
         operator nlohmann::json() const { return nlohmann::json{ {"err_msg", message}, {"id", id}, {"params", params} }; };
         error_msg() {}
-        error_msg(std::string data);
+        explicit error_msg(std::string data);
         ~error_msg(){}
         
     public:
-        void from_json(const nlohmann::json& json_data);
+        void error_from_json(const nlohmann::json& json_data);
     };
 
     class success_result_msg : public msg
@@ -42,10 +40,10 @@ namespace core
     public:
         operator nlohmann::json() const { return nlohmann::json{ {"res_msg", message}, {"id", id}, {"params", params}}; }
         success_result_msg() {}
-        success_result_msg(std::string data);
+        explicit success_result_msg(std::string data);
         ~success_result_msg(){}
 
     public:
-        void from_json(const nlohmann::json& json_data);
+        void success_result_from_json(const nlohmann::json& json_data);
     };
 }

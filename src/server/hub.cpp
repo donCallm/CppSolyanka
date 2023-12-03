@@ -189,6 +189,12 @@ namespace core
                 return rpl;
             }
 
+            if (usr.value().cards.size() == NAX_BANK_ACCS_COUNT)
+            {
+                rpl.set_message(to_str<error_msg>("You have reached your bank acc limit"));
+                return rpl;
+            }
+            
             if (!STATE()->create_bank_account(usr.value()))
                 rpl.set_message(to_str<error_msg>("Error of create new bank account"));
             else
@@ -196,7 +202,7 @@ namespace core
         }
         catch (const std::exception &e)
         {
-            spdlog::error(e.what());
+            spdlog::error("Error of create new bank account: {}", e.what());
             rpl.set_message(to_str<error_msg>("Error of create new bank account"));
             return rpl;
         }
@@ -233,7 +239,7 @@ namespace core
 
         try
         {
-            auto usr = STATE()->get_user(std::stoull(comm.params[comm.params.size() - 1]));
+            auto usr = STATE()->get_user(std::stoull(comm.params[comm.params.size()]));
             if (!usr.has_value())
             {
                 rpl.set_message(to_str<error_msg>("Error of geting info"));
@@ -282,7 +288,7 @@ namespace core
         }
         catch (const std::exception &e)
         {
-            spdlog::error(e.what());
+            spdlog::error("Error of geting info: {}", e.what());
             rpl.set_message(to_str<error_msg>("Error of geting info"));
             return rpl;
         }
@@ -301,27 +307,24 @@ namespace core
             return rpl;
         }
 
-        try
+        if (!std::all_of(comm.params[2].begin(), comm.params[2].end(), [](unsigned char c) { return std::isdigit(c); }))
         {
-            auto usr = STATE()->get_user(std::stoull(comm.params[2]));
-            if (!usr.has_value())
-            {
-                rpl.set_message(to_str<error_msg>("Error change balance"));
-                return rpl;
-            }
-
-            auto iter = usr.value().cards.find(std::stoull(comm.params[0]));
-            if (STATE()->change_balance(comm.instruction, std::stoull(comm.params[1]), *iter))
-                rpl.set_message(to_str<success_result_msg>("Successful change balance"));
-            else
-                rpl.set_message(to_str<error_msg>("Error change balance"));
-        }
-        catch (const std::exception &e)
-        {
-            spdlog::error(e.what());
             rpl.set_message(to_str<error_msg>("Error change balance"));
             return rpl;
         }
+
+        auto usr = STATE()->get_user(std::stoull(comm.params[2]));
+        if (!usr.has_value())
+        {
+            rpl.set_message(to_str<error_msg>("Error change balance"));
+            return rpl;
+        }
+
+        auto iter = usr.value().cards.find(std::stoull(comm.params[0]));
+        if (STATE()->change_balance(comm.instruction, std::stoull(comm.params[1]), *iter))
+            rpl.set_message(to_str<success_result_msg>("Successful change balance"));
+        else
+            rpl.set_message(to_str<error_msg>("Error change balance"));
 
         return rpl;
     }
@@ -337,24 +340,27 @@ namespace core
             return rpl;
         }
 
-        try
+        if (!std::all_of(comm.params[1].begin(), comm.params[1].end(), [](unsigned char c) { return std::isdigit(c); }))
         {
-            auto usr = STATE()->get_user(std::stoull(comm.params[1]));
-            if (!usr.has_value())
-            {
-                rpl.set_message(to_str<error_msg>("Error of created"));
-                return rpl;
-            }
-            
-            STATE()->create_card(usr.value(), std::stoull(comm.params[0]));
-            rpl.set_message((to_str<success_result_msg>("Successful created")));
+            rpl.set_message(to_str<error_msg>("Error change balance"));
+            return rpl;
         }
-        catch (const std::exception &e)
+
+        auto usr = STATE()->get_user(std::stoull(comm.params[1]));
+        if (!usr.has_value())
         {
-            spdlog::error(e.what());
             rpl.set_message(to_str<error_msg>("Error of created"));
             return rpl;
         }
+        
+        if (usr.value().cards.size() == MAX_CARDS_COUNT)
+        {
+            rpl.set_message(to_str<error_msg>("You have reached your card limit"));
+            return rpl;
+        }
+
+        STATE()->create_card(usr.value(), std::stoull(comm.params[0]));
+        rpl.set_message((to_str<success_result_msg>("Successful created")));
 
         return rpl;
     }

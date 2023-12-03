@@ -27,7 +27,7 @@ namespace core
         };
 
     public:
-        void from_json(const nlohmann::json& json_data);
+        void command_from_json(const nlohmann::json& json_data);
         void set_command(const std::string& input);
 
     public:

@@ -14,7 +14,7 @@ card::card(uint64_t id_, uint64_t bank_account_id_) :
     bank_account_id(bank_account_id_)
 {}
 
-void bank_account::from_json(const nlohmann::json& json_data)
+void bank_account::bank_acc_from_json(const nlohmann::json& json_data)
 {
     if (json_data.empty()) throw std::runtime_error("Empty json");
 
@@ -23,7 +23,7 @@ void bank_account::from_json(const nlohmann::json& json_data)
     json_data.at("transactions_id").get_to(transactions_id);
 }
 
-void card::from_json(const nlohmann::json& json_data)
+void card::card_from_json(const nlohmann::json& json_data)
 {
     if (json_data.empty()) throw std::runtime_error("Empty json");
 

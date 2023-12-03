@@ -8,7 +8,7 @@ namespace core
     uint64_t command::id = 0;
 
     user::user(std::string& login_, std::string& name_, std::string& surname_, std::string& patronymic_,
-            std::string& pasport_, std::string password_) :
+            std::string& pasport_, std::string& password_) :
         login(login_),
         name(name_),
         surname(surname_),
@@ -56,7 +56,7 @@ namespace core
         return buffer;
     }
 
-    void command::from_json(const nlohmann::json& json_data)
+    void command::command_from_json(const nlohmann::json& json_data)
     {
         if (json_data.empty()) throw std::runtime_error("Empty json");
 
@@ -84,7 +84,7 @@ namespace core
         id++;
     }
 
-    void user::from_json(const nlohmann::json& json_data)
+    void user::user_from_json(const nlohmann::json& json_data)
     {
         if (json_data.empty()) throw std::runtime_error("Empty json");
         

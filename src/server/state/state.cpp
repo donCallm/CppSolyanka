@@ -118,7 +118,7 @@ namespace core
         return res_acc.value().balance;
     }
 
-    bool state::change_balance(uint64_t operation, uint64_t sum, uint64_t card_id)
+    bool state::change_balance(command::type& operation, uint64_t sum, uint64_t card_id)
     {
         std::optional<card> res_card = get_card(card_id);
         if(!res_card.has_value())
@@ -127,20 +127,22 @@ namespace core
         std::optional<bank_account> res = get_bank_account(res_card.value().bank_account_id);
         if (!res.has_value())
             return false;
-
-        uint64_t replenish_balance = 7, debit_funds = 8;
         bank_account acc = res.value();
 
-        if (operation == replenish_balance)
+        if (operation == command::replenish_balance)
         {
             acc.balance += sum;
         }
-        else
+        else if (operation == command::debit_funds)
         {
             if (sum > acc.balance)
                 return false;
 
             acc.balance -= sum;
+        }
+        else
+        {
+            return false;
         }
 
         nlohmann::json json_acc = acc;
@@ -150,7 +152,7 @@ namespace core
     }
 
     void state::create_card(user& usr, uint64_t bank_account_id)
-    {
+    {   
         card new_card(get_new_id(last_card_id, "last_card_id"), bank_account_id);
         usr.cards.insert(new_card.id);
 
@@ -178,7 +180,7 @@ namespace core
             return std::nullopt;
 
         user usr;
-        usr.from_json(nlohmann::json::parse(res));
+        usr.user_from_json(nlohmann::json::parse(res));
         return usr;
     }
 
@@ -190,7 +192,7 @@ namespace core
             return std::nullopt;
 
         bank_account acc;
-        acc.from_json(nlohmann::json::parse(res));
+        acc.bank_acc_from_json(nlohmann::json::parse(res));
         return acc;
     }
 
@@ -201,7 +203,7 @@ namespace core
             return std::nullopt;
         
         card crd;
-        crd.from_json(nlohmann::json::parse(res));
+        crd.card_from_json(nlohmann::json::parse(res));
         return crd;
     }
 

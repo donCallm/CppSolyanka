@@ -14,11 +14,11 @@ namespace core
                 {"cards", cards} }; }
             user() {}
             user(std::string& login_, std::string& name_, std::string& surname_, std::string& patronymic_,
-                std::string& pasport_, std::string password_);
+                std::string& pasport_, std::string& password_);
 
 
         public:
-            void from_json(const nlohmann::json& json_data);
+            void user_from_json(const nlohmann::json& json_data);
 
             bool empty();
 
