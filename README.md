@@ -28,7 +28,8 @@ ___Client start___
 cd CppSolyanka/build/src/server
 ./client
 ```
-__Commands___
+__Commands__
+
 |                                  Commnad                                |              Description             |
 |-------------------------------------------------------------------------|--------------------------------------|
 | registration <login> <name> <sername> <patranimyc> <pasport> <password> | registering a new account            |
