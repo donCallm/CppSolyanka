@@ -30,6 +30,8 @@ cd CppSolyanka/build/src/server
 ```
 __Commands___
 
+<details>
+  <summary>Полная таблица</summary>
 |                                  Commnad                                 |              Description             |
 |--------------------------------------------------------------------------|--------------------------------------|
 | registration <login> <name> <sername> <patranimyc> <pasport> <password>  | registering a new account            |
@@ -41,3 +43,4 @@ __Commands___
 | get_balance <card_id>                                                    | return user balnce on a bank account |
 | replenish_balance <card_id> <sum>                                        | put money into the account           |
 | debit_funds <card_id> <sum>                                              | debits money from account            |
+</details>
