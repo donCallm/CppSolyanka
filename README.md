@@ -29,11 +29,8 @@ cd CppSolyanka/build/src/server
 ./client
 ```
 __Commands___
-
-<details>
-  <summary>Полная таблица</summary>
 |                                  Commnad                                 |              Description             |
-|--------------------------------------------------------------------------|--------------------------------------|
+|--------------------------------------------------------------------------|--------------------------------------:|
 | registration <login> <name> <sername> <patranimyc> <pasport> <password>  | registering a new account            |
 | login <login> <password>                                                 | authorization                        |
 | create_bank_account                                                      | create a new bank account            |
