@@ -14,7 +14,7 @@ namespace core
         ~msg(){}
     
     public:
-        void msg_from_json(const nlohmann::json& json_data);
+        void from_json(const nlohmann::json& json_data);
         void set_message(const std::string& data);
 
     public:
@@ -32,7 +32,7 @@ namespace core
         ~error_msg(){}
         
     public:
-        void error_from_json(const nlohmann::json& json_data);
+        void from_json(const nlohmann::json& json_data);
     };
 
     class success_result_msg : public msg
@@ -44,6 +44,6 @@ namespace core
         ~success_result_msg(){}
 
     public:
-        void success_result_from_json(const nlohmann::json& json_data);
+        void from_json(const nlohmann::json& json_data);
     };
 }

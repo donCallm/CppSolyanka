@@ -12,7 +12,7 @@ namespace core
 
     msg::msg(std::string data) : message(data) {}
 
-    void msg::msg_from_json(const nlohmann::json& json_data)
+    void msg::from_json(const nlohmann::json& json_data)
     {
         if (json_data.empty()) throw std::runtime_error("Empty json");
 
@@ -21,7 +21,7 @@ namespace core
         json_data.at("params").get_to(params);
     }
 
-    void error_msg::error_from_json(const nlohmann::json& json_data)
+    void error_msg::from_json(const nlohmann::json& json_data)
     {
         if (json_data.empty()) throw std::runtime_error("Empty json");
 
@@ -30,7 +30,7 @@ namespace core
         json_data.at("params").get_to(params);
     }
 
-    void success_result_msg::success_result_from_json(const nlohmann::json& json_data)
+    void success_result_msg::from_json(const nlohmann::json& json_data)
     {
         if (json_data.empty()) throw std::runtime_error("Empty json");
 

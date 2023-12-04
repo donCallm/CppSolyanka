@@ -27,4 +27,9 @@ namespace utils
 
         return json.dump();
     }
+
+    inline bool is_number(const std::string& str)
+    {
+        return !str.empty() && std::all_of(str.begin(), str.end(), [](unsigned char c) { return std::isdigit(c); });
+    }
 }

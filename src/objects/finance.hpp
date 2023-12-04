@@ -9,7 +9,7 @@
 #include "user.hpp"
 
 #define MAX_CARDS_COUNT 20
-#define NAX_BANK_ACCS_COUNT 20
+#define MAX_BANK_ACCS_COUNT 20
 
 namespace core
 {
@@ -22,7 +22,7 @@ class bank_account
         bank_account() {};
 
     public:
-        void bank_acc_from_json(const nlohmann::json& json_data);
+        void from_json(const nlohmann::json& json_data);
 
     public:
         uint64_t id;
@@ -39,7 +39,7 @@ class card
         card() {};
         
     public:
-        void card_from_json(const nlohmann::json& json_data);
+        void from_json(const nlohmann::json& json_data);
 
     public:
         uint64_t id;

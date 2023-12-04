@@ -180,6 +180,12 @@ namespace core
             return rpl;
         }
 
+        if (is_number(comm.params[0]))
+        {
+            rpl.set_message(to_str<error_msg>("Error of create new bank account"));
+            return rpl;
+        }
+        
         try
         {
             auto usr = STATE()->get_user(std::stoull(comm.params[0]));
@@ -189,7 +195,7 @@ namespace core
                 return rpl;
             }
 
-            if (usr.value().cards.size() == NAX_BANK_ACCS_COUNT)
+            if (usr.value().cards.size() == MAX_BANK_ACCS_COUNT)
             {
                 rpl.set_message(to_str<error_msg>("You have reached your bank acc limit"));
                 return rpl;
@@ -237,9 +243,15 @@ namespace core
             return rpl;
         }
 
+        if (is_number(comm.params[comm.params.size() - 1]))
+        {
+            rpl.set_message(to_str<error_msg>("Error change balance"));
+            return rpl;
+        }
+
         try
         {
-            auto usr = STATE()->get_user(std::stoull(comm.params[comm.params.size()]));
+            auto usr = STATE()->get_user(std::stoull(comm.params[comm.params.size() - 1]));
             if (!usr.has_value())
             {
                 rpl.set_message(to_str<error_msg>("Error of geting info"));
@@ -307,7 +319,7 @@ namespace core
             return rpl;
         }
 
-        if (!std::all_of(comm.params[2].begin(), comm.params[2].end(), [](unsigned char c) { return std::isdigit(c); }))
+        if (is_number(comm.params[2]))
         {
             rpl.set_message(to_str<error_msg>("Error change balance"));
             return rpl;
@@ -340,9 +352,9 @@ namespace core
             return rpl;
         }
 
-        if (!std::all_of(comm.params[1].begin(), comm.params[1].end(), [](unsigned char c) { return std::isdigit(c); }))
+        if (is_number(comm.params[2]))
         {
-            rpl.set_message(to_str<error_msg>("Error change balance"));
+            rpl.set_message(to_str<error_msg>("Error created card"));
             return rpl;
         }
 

@@ -59,13 +59,13 @@ namespace core
         if (json_data.find("err_msg") != json_data.end())
         {
             error_msg err;
-            err.error_from_json(json_data);
+            err.from_json(json_data);
             spdlog::info("error: {}", err.message);
         }
         else if (json_data.find("res_msg") != json_data.end())
         {
             success_result_msg res;
-            res.success_result_from_json(json_data);
+            res.from_json(json_data);
             spdlog::info("<< response: {}", res.message);
             switch (comm)
             {
@@ -82,7 +82,7 @@ namespace core
         else
         {
             msg response;
-            response.msg_from_json(json_data);
+            response.from_json(json_data);
             spdlog::info("<< response: {}", response.message);
         }
     }
@@ -110,7 +110,7 @@ namespace core
             std::string json_string = serialize_message.dump();
             write(json_string);
 
-            rpl.msg_from_json(nlohmann::json::parse(read_response()));
+            rpl.from_json(nlohmann::json::parse(read_response()));
             handler_result(comm.instruction, rpl);
 
             comm.params.clear();

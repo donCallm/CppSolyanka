@@ -56,7 +56,7 @@ namespace core
         return buffer;
     }
 
-    void command::command_from_json(const nlohmann::json& json_data)
+    void command::from_json(const nlohmann::json& json_data)
     {
         if (json_data.empty()) throw std::runtime_error("Empty json");
 
@@ -84,7 +84,7 @@ namespace core
         id++;
     }
 
-    void user::user_from_json(const nlohmann::json& json_data)
+    void user::from_json(const nlohmann::json& json_data)
     {
         if (json_data.empty()) throw std::runtime_error("Empty json");
         

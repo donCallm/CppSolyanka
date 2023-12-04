@@ -180,7 +180,7 @@ namespace core
             return std::nullopt;
 
         user usr;
-        usr.user_from_json(nlohmann::json::parse(res));
+        usr.from_json(nlohmann::json::parse(res));
         return usr;
     }
 
@@ -192,7 +192,7 @@ namespace core
             return std::nullopt;
 
         bank_account acc;
-        acc.bank_acc_from_json(nlohmann::json::parse(res));
+        acc.from_json(nlohmann::json::parse(res));
         return acc;
     }
 
@@ -203,7 +203,7 @@ namespace core
             return std::nullopt;
         
         card crd;
-        crd.card_from_json(nlohmann::json::parse(res));
+        crd.from_json(nlohmann::json::parse(res));
         return crd;
     }
 

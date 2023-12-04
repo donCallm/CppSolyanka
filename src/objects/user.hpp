@@ -18,7 +18,7 @@ namespace core
 
 
         public:
-            void user_from_json(const nlohmann::json& json_data);
+            void from_json(const nlohmann::json& json_data);
 
             bool empty();
 

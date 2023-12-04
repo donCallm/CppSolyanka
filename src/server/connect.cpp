@@ -32,7 +32,7 @@ namespace net
     {
         core::command comm;
         core::message msg = core::deserialize_message(_read_buff, _msg_size);
-        comm.command_from_json(nlohmann::json::parse(msg.data));
+        comm.from_json(nlohmann::json::parse(msg.data));
         
         spdlog::info("<< {}", msg.data);
         on_msg(shared_from_this(), comm);
