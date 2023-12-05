@@ -7,8 +7,9 @@
 #include <server/database/database.hpp>
 #include <filesystem>
 #include <fstream>
-
+#include <boost/date_time/posix_time/posix_time.hpp>
 using namespace db;
+using namespace boost::posix_time;
 
 namespace core
 {
@@ -36,6 +37,9 @@ namespace core
                 break; }
             case identifier_type::last_card_id: {
                 tmp = _last_card_id.fetch_add(1);
+                break; }
+            case identifier_type::last_transaction_id: {
+                tmp = _last_transaction_id.fetch_add(1);
                 break; }
             default:
                 break;
@@ -127,10 +131,13 @@ namespace core
         std::optional<bank_account> res = get_bank_account(res_card.value().bank_account_id);
         if (!res.has_value())
             return false;
+            
         bank_account acc = res.value();
+        transaction ts(get_new_id(last_transaction_id, "last_transaction_id"), utils::to_str(second_clock::local_time()), sum);
 
         if (operation == command::replenish_balance)
         {
+            ts.operation = transaction::replenishment;
             acc.balance += sum;
         }
         else if (operation == command::debit_funds)
@@ -138,6 +145,7 @@ namespace core
             if (sum > acc.balance)
                 return false;
 
+            ts.operation = transaction::debit;
             acc.balance -= sum;
         }
         else
@@ -145,8 +153,13 @@ namespace core
             return false;
         }
 
+        acc.transactions_id.insert(ts.id);
+        ts.completion_date = utils::to_str(second_clock::local_time());
+
+        nlohmann::json json_transaction = ts;
         nlohmann::json json_acc = acc;
         DB()->write(database::bank_accounts, std::to_string(acc.id), json_acc.dump());
+        DB()->write(database::transactions, std::to_string(ts.id), json_transaction.dump());
 
         return true;
     }
@@ -222,6 +235,9 @@ namespace core
                 case identifier_type::last_card_id: {
                     DB()->write(database::last_id, "last_card_id", std::to_string(_last_card_id));
                     break; }
+                case identifier_type::last_transaction_id: {
+                    DB()->write(database::last_id, "last_transaction_id", std::to_string(_last_transaction_id));
+                    break; }
                 default:
                     break;
             }
@@ -238,6 +254,9 @@ namespace core
                     break; }
                 case identifier_type::last_card_id: {
                     _last_card_id = std::stoull(value);
+                    break; }
+                case identifier_type::last_transaction_id: {
+                    _last_transaction_id = std::stoull(value);
                     break; }
                 default:
                     break;
@@ -287,6 +306,7 @@ namespace core
         set_value(DB()->read(database::last_id, "last_user_id"), last_user_id);
         set_value(DB()->read(database::last_id, "last_bank_acc_id"), last_bank_acc_id);
         set_value(DB()->read(database::last_id, "last_card_id"), last_card_id);
+        set_value(DB()->read(database::last_id, "last_transaction_id"), last_transaction_id);
 
         set_logins();
     }
