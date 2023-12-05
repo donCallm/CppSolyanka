@@ -180,7 +180,7 @@ namespace core
             return rpl;
         }
 
-        if (is_number(comm.params[0]))
+        if (!is_number(comm.params[0]))
         {
             rpl.set_message(to_str<error_msg>("Error of create new bank account"));
             return rpl;
@@ -242,10 +242,10 @@ namespace core
             rpl.set_message(to_str<error_msg>(res.value()));
             return rpl;
         }
-
-        if (is_number(comm.params[comm.params.size() - 1]))
+        spdlog::info(comm.params[comm.params.size() - 1]);
+        if (!is_number(comm.params[comm.params.size() - 1]))
         {
-            rpl.set_message(to_str<error_msg>("Error change balance"));
+            rpl.set_message(to_str<error_msg>("Error of geting info"));
             return rpl;
         }
 
@@ -319,7 +319,7 @@ namespace core
             return rpl;
         }
 
-        if (is_number(comm.params[2]))
+        if (!is_number(comm.params[2]))
         {
             rpl.set_message(to_str<error_msg>("Error change balance"));
             return rpl;
@@ -352,7 +352,7 @@ namespace core
             return rpl;
         }
 
-        if (is_number(comm.params[2]))
+        if (!is_number(comm.params[2]))
         {
             rpl.set_message(to_str<error_msg>("Error created card"));
             return rpl;

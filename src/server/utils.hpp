@@ -3,6 +3,8 @@
 #include <iostream>
 #include <unordered_map>
 #include <nlohmann/json.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+using namespace boost::posix_time;
 
 namespace utils
 {
@@ -32,4 +34,10 @@ namespace utils
     {
         return !str.empty() && std::all_of(str.begin(), str.end(), [](unsigned char c) { return std::isdigit(c); });
     }
+
+    inline std::string to_str(const ptime& time)
+    {
+        return boost::posix_time::to_iso_string(time);
+    }
+
 }
