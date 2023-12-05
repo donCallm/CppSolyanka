@@ -121,7 +121,7 @@ namespace core
         std::optional<std::string> params_valid = validate_params(comm, 3);
         msg rpl;
 
-        if (params_valid.has_value())
+        if (!params_valid.has_value())
         {
             rpl.set_message(to_str<error_msg>(params_valid.value()));
             return rpl;
@@ -180,7 +180,7 @@ namespace core
             return rpl;
         }
 
-        if (is_number(comm.params[0]))
+        if (!is_number(comm.params[0]))
         {
             rpl.set_message(to_str<error_msg>("Error of create new bank account"));
             return rpl;
@@ -243,7 +243,7 @@ namespace core
             return rpl;
         }
 
-        if (is_number(comm.params[comm.params.size() - 1]))
+        if (!is_number(comm.params[comm.params.size() - 1]))
         {
             rpl.set_message(to_str<error_msg>("Error change balance"));
             return rpl;
@@ -319,7 +319,7 @@ namespace core
             return rpl;
         }
 
-        if (is_number(comm.params[2]))
+        if (!is_number(comm.params[2]))
         {
             rpl.set_message(to_str<error_msg>("Error change balance"));
             return rpl;
@@ -352,7 +352,7 @@ namespace core
             return rpl;
         }
 
-        if (is_number(comm.params[2]))
+        if (!is_number(comm.params[2]))
         {
             rpl.set_message(to_str<error_msg>("Error created card"));
             return rpl;
