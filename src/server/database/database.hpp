@@ -20,7 +20,8 @@ namespace db
                 transaction = 1,
                 last_id = 2,
                 bank_accounts = 3,
-                cards = 4
+                cards = 4,
+                clients_id = 5
             };
 
         public:

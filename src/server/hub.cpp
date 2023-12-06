@@ -127,23 +127,21 @@ namespace core
             return rpl;
         }
 
-        user usr;
         auto id = STATE()->get_id(comm.params[0]);
-
         if (!id.has_value())
         {
             rpl.set_message(to_str<error_msg>("Error of login"));
             return rpl;
         }
 
-        if (!STATE()->login(id.value(), comm.params[1], usr))
+        if (!STATE()->login(id.value(), comm.params[1]))
         {
             rpl.set_message(to_str<error_msg>("Error of login"));
         }
         else
         {
             rpl.set_message((to_str<success_result_msg>("Successful login")));
-            rpl.params.push_back(std::to_string(usr.id));
+            rpl.params.push_back(std::to_string(id.value()));
         }
 
         return rpl;

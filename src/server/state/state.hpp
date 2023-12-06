@@ -36,7 +36,7 @@ namespace core
         std::optional<card> get_card(uint64_t card_id);
 
         bool create_user(core::user& usr);
-        bool login(uint64_t id, const std::string& password, user& client);
+        bool login(uint64_t id, const std::string& password);
         bool create_bank_account(user& usr);
         std::optional<int> get_balance(uint64_t crd);
         bool change_balance(command::type& operation, uint64_t sum, uint64_t card_id);

@@ -47,8 +47,8 @@ namespace core
 
     bool state::create_user(user& usr)
     {
-        if (get_user(usr.id).has_value() ||
-            std::find(_active_users.begin(), _active_users.end(), usr.id) != _active_users.end())
+        if (get_user(usr.id).has_value() ||_logins.find(usr.login) != _logins.end() ||
+            get_id(usr.pasport).has_value())
             return false;
 
         usr.id = get_new_id(last_user_id, "last_user_id");
@@ -56,6 +56,7 @@ namespace core
 
         nlohmann::json json_usr = usr;
         DB()->write(database::clients_info, std::to_string(usr.id), json_usr.dump());
+        DB()->write(database::clients_id, usr.pasport, std::to_string(usr.id));
 
         {
             std::string file_path(std::filesystem::current_path().generic_string() + "/state/logins.json");
@@ -86,8 +87,11 @@ namespace core
         return true;
     }
 
-    bool state::login(uint64_t id, const std::string& password, user& client)
+    bool state::login(uint64_t id, const std::string& password)
     {
+        if (_active_users.find(id) != _active_users.end())
+            return false;
+
         std::optional<user> res = get_user(id);
         if (res.has_value())
         {
@@ -97,7 +101,6 @@ namespace core
             
             if (usr.password == password)
             {
-                client.id = usr.id;
                 _active_users.insert(usr.id);
                 return true;
             }
@@ -164,11 +167,18 @@ namespace core
     }
 
     std::optional<uint64_t> state::get_id(const std::string& login)
-    {
-        for (const auto& elem : _logins)
+    {   
+        if (!login.empty())
         {
-            if (elem.first == login)
-                return elem.second;
+            for (const auto& elem : _logins)
+            {
+                if (elem.first == login)
+                    return elem.second;
+            }
+
+            std::string id = DB()->read(database::clients_id, login);
+            if (!id.empty())
+                return std::stoull(id);
         }
         return std::nullopt;
     }
