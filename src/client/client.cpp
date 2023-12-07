@@ -60,7 +60,7 @@ namespace core
         {
             error_msg err;
             err.from_json(json_data);
-            spdlog::info(err.message);
+            spdlog::info("<< error: {}", err.message);
         }
         else if (json_data.find("res_msg") != json_data.end())
         {

@@ -34,9 +34,9 @@ namespace utils
         return !str.empty() && std::all_of(str.begin(), str.end(), [](unsigned char c) { return std::isdigit(c); });
     }
 
-    inline bool is_valid_str(const std::string& input)
+    inline bool is_valid_str(const std::string& input, const std::string& pattern_)
     {
-        std::regex pattern("^[a-zA-Z0-9]+$");
+        std::regex pattern(pattern_);
         return std::regex_match(input, pattern);
     }
 }

@@ -95,21 +95,21 @@ namespace core
         conn->send(json_string);
     }
 
-    std::optional<std::string> hub::validate_params(const command &comm, const uint64_t &number_of_params)
+    bool hub::validate_params(const std::vector<std::string>& params, const uint64_t &number_of_params)
     {
-        if (number_of_params != comm.params.size())
-            return std::string(to_str<error_msg>("Invalid number of parameters"));
-        return {};
+        if (number_of_params != params.size())
+            return false;
+        return true;
     }
 
-    std::optional<std::string> hub::validate_params(const command &comm)
+    bool hub::validate_params(const std::vector<std::string>& params, const std::string& pattern)
     {
-        for (size_t i = 0; i < comm.params.size(); ++i)
+        for (size_t i = 0; i < params.size(); ++i)
         {
-            if (!is_valid_str(comm.params[i]))
-                return std::string(to_str<error_msg>("Invalid symmbol. Only letters and numbers can be used"));
+            if (!is_valid_str(params[i], pattern))
+                return false;
         }
-        return std::nullopt;
+        return true;
     }
 
     std::optional<user> hub::get_user(const std::string& login)
@@ -127,19 +127,17 @@ namespace core
 
     std::optional<msg> hub::handle_login(command &comm)
     {
-        std::optional<std::string> params_valid = validate_params(comm, 3);
         msg rpl;
 
-        if (params_valid.has_value())
+        if (!validate_params(comm.params, 3))
         {
-            rpl.set_message(params_valid.value());
+            rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
             return rpl;
         }
 
-        params_valid = validate_params(comm);
-        if (params_valid.has_value())
+        if (!validate_params(comm.params, "^[a-zA-Z0-9]+$"))
         {
-            rpl.set_message(params_valid.value());
+            rpl.set_message(to_str<error_msg>("Invalid symmbol. Only letters and numbers can be used"));
             return rpl;
         }
 
@@ -165,19 +163,23 @@ namespace core
 
     std::optional<msg> hub::handle_create_user(command &comm)
     {
-        std::optional<std::string> params_valid = validate_params(comm, 7);
         msg rpl;
 
-        if (params_valid.has_value())
+        if (!validate_params(comm.params, 7))
         {
-            rpl.set_message(params_valid.value());
+            rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
             return rpl;
         }
 
-        params_valid = validate_params(comm);
-        if (params_valid.has_value())
+        if (!validate_params(comm.params, "^[a-zA-Z0-9]+$"))
         {
-            rpl.set_message(params_valid.value());
+            rpl.set_message(to_str<error_msg>("Invalid symmbol. Only letters and numbers can be used"));
+            return rpl;
+        }
+
+        if (!validate_params(std::vector<std::string>{ comm.params[1], comm.params[2], comm.params[3] }, "^[a-zA-Z]+$"))
+        {
+            rpl.set_message(to_str<error_msg>("Invalid symmbol. Last name, first name and patronymic can only have letters"));
             return rpl;
         }
 
@@ -192,12 +194,11 @@ namespace core
 
     std::optional<msg> hub::handle_create_bank_acc(command &comm)
     {
-        std::optional<std::string> params_valid = validate_params(comm, 1);
         msg rpl;
 
-        if (params_valid.has_value())
+        if (!validate_params(comm.params, 1))
         {
-            rpl.set_message(params_valid.value());
+            rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
             return rpl;
         }
 
@@ -238,36 +239,36 @@ namespace core
 
     std::optional<msg> hub::handle_get_bank_info(command &comm)
     {
-        std::optional<std::string> params_valid;
         msg rpl;
 
         switch (comm.instruction)
         {
             case command::get_balance:
             {
-                params_valid = validate_params(comm, 2);
+                if (!validate_params(comm.params, 2))
+                {
+                    rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
+                    return rpl;
+                }
                 break;
             }
             case command::get_cards:
             case command::get_bank_accounts:
             {
-                params_valid = validate_params(comm, 1);
+                if (!validate_params(comm.params, 1))
+                {
+                    rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
+                    return rpl;
+                }
                 break;
             }
             default:
                 break;
         }
 
-        if (params_valid.has_value())
+        if (!validate_params(comm.params, "^[0-9]+$"))
         {
-            rpl.set_message(params_valid.value());
-            return rpl;
-        }
-
-        params_valid = validate_params(comm);
-        if (params_valid.has_value())
-        {
-            rpl.set_message(params_valid.value());
+            rpl.set_message(to_str<error_msg>("Invalid symmbol. Only numbers can be used"));
             return rpl;
         }
 
@@ -338,19 +339,17 @@ namespace core
 
     std::optional<msg> hub::handle_change_balance(command &comm)
     {
-        std::optional<std::string> params_valid = validate_params(comm, 3);
         msg rpl;
 
-        if (params_valid.has_value())
+        if (!validate_params(comm.params, 3))
         {
-            rpl.set_message(params_valid.value());
+            rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
             return rpl;
         }
 
-        params_valid = validate_params(comm);
-        if (params_valid.has_value())
+        if (!validate_params(comm.params, "^[0-9]+$"))
         {
-            rpl.set_message(params_valid.value());
+            rpl.set_message(to_str<error_msg>("Invalid symmbol. Only numbers can be used"));
             return rpl;
         }
 
@@ -378,19 +377,17 @@ namespace core
 
     std::optional<msg> hub::handle_create_card(command &comm)
     {
-        std::optional<std::string> params_valid = validate_params(comm, 2);
         msg rpl;
 
-        if (params_valid.has_value())
+        if (!validate_params(comm.params, 2))
         {
-            rpl.set_message(params_valid.value());
+            rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
             return rpl;
         }
 
-        params_valid = validate_params(comm);
-        if (params_valid.has_value())
+        if (!validate_params(comm.params, "^[0-9]+$"))
         {
-            rpl.set_message(params_valid.value());
+            rpl.set_message(to_str<error_msg>("Invalid symmbol. Only numbers can be used"));
             return rpl;
         }
 
