@@ -133,11 +133,11 @@ namespace core
             return false;
             
         bank_account acc = res.value();
-        transaction ts(get_new_id(last_transaction_id, "last_transaction_id"), utils::to_str(second_clock::local_time()), sum);
+        transaction tx(get_new_id(last_transaction_id, "last_transaction_id"), utils::to_str(second_clock::local_time()), sum);
 
         if (operation == command::replenish_balance)
         {
-            ts.operation = transaction::replenishment;
+            tx.operation = transaction::replenishment;
             acc.balance += sum;
         }
         else if (operation == command::debit_funds)
@@ -145,7 +145,7 @@ namespace core
             if (sum > acc.balance)
                 return false;
 
-            ts.operation = transaction::debit;
+            tx.operation = transaction::debit;
             acc.balance -= sum;
         }
         else
@@ -153,13 +153,13 @@ namespace core
             return false;
         }
 
-        acc.transactions_id.insert(ts.id);
-        ts.completion_date = utils::to_str(second_clock::local_time());
+        acc.transactions_id.insert(tx.id);
+        tx.completion_date = utils::to_str(second_clock::local_time());
 
-        nlohmann::json json_transaction = ts;
+        nlohmann::json json_transaction = tx;
         nlohmann::json json_acc = acc;
         DB()->write(database::bank_accounts, std::to_string(acc.id), json_acc.dump());
-        DB()->write(database::transactions, std::to_string(ts.id), json_transaction.dump());
+        DB()->write(database::transactions, std::to_string(tx.id), json_transaction.dump());
 
         return true;
     }

@@ -71,7 +71,7 @@ class transaction
             };
         }
 
-        enum ts_type
+        enum tx_type
         {
             debit = 0,
             replenishment = 1
@@ -85,7 +85,7 @@ class transaction
 
     public:
         uint64_t id;
-        ts_type operation;
+        tx_type operation;
         std::string start_date;
         std::string completion_date;
         uint64_t sum;
