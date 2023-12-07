@@ -3,6 +3,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <nlohmann/json.hpp>
+#include <regex>
 
 namespace utils
 {
@@ -31,5 +32,11 @@ namespace utils
     inline bool is_number(const std::string& str)
     {
         return !str.empty() && std::all_of(str.begin(), str.end(), [](unsigned char c) { return std::isdigit(c); });
+    }
+
+    inline bool is_valid_str(const std::string& input)
+    {
+        std::regex pattern("^[a-zA-Z0-9]+$");
+        return std::regex_match(input, pattern);
     }
 }

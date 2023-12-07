@@ -63,8 +63,11 @@ namespace core
             std::ofstream output_file(file_path);
 
             if (!output_file.is_open())
+            {
+                spdlog::error("File is not open");
                 return false;
-
+            }
+            
             output_file << utils::to_str(_logins);
         }
 

@@ -24,6 +24,7 @@ namespace core
         void subscribe_on_server();
 
         std::optional<std::string> validate_params(const command& comm, const uint64_t& number_of_params);
+        std::optional<std::string> validate_params(const command &comm);
         std::optional<user> get_user(const std::string& login);
 
         std::optional<msg> handle_create_user(command& comm);

@@ -9,7 +9,6 @@
 using namespace utils;
 namespace core
 {
-
     hub::hub(app &application) : _application(application),
                                  _server(std::make_shared<server>(_application.get_service()))
     {
@@ -103,6 +102,16 @@ namespace core
         return {};
     }
 
+    std::optional<std::string> hub::validate_params(const command &comm)
+    {
+        for (size_t i = 0; i < comm.params.size(); ++i)
+        {
+            if (!is_valid_str(comm.params[i]))
+                return std::string(to_str<error_msg>("Invalid symmbol. Only letters and numbers can be used"));
+        }
+        return std::nullopt;
+    }
+
     std::optional<user> hub::get_user(const std::string& login)
     {
         auto id = STATE()->get_id(login);
@@ -121,9 +130,16 @@ namespace core
         std::optional<std::string> params_valid = validate_params(comm, 3);
         msg rpl;
 
-        if (!params_valid.has_value())
+        if (params_valid.has_value())
         {
-            rpl.set_message(to_str<error_msg>(params_valid.value()));
+            rpl.set_message(params_valid.value());
+            return rpl;
+        }
+
+        params_valid = validate_params(comm);
+        if (params_valid.has_value())
+        {
+            rpl.set_message(params_valid.value());
             return rpl;
         }
 
@@ -149,12 +165,19 @@ namespace core
 
     std::optional<msg> hub::handle_create_user(command &comm)
     {
-        std::optional<std::string> res = validate_params(comm, 7);
+        std::optional<std::string> params_valid = validate_params(comm, 7);
         msg rpl;
 
-        if (res.has_value())
+        if (params_valid.has_value())
         {
-            rpl.set_message(to_str<error_msg>(res.value()));
+            rpl.set_message(params_valid.value());
+            return rpl;
+        }
+
+        params_valid = validate_params(comm);
+        if (params_valid.has_value())
+        {
+            rpl.set_message(params_valid.value());
             return rpl;
         }
 
@@ -169,12 +192,12 @@ namespace core
 
     std::optional<msg> hub::handle_create_bank_acc(command &comm)
     {
-        std::optional<std::string> res = validate_params(comm, 1);
+        std::optional<std::string> params_valid = validate_params(comm, 1);
         msg rpl;
 
-        if (res.has_value())
+        if (params_valid.has_value())
         {
-            rpl.set_message(to_str<error_msg>(res.value()));
+            rpl.set_message(params_valid.value());
             return rpl;
         }
 
@@ -215,29 +238,36 @@ namespace core
 
     std::optional<msg> hub::handle_get_bank_info(command &comm)
     {
-        std::optional<std::string> res;
+        std::optional<std::string> params_valid;
         msg rpl;
 
         switch (comm.instruction)
         {
             case command::get_balance:
             {
-                res = validate_params(comm, 2);
+                params_valid = validate_params(comm, 2);
                 break;
             }
             case command::get_cards:
             case command::get_bank_accounts:
             {
-                res = validate_params(comm, 1);
+                params_valid = validate_params(comm, 1);
                 break;
             }
             default:
                 break;
         }
 
-        if (res.has_value())
+        if (params_valid.has_value())
         {
-            rpl.set_message(to_str<error_msg>(res.value()));
+            rpl.set_message(params_valid.value());
+            return rpl;
+        }
+
+        params_valid = validate_params(comm);
+        if (params_valid.has_value())
+        {
+            rpl.set_message(params_valid.value());
             return rpl;
         }
 
@@ -308,12 +338,19 @@ namespace core
 
     std::optional<msg> hub::handle_change_balance(command &comm)
     {
-        std::optional<std::string> res = validate_params(comm, 3);
+        std::optional<std::string> params_valid = validate_params(comm, 3);
         msg rpl;
 
-        if (res.has_value())
+        if (params_valid.has_value())
         {
-            rpl.set_message(to_str<error_msg>(res.value()));
+            rpl.set_message(params_valid.value());
+            return rpl;
+        }
+
+        params_valid = validate_params(comm);
+        if (params_valid.has_value())
+        {
+            rpl.set_message(params_valid.value());
             return rpl;
         }
 
@@ -341,12 +378,19 @@ namespace core
 
     std::optional<msg> hub::handle_create_card(command &comm)
     {
-        std::optional<std::string> res = validate_params(comm, 2);
+        std::optional<std::string> params_valid = validate_params(comm, 2);
         msg rpl;
 
-        if (res.has_value())
+        if (params_valid.has_value())
         {
-            rpl.set_message(to_str<error_msg>(res.value()));
+            rpl.set_message(params_valid.value());
+            return rpl;
+        }
+
+        params_valid = validate_params(comm);
+        if (params_valid.has_value())
+        {
+            rpl.set_message(params_valid.value());
             return rpl;
         }
 

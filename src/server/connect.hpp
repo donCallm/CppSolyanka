@@ -14,7 +14,7 @@ namespace net
     public:
         typedef std::shared_ptr<con_handler> ptr;
         explicit con_handler(boost::asio::io_service& io_service);
-        ~con_handler();
+        ~con_handler() {}
 
         boost::signals2::signal<void(ptr conn, core::command comm)> on_msg;
 
