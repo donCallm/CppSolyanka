@@ -98,6 +98,9 @@ namespace core
         {
             std::getline(std::cin, msg.data);
 
+            if (msg.data.empty())
+                continue;
+
             comm.set_command(msg.data);
 
             if (comm.instruction == command::type::end)
