@@ -1,21 +1,17 @@
-sudo apt install cmake
-```
 ___Buil project___
 ```
 cd CppSolyanka
-mkdir build && cd build
-cmake ..
-make -j
+./build.sh
 ```
 ___Server start___
 ```
-cd CppSolyanka/build/src/server
-./server
+cd CppSolyanka
+./start_server.sh
 ```
 ___Client start___
 ```
-cd CppSolyanka/build/src/server
-./client
+cd CppSolyanka
+./start_client.sh
 ```
 __Commands__
 
