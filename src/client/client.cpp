@@ -70,7 +70,7 @@ namespace core
             switch (comm)
             {
                 case command::type::login: {
-                    if (!res.params.empty())
+                    if (!rpl.params.empty())
                     {
                         _id = std::stoull(rpl.params[0]);
                     }
@@ -107,12 +107,11 @@ namespace core
                 _socket.close();
             
             comm.params.push_back(std::to_string(_id));
-            comm.token = _token;
 
             nlohmann::json serialize_message = comm; 
             std::string json_string = serialize_message.dump();
             write(json_string);
-
+            
             rpl.from_json(nlohmann::json::parse(read_response()));
             handler_result(comm.instruction, rpl);
 

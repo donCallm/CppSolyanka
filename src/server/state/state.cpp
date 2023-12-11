@@ -45,11 +45,11 @@ namespace core
         return tmp; 
     }
 
-    bool state::create_user(user& usr)
+    std::optional<std::string> state::create_user(user& usr)
     {
         if (get_user(usr.id).has_value() ||_logins.find(usr.login) != _logins.end() ||
             get_id(usr.pasport).has_value())
-            return false;
+            return "User already exists";
 
         usr.id = get_new_id(last_user_id, "last_user_id");
         _logins.insert(std::make_pair( usr.login, usr.id));
@@ -65,13 +65,13 @@ namespace core
             if (!output_file.is_open())
             {
                 spdlog::error("File is not open");
-                return false;
+                return "Server error";
             }
             
             output_file << utils::to_str(_logins);
         }
 
-        return true;
+        return std::nullopt;
     }
 
     bool state::create_bank_account(user& usr)
@@ -90,25 +90,25 @@ namespace core
         return true;
     }
 
-    bool state::login(uint64_t id, const std::string& password)
+    std::optional<std::string> state::login(uint64_t id, const std::string& password)
     {
         if (_active_users.find(id) != _active_users.end())
-            return false;
+            return "The user is already authorized";
 
         std::optional<user> res = get_user(id);
         if (res.has_value())
         {
             core::user usr = res.value();
             if (_active_users.find(usr.id) != _active_users.end())
-                return false;
+                return "The user is already authorized";
             
             if (usr.password == password)
             {
                 _active_users.insert(usr.id);
-                return true;
+                return std::nullopt;
             }
         }
-        return false;
+        return "Wrong password";
     }
 
     std::optional<int> state::get_balance(uint64_t card_id)

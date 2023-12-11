@@ -22,8 +22,9 @@ namespace core
             debit_funds = 8,
             get_bank_accounts = 9,
             create_card = 10,
-            end = 11,
-            unknown_command = 12
+            get_info = 11,
+            end = 12,
+            unknown_command = 13
         };
 
     public:

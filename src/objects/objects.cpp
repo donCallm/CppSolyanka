@@ -28,6 +28,7 @@ namespace core
                 {"debit_funds", command::type::debit_funds},
                 {"get_bank_accounts", command::type::get_bank_accounts},
                 {"create_card", command::type::create_card},
+                {"get_info", command::type::get_info},
                 {"end", command::type::end}
             };
             

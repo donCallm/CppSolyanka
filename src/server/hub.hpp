@@ -34,6 +34,7 @@ namespace core
         std::optional<msg> handle_create_card(command& comm);
 
         std::optional<msg> handle_get_bank_info(command& comm);
+        std::optional<msg> handler_get_info(command& comm);
 
     private:
         app& _application;

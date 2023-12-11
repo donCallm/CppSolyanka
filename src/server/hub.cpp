@@ -71,6 +71,11 @@ namespace core
                 rpl = handle_create_card(comm).value();
                 break;
             }
+            case command::get_info:
+            {
+                rpl = handler_get_info(comm).value();
+                break;
+            }
             case command::ping:
             {
                 rpl.message = to_str<msg>("pong");
@@ -148,9 +153,10 @@ namespace core
             return rpl;
         }
 
-        if (!STATE()->login(id.value(), comm.params[1]))
+        auto res = STATE()->login(id.value(), comm.params[1]);
+        if (res.has_value())
         {
-            rpl.set_message(to_str<error_msg>("Error of login"));
+            rpl.set_message(to_str<error_msg>(res.value()));
         }
         else
         {
@@ -184,8 +190,9 @@ namespace core
         }
 
         user usr(comm.params[0], comm.params[1], comm.params[2], comm.params[3], comm.params[4], comm.params[5]);
-        if (!STATE()->create_user(usr))
-            rpl.set_message(to_str<error_msg>("Error of registraton"));
+        auto res = STATE()->create_user(usr);
+        if (res.has_value())
+            rpl.set_message(to_str<error_msg>(res.value()));
         else
             rpl.set_message((to_str<success_result_msg>("Successful registration")));
 
@@ -283,7 +290,7 @@ namespace core
             auto usr = STATE()->get_user(std::stoull(comm.params[comm.params.size() - 1]));
             if (!usr.has_value())
             {
-                rpl.set_message(to_str<error_msg>("Error of geting info"));
+                rpl.set_message(to_str<error_msg>("User not found"));
                 return rpl;
             }
             std::string res;
@@ -300,22 +307,35 @@ namespace core
                     else
                     {
                         res = std::to_string(STATE()->get_balance(*iter).value());
-                        rpl.set_message(utils::to_str<success_result_msg>(res));
                     }
                     break;
                 }
                 case command::get_cards:
                 {
-                    res = "Id ur cards: ";
-                    for (const auto &card : usr.value().cards)
-                        res += std::to_string(card) + " ";
+                    if (usr.value().cards.size() == 0)
+                    {
+                        res = "No active cards";
+                    }
+                    else
+                    {
+                        res = "Id ur cards: ";
+                        for (const auto &card : usr.value().cards)
+                            res += std::to_string(card) + " ";
+                    }
                     break;
                 }
                 case command::get_bank_accounts:
                 {
-                    res = "Id ur bank accounts: ";
-                    for (const auto &acc : usr.value().bank_accounts)
-                        res += std::to_string(acc) + " ";
+                    if (usr.value().bank_accounts.size() == 0)
+                    {
+                        res = "No active bank accounts";
+                    }
+                    else
+                    {
+                        res = "Id ur bank accounts: ";
+                        for (const auto &acc : usr.value().bank_accounts)
+                            res += std::to_string(acc) + " ";
+                    }
                     break;
                 }
                 default:
@@ -362,12 +382,17 @@ namespace core
         auto usr = STATE()->get_user(std::stoull(comm.params[2]));
         if (!usr.has_value())
         {
-            rpl.set_message(to_str<error_msg>("Error change balance"));
+            rpl.set_message(to_str<error_msg>("User not found"));
             return rpl;
         }
 
         auto iter = usr.value().cards.find(std::stoull(comm.params[0]));
-        if (STATE()->change_balance(comm.instruction, std::stoull(comm.params[1]), *iter))
+        if (iter == usr.value().cards.end())
+        {
+            rpl.set_message(to_str<error_msg>("Card not found"));
+            return rpl;
+        }
+        if (STATE()->change_balance(comm.instruction, std::stoull(comm.params[1]), std::stoull(comm.params[0])))
             rpl.set_message(to_str<success_result_msg>("Successful change balance"));
         else
             rpl.set_message(to_str<error_msg>("Error change balance"));
@@ -391,7 +416,7 @@ namespace core
             return rpl;
         }
 
-        if (!is_number(comm.params[2]))
+        if (!is_number(comm.params[0]))
         {
             rpl.set_message(to_str<error_msg>("Error created card"));
             return rpl;
@@ -400,7 +425,7 @@ namespace core
         auto usr = STATE()->get_user(std::stoull(comm.params[1]));
         if (!usr.has_value())
         {
-            rpl.set_message(to_str<error_msg>("Error of created"));
+            rpl.set_message(to_str<error_msg>("User not found"));
             return rpl;
         }
         
@@ -413,6 +438,28 @@ namespace core
         STATE()->create_card(usr.value(), std::stoull(comm.params[0]));
         rpl.set_message((to_str<success_result_msg>("Successful created")));
 
+        return rpl;
+    }
+
+    std::optional<msg> hub::handler_get_info(command& comm)
+    {
+        msg rpl;
+
+        if (!validate_params(comm.params, 1))
+        {
+            rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
+            return rpl;
+        }
+
+        auto usr = STATE()->get_user(std::stoull(comm.params[0]));
+        if (!usr.has_value())
+        {
+            rpl.set_message(to_str<error_msg>("User not found"));
+            return rpl;
+        }
+
+        nlohmann::json json_usr = usr.value();
+        rpl.set_message(to_str<success_result_msg>(json_usr.dump()));
         return rpl;
     }
 }
