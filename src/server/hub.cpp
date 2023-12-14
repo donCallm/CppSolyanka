@@ -130,6 +130,36 @@ namespace core
         return usr.value();
     }
 
+    std::string hub::get_balance(user& usr, uint64_t card_id)
+    {
+        auto iter = usr.cards.find(card_id);
+        if (iter == usr.cards.end())
+            return "Error of geting balance";
+        return "Your balance: " + std::to_string(STATE()->get_balance(*iter).value());
+    }
+
+    std::string hub::get_cards(user& usr)
+    {
+        if (usr.cards.size() == 0)
+            return "No active cards";
+        
+        std::string res = "Id ur cards: ";
+        for (const auto &card : usr.cards)
+            res += std::to_string(card) + " ";
+        return res;
+    }
+
+    std::string hub::get_bank_accounts(user& usr)
+    {
+        if (usr.bank_accounts.size() == 0)
+            return "No active bank accounts";
+        
+        std::string res = "Id ur bank accounts: ";
+        for (const auto &acc : usr.bank_accounts)
+            res += std::to_string(acc) + " ";
+        return res;
+    }
+
     std::optional<msg> hub::handle_login(command &comm)
     {
         msg rpl;
@@ -299,43 +329,17 @@ namespace core
             {
                 case command::get_balance:
                 {
-                    auto iter = usr.value().cards.find(std::stoull(comm.params[0]));
-                    if (iter == usr.value().cards.end())
-                    {
-                        res = "Error of geting balance";
-                    }
-                    else
-                    {
-                        res = std::to_string(STATE()->get_balance(*iter).value());
-                    }
+                    get_balance(usr.value(), std::stoull(comm.params[0]));
                     break;
                 }
                 case command::get_cards:
                 {
-                    if (usr.value().cards.size() == 0)
-                    {
-                        res = "No active cards";
-                    }
-                    else
-                    {
-                        res = "Id ur cards: ";
-                        for (const auto &card : usr.value().cards)
-                            res += std::to_string(card) + " ";
-                    }
+                    res = get_cards(usr.value());
                     break;
                 }
                 case command::get_bank_accounts:
                 {
-                    if (usr.value().bank_accounts.size() == 0)
-                    {
-                        res = "No active bank accounts";
-                    }
-                    else
-                    {
-                        res = "Id ur bank accounts: ";
-                        for (const auto &acc : usr.value().bank_accounts)
-                            res += std::to_string(acc) + " ";
-                    }
+                    res = get_bank_accounts(usr.value());
                     break;
                 }
                 default:
