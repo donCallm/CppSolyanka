@@ -60,7 +60,7 @@ namespace core
         {
             error_msg err;
             err.from_json(json_data);
-            spdlog::info("error: {}", err.message);
+            spdlog::info("<< error: {}", err.message);
         }
         else if (json_data.find("res_msg") != json_data.end())
         {
@@ -70,8 +70,10 @@ namespace core
             switch (comm)
             {
                 case command::type::login: {
-                    if (!res.params.empty())
-                        _id = std::stoull(res.params[0]);
+                    if (!rpl.params.empty())
+                    {
+                        _id = std::stoull(rpl.params[0]);
+                    }
                     break; }
                 default:
                     break;
@@ -96,18 +98,20 @@ namespace core
         {
             std::getline(std::cin, msg.data);
 
+            if (msg.data.empty())
+                continue;
+
             comm.set_command(msg.data);
 
             if (comm.instruction == command::type::end)
                 _socket.close();
             
             comm.params.push_back(std::to_string(_id));
-            comm.token = _token;
 
             nlohmann::json serialize_message = comm; 
             std::string json_string = serialize_message.dump();
             write(json_string);
-
+            
             rpl.from_json(nlohmann::json::parse(read_response()));
             handler_result(comm.instruction, rpl);
 

@@ -9,8 +9,9 @@ namespace core
     {
     public:
         operator nlohmann::json() const { return nlohmann::json{ {"message", message}, {"id", id}, {"params", params} }; };
-        msg(std::string data);
+        explicit msg(std::string data);
         msg();
+        ~msg(){}
     
     public:
         void from_json(const nlohmann::json& json_data);
@@ -27,7 +28,8 @@ namespace core
     public:
         operator nlohmann::json() const { return nlohmann::json{ {"err_msg", message}, {"id", id}, {"params", params} }; };
         error_msg() {}
-        error_msg(std::string data);
+        explicit error_msg(std::string data);
+        ~error_msg(){}
         
     public:
         void from_json(const nlohmann::json& json_data);
@@ -38,7 +40,8 @@ namespace core
     public:
         operator nlohmann::json() const { return nlohmann::json{ {"res_msg", message}, {"id", id}, {"params", params}}; }
         success_result_msg() {}
-        success_result_msg(std::string data);
+        explicit success_result_msg(std::string data);
+        ~success_result_msg(){}
 
     public:
         void from_json(const nlohmann::json& json_data);

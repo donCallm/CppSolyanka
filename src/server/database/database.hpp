@@ -19,7 +19,9 @@ namespace db
                 clients_info = 0,
                 transaction = 1,
                 last_id = 2,
-                bank_accounts = 3
+                bank_accounts = 3,
+                cards = 4,
+                clients_id = 5
             };
 
         public:
