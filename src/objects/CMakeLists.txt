@@ -1,5 +1,7 @@
 project(objects)
 
+find_package(nlohmann_json  CONFIG REQUIRED)
+
 add_library(objects STATIC 
             objects.cpp
             msg_objects.cpp
