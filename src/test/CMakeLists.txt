@@ -2,11 +2,9 @@ project(tests)
 
 add_executable(${PROJECT_NAME} 
             main.cpp
-            tests.cpp)
+            mock.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 
-            objects
-            clib
             nlohmann_json::nlohmann_json
             GTest::gtest
             GTest::gtest_main

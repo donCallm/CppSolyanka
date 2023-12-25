@@ -1,7 +1,5 @@
 project(client)
 
-add_library(clib client.cpp)
-
 add_executable(${PROJECT_NAME} 
             main.cpp
             client.cpp)

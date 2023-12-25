@@ -1,5 +1,5 @@
 #include <iostream>
-#include "tests.hpp"
+#include "mock.hpp"
 
 int main(int argc, char **argv)
 {

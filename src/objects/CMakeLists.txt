@@ -1,11 +1,10 @@
 project(objects)
 
-find_package(nlohmann_json  CONFIG REQUIRED)
-
-add_library(objects STATIC 
+add_library(${PROJECT_NAME} STATIC 
             objects.cpp
             msg_objects.cpp
             finance.cpp)
 
-target_link_libraries(objects PRIVATE nlohmann_json::nlohmann_json
-                                                        database)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+            nlohmann_json::nlohmann_json
+            database)

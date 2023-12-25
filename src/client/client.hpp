@@ -13,7 +13,8 @@ namespace core
     {
         public:
             client(bool console_mode = true);
-
+            ~client() {}
+            
         public:
             void ping();
             void read_hello_msg();

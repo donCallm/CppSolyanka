@@ -3,7 +3,7 @@
 #include <iostream>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include "../client/client.hpp"
+#include <client/client.hpp>
 
 namespace client_tests
 {
@@ -11,7 +11,7 @@ namespace client_tests
     {
         public:
             mock_client(bool console_mode = true);
-            ~mock_client() override {}
+            virtual ~mock_client() {}
 
         public:
             MOCK_METHOD0(read_hello_msg, void());
