@@ -1,5 +1,4 @@
 #include "client.hpp"
-#include <objects/commands.hpp>
 #include <objects/message.hpp>
 #include <objects/msg_objects.hpp>
 #include <iostream>

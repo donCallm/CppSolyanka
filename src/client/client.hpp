@@ -1,7 +1,5 @@
 #pragma once
-
 #include <boost/asio.hpp>
-#include <objects/user.hpp>
 #include <objects/commands.hpp>
 
 namespace core
@@ -14,7 +12,7 @@ namespace core
         public:
             client(bool console_mode = true);
             ~client() {}
-            
+
         public:
             void ping();
             void read_hello_msg();

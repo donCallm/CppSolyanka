@@ -10,8 +10,8 @@ namespace client_tests
     class mock_client : public core::client
     {
         public:
-            mock_client(bool console_mode = true);
-            virtual ~mock_client() {}
+            mock_client(bool console_mode = true) {}
+            ~mock_client() {}
 
         public:
             MOCK_METHOD0(read_hello_msg, void());
