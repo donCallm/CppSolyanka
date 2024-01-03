@@ -1,5 +1,6 @@
 #pragma once
 
+#include <objects/msg_objects.hpp>
 #include <iostream>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -10,7 +11,7 @@ namespace client_tests
     class mock_client : public core::client
     {
         public:
-            mock_client(bool console_mode = true) {}
+            mock_client(bool console_mode = true) : core::client(console_mode) {}
             ~mock_client() {}
 
         public:
@@ -21,5 +22,9 @@ namespace client_tests
             MOCK_METHOD2(handler_result, void(const core::command::type&, const core::msg&));
             MOCK_METHOD0(read_response, std::string());
             MOCK_METHOD0(get_socket, boost::asio::ip::tcp::socket*());
+
+            void mwrite(const std::string& data);
+            void mhandle_result(core::msg& rpl);
+            void start_process(const std::string& data, core::msg& rpl);
     };
 }

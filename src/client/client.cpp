@@ -46,9 +46,11 @@ namespace core
             throw std::runtime_error("data for write is empty");
         else
             msg.data = data;
-
+        spdlog::info("TEST1");
         _write_buff = core::serialize_message(msg);
+        spdlog::info("TEST2");
         boost::asio::write(_socket, boost::asio::buffer(_write_buff.data(), _write_buff.size()));
+        spdlog::info("TEST3");
     }
 
     void client::handler_result(const command::type& comm, const core::msg& rpl)
