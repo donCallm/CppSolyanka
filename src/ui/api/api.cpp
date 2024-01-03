@@ -1,4 +1,6 @@
 #include "api.hpp"
+#include <objects/user.hpp>
+
 namespace ui
 {
 

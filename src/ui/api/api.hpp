@@ -3,6 +3,11 @@
 #include <client/client.hpp>
 #include <optional>
 
+namespace core
+{
+    class user;
+}
+
 namespace ui
 {
     class api

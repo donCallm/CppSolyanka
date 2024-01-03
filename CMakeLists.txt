@@ -15,12 +15,14 @@ hunter_add_package(Boost COMPONENTS system program_options thread context)
 hunter_add_package(spdlog)
 hunter_add_package(cpp_redis)
 hunter_add_package(nlohmann_json)
+hunter_add_package(GTest)
 
 find_package(Boost          CONFIG REQUIRED system program_options thread context)
 find_package(spdlog         CONFIG REQUIRED)
 find_package(cpp_redis      CONFIG REQUIRED)
 find_package(nlohmann_json  CONFIG REQUIRED)
 find_package(Qt5            CONFIG REQUIRED Core Widgets)
+find_package(GTest          CONFIG REQUIRED)
 
 include_directories("src")
 
@@ -30,7 +32,4 @@ message(STATUS "Qt5 Widgets version: ${Qt5Widgets_VERSION}")
 message(STATUS "Qt5 include directories: ${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS}")
 message(STATUS "Qt5 libraries: ${Qt5Core_LIBRARIES} ${Qt5Widgets_LIBRARIES}")
 
-add_subdirectory(src/objects)
-add_subdirectory(src/client)
-add_subdirectory(src/server)
-add_subdirectory(src/ui)
+add_subdirectory(src)
