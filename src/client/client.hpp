@@ -10,18 +10,19 @@ namespace core
     class client
     {
         public:
-            client(bool console_mode = true);
-            ~client() {}
+            client(bool console_mode);
+            client();
+            virtual ~client() = default;
 
         public:
-            void ping();
-            void read_hello_msg();
-            void write(std::string msg);
-            void connect();
-            void start();
-            void handler_result(const command::type& comm, const core::msg& rpl);
-            std::string read_response();
-            std::vector<uint8_t> serialize_in_buf(std::string msg);
+            virtual void read_hello_msg();
+            virtual void write(std::string msg);
+            virtual void connect();
+            virtual void start();
+            virtual void executing();
+            virtual void handler_result(const command::type& comm, const core::msg& rpl);
+            virtual std::string read_response();
+
 
         private:
             boost::asio::io_service _io_service;

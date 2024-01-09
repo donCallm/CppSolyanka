@@ -13,6 +13,13 @@ namespace core
 
     class hub : std::enable_shared_from_this<hub>
     {
+    private:
+        bool validate_params(const std::vector<std::string>& params, const uint64_t &number_of_params);
+        bool validate_params(const std::vector<std::string>& params, const std::string& pattern);
+        std::optional<user> get_user(const std::string& login);
+        std::string get_balance(user& usr, uint64_t card_id);
+        std::string get_cards(user& usr);
+        std::string get_bank_accounts(user& usr);
     public:
         hub(app& application);
         
@@ -23,13 +30,6 @@ namespace core
         
         void subscribe_on_server();
 
-        bool validate_params(const std::vector<std::string>& params, const uint64_t &number_of_params);
-        bool validate_params(const std::vector<std::string>& params, const std::string& pattern);
-        std::optional<user> get_user(const std::string& login);
-        std::string get_balance(user& usr, uint64_t card_id);
-        std::string get_cards(user& usr);
-        std::string get_bank_accounts(user& usr);
-
         std::optional<msg> handle_create_user(command& comm);
         std::optional<msg> handle_login(command& comm);
         std::optional<msg> handle_create_bank_acc(command& comm);
@@ -38,6 +38,8 @@ namespace core
 
         std::optional<msg> handle_get_bank_info(command& comm);
         std::optional<msg> handler_get_info(command& comm);
+
+        std::optional<msg> handler_clear_dbs(command& comm);
 
     private:
         app& _application;

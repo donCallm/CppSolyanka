@@ -295,6 +295,11 @@ namespace core
         }
     }
 
+    bool state::clear_dbs()
+    {
+        return DB()->clear_databases();
+    }
+
     void state::setup()
     {
         set_value(DB()->read(database::last_id, "last_user_id"), last_user_id);

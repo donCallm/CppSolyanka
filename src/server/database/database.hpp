@@ -28,6 +28,7 @@ namespace db
             static database* get_instance();
             void write(const db_list& db_name, const std::string& key, const std::string& to_write);
             std::string read(const db_list& db_name, const std::string& key);
+            bool clear_databases();
 
         private:
             void select_db(const db_list& db_name);

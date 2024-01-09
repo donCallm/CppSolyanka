@@ -51,4 +51,18 @@ namespace db
         _redis.sync_commit();
         return res.get();
     }
+
+    bool database::clear_databases()
+    {
+        std::lock_guard<std::mutex> lock(_mtx);
+        bool res;
+
+        _redis.flushall([&res](cpp_redis::reply& reply) {
+            if (reply.is_string() && reply.as_string() == "OK")
+                res = true;
+        });
+        _redis.sync_commit();
+
+        return res;
+    }
 }

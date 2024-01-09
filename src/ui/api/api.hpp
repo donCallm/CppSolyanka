@@ -13,7 +13,7 @@ namespace ui
     class api
     {
     public:
-        api() {}
+        api();
 
     public:
         std::optional<core::user> login(const std::string& log, const std::string& pass);

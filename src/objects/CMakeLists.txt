@@ -1,6 +1,5 @@
 project(objects)
 
-# все либы надо пометить как lobjects например пример в клиенте есть
 add_library(objects STATIC 
             objects.cpp
             msg_objects.cpp

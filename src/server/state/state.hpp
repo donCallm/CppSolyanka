@@ -43,6 +43,7 @@ namespace core
         void create_card(user& usr, uint64_t bank_account_id);
 
         void setup();
+        bool clear_dbs();
 
     private:
         std::unordered_map<std::string, uint64_t> _logins;

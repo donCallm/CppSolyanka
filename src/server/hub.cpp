@@ -88,6 +88,11 @@ namespace core
                 conn->drop();
                 break;
             }
+            case command::clear_databases:
+            {
+                rpl = handler_clear_dbs(comm).value();
+                break;
+            }
             default:
             {
                 rpl.message = to_str<msg>("unknown_command");
@@ -464,6 +469,26 @@ namespace core
 
         nlohmann::json json_usr = usr.value();
         rpl.set_message(to_str<success_result_msg>(json_usr.dump()));
+        return rpl;
+    }
+
+    std::optional<msg> hub::handler_clear_dbs(command& comm)
+    {
+        msg rpl;
+
+        if (!validate_params(comm.params, 1))
+        {
+            rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
+            return rpl;
+        }
+
+        if (STATE()->clear_dbs())
+        {
+            rpl.set_message(to_str<success_result_msg>("Successful database cleanup"));
+            return rpl;
+        }
+        
+        rpl.set_message(to_str<success_result_msg>("Cleaning failed"));
         return rpl;
     }
 }
