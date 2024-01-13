@@ -1,165 +1,64 @@
-#include "mock.hpp"
+#include "mock_clietn.hpp"
+#include "mock_hub.hpp"
 
-namespace client_tests
+namespace tests
 {
     mock_client::mock_client() : core::client(), _mock_socket(_mock_io_service) {}
 
-    void mock_client::mhandle_result(core::msg& rpl)
-    {
-        nlohmann::json json_data = nlohmann::json::parse(rpl.message);
-
-        if (json_data.find("err_msg") != json_data.end())
-        {
-            core::error_msg err;
-            err.from_json(json_data);
-            rpl.message = err.message;
-        }
-        else if (json_data.find("res_msg") != json_data.end())
-        {
-            core::success_result_msg res;
-            res.from_json(json_data);
-            rpl.message = res.message;
-        }
-        else
-        {
-            core::msg response;
-            response.from_json(json_data);
-            rpl.message = response.message;
-        }
-    }
-
-    void mock_client::mconnect()
-    {
-        auto endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string("0.0.0.0"), 8080);
-        _mock_socket.connect(endpoint);
-    }
-
-    void mock_client::start(core::msg& rpl, const std::string& data)
-    {
-        read_hello_msg();
-        write(data);
-        rpl.from_json(nlohmann::json::parse(read_response()));
-        mhandle_result(rpl);
-    }
-
-    TEST(ClientTest, testSendMessage)
-    {
-        testing::NiceMock<mock_client> mock_object;
-        core::msg rpl;
-        core::client usr;
-
-        mock_object.mconnect();
-
-        EXPECT_CALL(mock_object, read_hello_msg())
-            .Times(::testing::AtLeast(1))
-            .WillOnce(::testing::Invoke(&usr, &core::client::read_hello_msg));
-
-        EXPECT_CALL(mock_object, write("{\"id\":1,\"instruction\":0,\"params\":[\"0\"],\"token\":\"\"}"))
-            .Times(::testing::AtLeast(1))
-            .WillOnce(::testing::Invoke(&usr, &core::client::write));
-
-        EXPECT_CALL(mock_object, read_response())
-            .Times(::testing::AtLeast(1))
-            .WillRepeatedly(::testing::Invoke(&usr, &core::client::read_response));
-
-        EXPECT_CALL(mock_object, write("{\"id\":2,\"instruction\":12,\"params\":[\"0\"],\"token\":\"\"}"))
-            .Times(::testing::AtLeast(1))
-            .WillOnce(::testing::Invoke(&usr, &core::client::write));
-
-        mock_object.start(rpl, "{\"id\":1,\"instruction\":0,\"params\":[\"0\"],\"token\":\"\"}");
-        mock_object.write("{\"id\":2,\"instruction\":12,\"params\":[\"0\"],\"token\":\"\"}");
-
-        ASSERT_EQ(rpl.message, "pong");
-
-    }
-
     TEST(ClientTest, testSuccessRegistration)
     {
-        testing::NiceMock<mock_client> mock_object;
+        boost::asio::io_service io_service;
+        core::app application(io_service);
+        testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
-        core::client usr;
+        core::command comm;
 
-        mock_object.mconnect();
+        comm.set_command("registration dontCallm egor seleznev sergeevich BM123 1111 0");
 
-        EXPECT_CALL(mock_object, read_hello_msg())
-            .Times(::testing::AtLeast(1))
-            .WillOnce(::testing::Invoke(&usr, &core::client::read_hello_msg));
+        EXPECT_CALL(mhub, handle_create_user(::testing::_))
+            .WillOnce(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_create_user(comm); }))
+            .WillRepeatedly(::testing::Return(std::nullopt));
 
-        EXPECT_CALL(mock_object, write("{\"id\":3,\"instruction\":1,\"params\":[\"dontCallm\",\"egor\",\"seleznev\",\"sergeevich\",\"BM123\",\"1111\",\"0\"],\"token\":\"\"}"))
-            .Times(::testing::AtLeast(1))
-            .WillOnce(::testing::Invoke(&usr, &core::client::write));
+        rpl = mhub.handle_create_user(comm).value();
 
-        EXPECT_CALL(mock_object, read_response())
-            .Times(::testing::AtLeast(1))
-            .WillRepeatedly(::testing::Invoke(&usr, &core::client::read_response));
-        
-        EXPECT_CALL(mock_object, write("{\"id\":4,\"instruction\":12,\"params\":[\"0\"],\"token\":\"\"}"))
-            .Times(::testing::AtLeast(1))
-            .WillOnce(::testing::Invoke(&usr, &core::client::write));
-
-        mock_object.start(rpl, "{\"id\":3,\"instruction\":1,\"params\":[\"dontCallm\",\"egor\",\"seleznev\",\"sergeevich\",\"BM123\",\"1111\",\"0\"],\"token\":\"\"}");
-        mock_object.write("{\"id\":4,\"instruction\":12,\"params\":[\"0\"],\"token\":\"\"}");
-
-        ASSERT_EQ(rpl.message, "Successful registration");
+        ASSERT_EQ(rpl.message, "{\"id\":3,\"params\":[],\"res_msg\":\"Successful registration\"}");
     }
 
-    TEST(ClientTest, testSuccessLogin)
+    TEST(ClientTest, testLogin)
     {
-        testing::NiceMock<mock_client> mock_object;
+        boost::asio::io_service io_service;
+        core::app application(io_service);
+        testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
-        core::client usr;
+        core::command comm;
 
-        mock_object.mconnect();
+        comm.set_command("login dontCallm 1111 0");
 
-        EXPECT_CALL(mock_object, read_hello_msg())
-            .Times(::testing::AtLeast(1))
-            .WillOnce(::testing::Invoke(&usr, &core::client::read_hello_msg));
+        EXPECT_CALL(mhub, handle_login(::testing::_))
+            .WillOnce(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_login(comm); }))
+            .WillRepeatedly(::testing::Return(std::nullopt));
 
-        EXPECT_CALL(mock_object, write("{\"id\":5,\"instruction\":2,\"params\":[\"dontCallm\",\"1111\",\"0\"],\"token\":\"\"}"))
-            .Times(::testing::AtLeast(1))
-            .WillOnce(::testing::Invoke(&usr, &core::client::write));
+        rpl = mhub.handle_login(comm).value();
 
-        EXPECT_CALL(mock_object, read_response())
-            .Times(::testing::AtLeast(1))
-            .WillRepeatedly(::testing::Invoke(&usr, &core::client::read_response));
-        
-        EXPECT_CALL(mock_object, write("{\"id\":6,\"instruction\":12,\"params\":[\"0\"],\"token\":\"\"}"))
-            .Times(::testing::AtLeast(1))
-            .WillOnce(::testing::Invoke(&usr, &core::client::write));
-
-        mock_object.start(rpl, "{\"id\":5,\"instruction\":2,\"params\":[\"dontCallm\",\"1111\",\"0\"],\"token\":\"\"}");
-        mock_object.write("{\"id\":6,\"instruction\":12,\"params\":[\"0\"],\"token\":\"\"}");
-
-        ASSERT_EQ(rpl.message, "Successful login");
+        ASSERT_EQ(rpl.message, "{\"id\":6,\"params\":[],\"res_msg\":\"Successful login\"}");
     }
 
     TEST(ClientTest, testClearDB)
     {
-        testing::NiceMock<mock_client> mock_object;
+        boost::asio::io_service io_service;
+        core::app application(io_service);
+        testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
-        core::client usr;
+        core::command comm;
 
-        mock_object.mconnect();
+        comm.set_command("clear_databases 0");
 
-        EXPECT_CALL(mock_object, read_hello_msg())
-            .Times(::testing::AtLeast(1))
-            .WillOnce(::testing::Invoke(&usr, &core::client::read_hello_msg));
+        EXPECT_CALL(mhub, handler_clear_dbs(::testing::_))
+            .WillOnce(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handler_clear_dbs(comm); }))
+            .WillRepeatedly(::testing::Return(std::nullopt));
 
-        EXPECT_CALL(mock_object, write("{\"id\":7,\"instruction\":13,\"params\":[\"0\"],\"token\":\"\"}"))
-            .Times(::testing::AtLeast(1))
-            .WillOnce(::testing::Invoke(&usr, &core::client::write));
+        rpl = mhub.handler_clear_dbs(comm).value();
 
-        EXPECT_CALL(mock_object, read_response())
-            .Times(::testing::AtLeast(1))
-            .WillRepeatedly(::testing::Invoke(&usr, &core::client::read_response));
-        
-        EXPECT_CALL(mock_object, write("{\"id\":8,\"instruction\":12,\"params\":[\"0\"],\"token\":\"\"}"))
-            .Times(::testing::AtLeast(1))
-            .WillOnce(::testing::Invoke(&usr, &core::client::write));
-
-        mock_object.start(rpl, "{\"id\":7,\"instruction\":13,\"params\":[\"0\"],\"token\":\"\"}");
-        mock_object.write("{\"id\":8,\"instruction\":12,\"params\":[\"0\"],\"token\":\"\"}");
-
-        ASSERT_EQ(rpl.message, "Successful database cleanup");
+        ASSERT_EQ(rpl.message, "{\"id\":9,\"params\":[],\"res_msg\":\"Successful database cleanup\"}");
     }
 }

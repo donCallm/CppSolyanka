@@ -7,6 +7,7 @@
 #include <spdlog/spdlog.h>
 #include <boost/bind.hpp>
 using namespace utils;
+
 namespace core
 {
     hub::hub(app &application) : _application(application),
@@ -15,6 +16,10 @@ namespace core
         spdlog::info("Start hub");
         subscribe_on_server();
     }
+
+    hub::hub(app& application, bool second_constructor) : _application(application) { spdlog::info("Start hub"); }
+
+    hub::~hub() { spdlog::info("Hub dead"); }
 
     void hub::subscribe_on_server()
     {
@@ -171,6 +176,7 @@ namespace core
 
         if (!validate_params(comm.params, 3))
         {
+            spdlog::warn(comm.params.size());
             rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
             return rpl;
         }

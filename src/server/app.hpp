@@ -17,6 +17,7 @@ namespace core
             std::shared_ptr<state> get_state()      { return _state; }
 
         private:
+            boost::asio::io_service     _default_io_service;
             boost::asio::io_service&    _io_service;
             std::shared_ptr<hub>        _hub;
             std::shared_ptr<state>      _state;

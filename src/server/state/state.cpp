@@ -47,9 +47,12 @@ namespace core
 
     std::optional<std::string> state::create_user(user& usr)
     {
-        if (get_user(usr.id).has_value() ||_logins.find(usr.login) != _logins.end() ||
-            get_id(usr.pasport).has_value())
-            return "User already exists";
+        if (get_user(usr.id).has_value())
+            return "User already exists1";
+        if (get_id(usr.pasport).has_value())
+            return "User already exists2";
+        if (_logins.find(usr.login) != _logins.end())
+            return "User already exists3";
 
         usr.id = get_new_id(last_user_id, "last_user_id");
         _logins.insert(std::make_pair( usr.login, usr.id));
@@ -59,7 +62,7 @@ namespace core
         DB()->write(database::clients_id, usr.pasport, std::to_string(usr.id));
 
         {
-            std::string file_path(std::filesystem::current_path().generic_string() + "/state/logins.json");
+            std::string file_path(std::filesystem::current_path().remove_filename().generic_string() + "server/state/logins.json"); //removal so that tests can also read files
             std::ofstream output_file(file_path);
 
             if (!output_file.is_open())
@@ -178,7 +181,7 @@ namespace core
                 if (elem.first == login)
                     return elem.second;
             }
-
+            
             std::string id = DB()->read(database::clients_id, login);
             if (!id.empty())
                 return std::stoull(id);
@@ -260,7 +263,7 @@ namespace core
 
     void state::set_logins()
     {
-        std::string file_path(std::filesystem::current_path().generic_string() + "/state/logins.json");
+        std::string file_path(std::filesystem::current_path().remove_filename().generic_string() + "server/state/logins.json");
         if (!std::filesystem::exists(file_path))
         {
             std::ofstream file(file_path);
@@ -297,7 +300,16 @@ namespace core
 
     bool state::clear_dbs()
     {
-        return DB()->clear_databases();
+        try
+        {
+            std::filesystem::remove(std::filesystem::current_path().remove_filename() / "server/state/logins.json");
+            return DB()->clear_databases();
+        }
+        catch(const std::exception& e)
+        {
+            spdlog::error("Error delete login.json: ", e.what());
+            return false;
+        }
     }
 
     void state::setup()

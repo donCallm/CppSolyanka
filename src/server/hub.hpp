@@ -2,6 +2,7 @@
 #include <boost/signals2.hpp>
 #include <server/connect.hpp>
 #include <memory>
+#include "app.hpp"
 
 #define STATE() (_application.get_state())
 
@@ -22,6 +23,8 @@ namespace core
         std::string get_bank_accounts(user& usr);
     public:
         hub(app& application);
+        hub(app& application, bool second_constructor);
+        virtual ~hub();
         
         void subscribe_on_connection(net::con_handler::ptr conn);
 
@@ -30,20 +33,18 @@ namespace core
         
         void subscribe_on_server();
 
-        std::optional<msg> handle_create_user(command& comm);
-        std::optional<msg> handle_login(command& comm);
-        std::optional<msg> handle_create_bank_acc(command& comm);
-        std::optional<msg> handle_change_balance(command& comm);
-        std::optional<msg> handle_create_card(command& comm);
+        virtual std::optional<msg> handle_create_user(command& comm);
+        virtual std::optional<msg> handle_login(command& comm);
+        virtual std::optional<msg> handle_create_bank_acc(command& comm);
+        virtual std::optional<msg> handle_change_balance(command& comm);
+        virtual std::optional<msg> handle_create_card(command& comm);
 
-        std::optional<msg> handle_get_bank_info(command& comm);
-        std::optional<msg> handler_get_info(command& comm);
+        virtual std::optional<msg> handle_get_bank_info(command& comm);
+        virtual std::optional<msg> handler_get_info(command& comm);
 
-        std::optional<msg> handler_clear_dbs(command& comm);
-
+        virtual std::optional<msg> handler_clear_dbs(command& comm);
     private:
         app& _application;
         std::shared_ptr<server> _server;
     };
-
 }
