@@ -19,8 +19,6 @@ namespace core
 
     hub::hub(app& application, bool second_constructor) : _application(application) { spdlog::info("Start hub"); }
 
-    hub::~hub() { spdlog::info("Hub dead"); }
-
     void hub::subscribe_on_server()
     {
         _server->on_accept_connection.connect(boost::bind(&hub::on_new_connection, this, _1));
@@ -176,7 +174,6 @@ namespace core
 
         if (!validate_params(comm.params, 3))
         {
-            spdlog::warn(comm.params.size());
             rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
             return rpl;
         }

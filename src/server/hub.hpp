@@ -24,7 +24,7 @@ namespace core
     public:
         hub(app& application);
         hub(app& application, bool second_constructor);
-        virtual ~hub();
+        virtual ~hub() = default;
         
         void subscribe_on_connection(net::con_handler::ptr conn);
 

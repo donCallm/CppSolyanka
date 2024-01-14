@@ -8,6 +8,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
             lclient
             lserver
             objects
+            spdlog::spdlog
             nlohmann_json::nlohmann_json
             GTest::gtest
             GTest::gtest_main
