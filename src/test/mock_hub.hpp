@@ -12,7 +12,7 @@ namespace tests
     class mock_hub : public core::hub
     {
     public:
-        mock_hub(core::app& application, bool constructor_flag = true) : core::hub(application, constructor_flag) {}
+        mock_hub(core::app& application, bool constructor_flag = true);
         ~mock_hub() override = default;
 
         MOCK_METHOD1(handle_create_user, std::optional<core::msg>(core::command& comm));
@@ -23,5 +23,9 @@ namespace tests
         MOCK_METHOD1(handle_get_bank_info, std::optional<core::msg>(core::command& comm));
         MOCK_METHOD1(handler_get_info, std::optional<core::msg>(core::command& comm));
         MOCK_METHOD1(handler_clear_dbs, std::optional<core::msg>(core::command& comm));
+
+    private:
+        static std::streambuf* _original_cout;
+        static std::ofstream _null_stream;
     };
 }

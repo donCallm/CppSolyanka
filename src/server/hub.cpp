@@ -249,7 +249,7 @@ namespace core
 
         if (!is_number(comm.params[0]))
         {
-            rpl.set_message(to_str<error_msg>("Error of create new bank account"));
+            rpl.set_message(to_str<error_msg>("Error. ID would be number"));
             return rpl;
         }
         
@@ -258,7 +258,7 @@ namespace core
             auto usr = STATE()->get_user(std::stoull(comm.params[0]));
             if (!usr.has_value())
             {
-                rpl.set_message(to_str<error_msg>("Error of create new bank account"));
+                rpl.set_message(to_str<error_msg>("Error. User not found"));
                 return rpl;
             }
 
@@ -425,12 +425,6 @@ namespace core
         if (!validate_params(comm.params, "^[0-9]+$"))
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only numbers can be used"));
-            return rpl;
-        }
-
-        if (!is_number(comm.params[0]))
-        {
-            rpl.set_message(to_str<error_msg>("Error created card"));
             return rpl;
         }
 

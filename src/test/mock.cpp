@@ -1,17 +1,23 @@
 #include "mock_clietn.hpp"
 #include "mock_hub.hpp"
+#include "utils.hpp"
 
 namespace tests
 {
     mock_client::mock_client() : core::client(), _mock_socket(_mock_io_service) {}
 
-    TEST(ServerTest, testSuccessRegistration)
+    mock_hub::mock_hub(core::app& application, bool constructor_flag) : core::hub(application, constructor_flag) {}
+
+    TEST(ServerTest, testRegistration)
     {
+        utils::disable_console_output();
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
+        utils::enable_console_ouput();
+
         comm.set_command("registration dontCallm egor seleznev sergeevich BM123 1111 0");
 
         EXPECT_CALL(mhub, handle_create_user(::testing::_))
@@ -23,11 +29,13 @@ namespace tests
 
     TEST(ServerTest, testIncorrectRegistration)
     {
+        utils::disable_console_output();
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
+        utils::enable_console_ouput();
 
         EXPECT_CALL(mhub, handle_create_user(::testing::_))
             .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_create_user(comm); }));
@@ -55,11 +63,13 @@ namespace tests
 
     TEST(ServerTest, testLogin)
     {
+        utils::disable_console_output();
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
+        utils::enable_console_ouput();
 
         comm.set_command("login dontCallm 1111 0");
 
@@ -73,11 +83,13 @@ namespace tests
 
     TEST(ServerTest, testIncorrectLogin)
     {
+        utils::disable_console_output();
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
+        utils::enable_console_ouput();
 
         EXPECT_CALL(mhub, handle_login(::testing::_))
             .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_login(comm); }));
@@ -109,13 +121,136 @@ namespace tests
         ASSERT_EQ(rpl.message, "{\"err_msg\":\"The user is already authorized\",\"id\":28,\"params\":[]}");
     }
 
-    TEST(ServerTest, testClearDB)
+    TEST(ServerTest, testCreateBankAcc)
     {
+        utils::disable_console_output();
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
+        utils::enable_console_ouput();
+
+        comm.set_command("create_bank_account 0");
+
+        EXPECT_CALL(mhub, handle_create_bank_acc(::testing::_))
+            .WillOnce(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_create_bank_acc(comm); }));
+
+        rpl = mhub.handle_create_bank_acc(comm).value();
+
+        ASSERT_EQ(rpl.message, "{\"id\":31,\"params\":[],\"res_msg\":\"Successful create new bank account\"}");
+    }
+
+    TEST(ServerTest, testIncorrectCreateBankAcc)
+    {
+        utils::disable_console_output();
+        boost::asio::io_service io_service;
+        core::app application(io_service);
+        testing::NiceMock<mock_hub> mhub(application);
+        core::msg rpl;
+        core::command comm;
+        utils::enable_console_ouput();
+
+        EXPECT_CALL(mhub, handle_create_bank_acc(::testing::_))
+            .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_create_bank_acc(comm); }));
+
+        //wrong numbers of params
+        comm.set_command("create_bank_account 0 0");
+        rpl = mhub.handle_create_bank_acc(comm).value();
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Wrong numbers of parametrs\",\"id\":34,\"params\":[]}");
+        comm.params.clear();
+        //invalid symmbol
+        comm.set_command("create_bank_account !!!!");
+        rpl = mhub.handle_create_bank_acc(comm).value();
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Error. ID would be number\",\"id\":36,\"params\":[]}");
+        comm.params.clear();
+        //Wrong id
+        comm.set_command("create_bank_account 100");
+        rpl = mhub.handle_create_bank_acc(comm).value();
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Error. User not found\",\"id\":38,\"params\":[]}");
+    }
+
+    TEST(ServerTest, testCreateCard)
+    {
+        utils::disable_console_output();
+        boost::asio::io_service io_service;
+        core::app application(io_service);
+        testing::NiceMock<mock_hub> mhub(application);
+        core::msg rpl;
+        core::command comm;
+        utils::enable_console_ouput();
+
+        comm.set_command("create_card 0 0");
+
+        EXPECT_CALL(mhub, handle_create_card(::testing::_))
+            .WillOnce(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_create_card(comm); }));
+
+        rpl = mhub.handle_create_card(comm).value();
+
+        ASSERT_EQ(rpl.message, "{\"id\":41,\"params\":[],\"res_msg\":\"Successful created\"}");
+    }
+
+    TEST(ServerTest, testIncorrectCreateCar)
+    {
+        utils::disable_console_output();
+        boost::asio::io_service io_service;
+        core::app application(io_service);
+        testing::NiceMock<mock_hub> mhub(application);
+        core::msg rpl;
+        core::command comm;
+        utils::enable_console_ouput();
+
+        EXPECT_CALL(mhub, handle_create_card(::testing::_))
+            .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_create_card(comm); }));
+
+        //wrong numbers of params
+        comm.set_command("create_bank_account 0 0 0");
+        rpl = mhub.handle_create_card(comm).value();
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Wrong numbers of parametrs\",\"id\":44,\"params\":[]}");
+        comm.params.clear();
+        //invalid symmbol
+        comm.set_command("create_bank_account !!!! !!!!");
+        rpl = mhub.handle_create_card(comm).value();
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Invalid symmbol. Only numbers can be used\",\"id\":46,\"params\":[]}");
+        comm.params.clear();
+        //Wrong id
+        comm.set_command("create_bank_account 0 100");
+        rpl = mhub.handle_create_card(comm).value();
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"User not found\",\"id\":48,\"params\":[]}");
+    }
+
+    TEST(ServerTest, testChangeBalance)
+    {
+        utils::disable_console_output();
+        boost::asio::io_service io_service;
+        core::app application(io_service);
+        testing::NiceMock<mock_hub> mhub(application);
+        core::msg rpl;
+        core::command comm;
+        utils::enable_console_ouput();
+
+        EXPECT_CALL(mhub, handle_change_balance(::testing::_))
+            .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_change_balance(comm); }));
+
+        comm.set_command("replenish_balance 0 100 0");
+        rpl = mhub.handle_change_balance(comm).value();
+        ASSERT_EQ(rpl.message, "{\"id\":51,\"params\":[],\"res_msg\":\"Successful change balance\"}");
+        comm.params.clear();
+
+        comm.set_command("debit_funds 0 50 0");
+        rpl = mhub.handle_change_balance(comm).value();
+        ASSERT_EQ(rpl.message, "{\"id\":53,\"params\":[],\"res_msg\":\"Successful change balance\"}");
+    }
+
+    TEST(ServerTest, testClearDB)
+    {
+        utils::disable_console_output();
+        boost::asio::io_service io_service;
+        core::app application(io_service);
+        testing::NiceMock<mock_hub> mhub(application);
+        core::msg rpl;
+        core::command comm;
+        utils::enable_console_ouput();
 
         comm.set_command("clear_databases 0");
 
@@ -124,6 +259,6 @@ namespace tests
 
         rpl = mhub.handler_clear_dbs(comm).value();
 
-        ASSERT_EQ(rpl.message, "{\"id\":31,\"params\":[],\"res_msg\":\"Successful database cleanup\"}");
+        ASSERT_EQ(rpl.message, "{\"id\":56,\"params\":[],\"res_msg\":\"Successful database cleanup\"}");
     }
 }
