@@ -39,11 +39,10 @@ namespace core
         std::optional<std::string> login(uint64_t id, const std::string& password);
         bool create_bank_account(user& usr);
         std::optional<int> get_balance(uint64_t crd);
-        bool change_balance(command::type& operation, uint64_t sum, uint64_t card_id);
+        std::optional<std::string> change_balance(command::type& operation, uint64_t sum, uint64_t card_id);
         void create_card(user& usr, uint64_t bank_account_id);
 
         void setup();
-        bool clear_dbs();
 
     private:
         std::unordered_map<std::string, uint64_t> _logins;

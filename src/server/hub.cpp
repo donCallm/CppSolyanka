@@ -91,11 +91,6 @@ namespace core
                 conn->drop();
                 break;
             }
-            case command::clear_databases:
-            {
-                rpl = handler_clear_dbs(comm).value();
-                break;
-            }
             default:
             {
                 rpl.message = to_str<msg>("unknown_command");
@@ -106,23 +101,6 @@ namespace core
         json_data = rpl;
         std::string json_string = json_data.dump();
         conn->send(json_string);
-    }
-
-    bool hub::validate_params(const std::vector<std::string>& params, const uint64_t &number_of_params)
-    {
-        if (number_of_params != params.size())
-            return false;
-        return true;
-    }
-
-    bool hub::validate_params(const std::vector<std::string>& params, const std::string& pattern)
-    {
-        for (size_t i = 0; i < params.size(); ++i)
-        {
-            if (!is_valid_str(params[i], pattern))
-                return false;
-        }
-        return true;
     }
 
     std::optional<user> hub::get_user(const std::string& login)
@@ -172,13 +150,13 @@ namespace core
     {
         msg rpl;
 
-        if (!validate_params(comm.params, 3))
+        if (!utils::validate_params(comm.params, 3))
         {
             rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
             return rpl;
         }
 
-        if (!validate_params(comm.params, "^[a-zA-Z0-9]+$"))
+        if (!utils::validate_params(comm.params, "^[a-zA-Z0-9]+$"))
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only letters and numbers can be used"));
             return rpl;
@@ -209,19 +187,19 @@ namespace core
     {
         msg rpl;
 
-        if (!validate_params(comm.params, 7))
+        if (!utils::validate_params(comm.params, 7))
         {
             rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
             return rpl;
         }
 
-        if (!validate_params(comm.params, "^[a-zA-Z0-9]+$"))
+        if (!utils::validate_params(comm.params, "^[a-zA-Z0-9]+$"))
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only letters and numbers can be used"));
             return rpl;
         }
 
-        if (!validate_params(std::vector<std::string>{ comm.params[1], comm.params[2], comm.params[3] }, "^[a-zA-Z]+$"))
+        if (!utils::validate_params(std::vector<std::string>{ comm.params[1], comm.params[2], comm.params[3] }, "^[a-zA-Z]+$"))
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Last name, first name and patronymic can only have letters"));
             return rpl;
@@ -241,7 +219,7 @@ namespace core
     {
         msg rpl;
 
-        if (!validate_params(comm.params, 1))
+        if (!utils::validate_params(comm.params, 1))
         {
             rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
             return rpl;
@@ -290,7 +268,7 @@ namespace core
         {
             case command::get_balance:
             {
-                if (!validate_params(comm.params, 2))
+                if (!utils::validate_params(comm.params, 2))
                 {
                     rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
                     return rpl;
@@ -300,7 +278,7 @@ namespace core
             case command::get_cards:
             case command::get_bank_accounts:
             {
-                if (!validate_params(comm.params, 1))
+                if (!utils::validate_params(comm.params, 1))
                 {
                     rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
                     return rpl;
@@ -311,7 +289,7 @@ namespace core
                 break;
         }
 
-        if (!validate_params(comm.params, "^[0-9]+$"))
+        if (!utils::validate_params(comm.params, "^[0-9]+$"))
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only numbers can be used"));
             return rpl;
@@ -373,13 +351,13 @@ namespace core
     {
         msg rpl;
 
-        if (!validate_params(comm.params, 3))
+        if (!utils::validate_params(comm.params, 3))
         {
             rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
             return rpl;
         }
 
-        if (!validate_params(comm.params, "^[0-9]+$"))
+        if (!utils::validate_params(comm.params, "^[0-9]+$"))
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only numbers can be used"));
             return rpl;
@@ -404,10 +382,11 @@ namespace core
             rpl.set_message(to_str<error_msg>("Card not found"));
             return rpl;
         }
-        if (STATE()->change_balance(comm.instruction, std::stoull(comm.params[1]), std::stoull(comm.params[0])))
-            rpl.set_message(to_str<success_result_msg>("Successful change balance"));
+        auto res = STATE()->change_balance(comm.instruction, std::stoull(comm.params[1]), std::stoull(comm.params[0]));
+        if (res.has_value())
+            rpl.set_message(to_str<error_msg>(res.value()));
         else
-            rpl.set_message(to_str<error_msg>("Error change balance"));
+            rpl.set_message(to_str<success_result_msg>("Successful change balance"));
 
         return rpl;
     }
@@ -416,13 +395,13 @@ namespace core
     {
         msg rpl;
 
-        if (!validate_params(comm.params, 2))
+        if (!utils::validate_params(comm.params, 2))
         {
             rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
             return rpl;
         }
 
-        if (!validate_params(comm.params, "^[0-9]+$"))
+        if (!utils::validate_params(comm.params, "^[0-9]+$"))
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only numbers can be used"));
             return rpl;
@@ -451,7 +430,7 @@ namespace core
     {
         msg rpl;
 
-        if (!validate_params(comm.params, 1))
+        if (!utils::validate_params(comm.params, 1))
         {
             rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
             return rpl;
@@ -466,26 +445,6 @@ namespace core
 
         nlohmann::json json_usr = usr.value();
         rpl.set_message(to_str<success_result_msg>(json_usr.dump()));
-        return rpl;
-    }
-
-    std::optional<msg> hub::handler_clear_dbs(command& comm)
-    {
-        msg rpl;
-
-        if (!validate_params(comm.params, 1))
-        {
-            rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
-            return rpl;
-        }
-
-        if (STATE()->clear_dbs())
-        {
-            rpl.set_message(to_str<success_result_msg>("Successful database cleanup"));
-            return rpl;
-        }
-        
-        rpl.set_message(to_str<success_result_msg>("Cleaning failed"));
         return rpl;
     }
 }

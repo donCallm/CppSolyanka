@@ -24,8 +24,7 @@ namespace core
             create_card = 10,
             get_info = 11,
             end = 12,
-            clear_databases = 13,
-            unknown_command = 14
+            unknown_command = 13
         };
 
     public:

@@ -127,37 +127,26 @@ namespace core
         return res_acc.value().balance;
     }
 
-    bool state::change_balance(command::type& operation, uint64_t sum, uint64_t card_id)
+    std::optional<std::string> state::change_balance(command::type& operation, uint64_t sum, uint64_t card_id)
     {
         std::optional<card> res_card = get_card(card_id);
         if(!res_card.has_value())
-            return false;
+            return "Wrong card id";
 
-        std::optional<bank_account> res = get_bank_account(res_card.value().bank_account_id);
-        if (!res.has_value())
-            return false;
-        bank_account acc = res.value();
+        std::optional<bank_account> res_bank_acc = get_bank_account(res_card.value().bank_account_id);
+        if (!res_bank_acc.has_value())
+            return "Uncknow bank acc";
+        bank_account acc = res_bank_acc.value();
 
-        if (operation == command::replenish_balance)
-        {
-            acc.balance += sum;
-        }
-        else if (operation == command::debit_funds)
-        {
-            if (sum > acc.balance)
-                return false;
+        bool res_operation = (operation == command::replenish_balance) ? (acc.balance += sum) :
+            ((acc.balance < sum) ? false : (acc.balance -= sum));
 
-            acc.balance -= sum;
-        }
-        else
-        {
-            return false;
-        }
+        if (!res_operation)
+            return "Amount is greater than balance";
 
         nlohmann::json json_acc = acc;
         DB()->write(database::bank_accounts, std::to_string(acc.id), json_acc.dump());
-
-        return true;
+        return std::nullopt;
     }
 
     void state::create_card(user& usr, uint64_t bank_account_id)
@@ -295,20 +284,6 @@ namespace core
             {
                 std::runtime_error("Unable to open file for reading");
             }
-        }
-    }
-
-    bool state::clear_dbs()
-    {
-        try
-        {
-            std::filesystem::remove(std::filesystem::current_path().remove_filename() / "server/state/logins.json");
-            return DB()->clear_databases();
-        }
-        catch(const std::exception& e)
-        {
-            spdlog::error("Error delete login.json: ", e.what());
-            return false;
         }
     }
 

@@ -15,8 +15,6 @@ namespace core
     class hub : std::enable_shared_from_this<hub>
     {
     private:
-        bool validate_params(const std::vector<std::string>& params, const uint64_t &number_of_params);
-        bool validate_params(const std::vector<std::string>& params, const std::string& pattern);
         std::optional<user> get_user(const std::string& login);
         std::string get_balance(user& usr, uint64_t card_id);
         std::string get_cards(user& usr);
@@ -41,8 +39,6 @@ namespace core
 
         virtual std::optional<msg> handle_get_bank_info(command& comm);
         virtual std::optional<msg> handler_get_info(command& comm);
-
-        virtual std::optional<msg> handler_clear_dbs(command& comm);
     private:
         app& _application;
         std::shared_ptr<server> _server;

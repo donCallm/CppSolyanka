@@ -29,8 +29,7 @@ namespace core
                 {"get_bank_accounts", command::type::get_bank_accounts},
                 {"create_card", command::type::create_card},
                 {"get_info", command::type::get_info},
-                {"end", command::type::end},
-                {"clear_databases", command::type::clear_databases}
+                {"end", command::type::end}
             };
             
     message deserialize_message(const std::vector<uint8_t>& msg_buff, std::size_t size)

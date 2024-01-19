@@ -16,7 +16,7 @@ namespace tests
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        utils::enable_console_ouput();
+        utils::enable_console_output();
 
         comm.set_command("registration dontCallm egor seleznev sergeevich BM123 1111 0");
 
@@ -35,7 +35,7 @@ namespace tests
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        utils::enable_console_ouput();
+        utils::enable_console_output();
 
         EXPECT_CALL(mhub, handle_create_user(::testing::_))
             .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_create_user(comm); }));
@@ -69,7 +69,7 @@ namespace tests
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        utils::enable_console_ouput();
+        utils::enable_console_output();
 
         comm.set_command("login dontCallm 1111 0");
 
@@ -89,7 +89,7 @@ namespace tests
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        utils::enable_console_ouput();
+        utils::enable_console_output();
 
         EXPECT_CALL(mhub, handle_login(::testing::_))
             .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_login(comm); }));
@@ -129,7 +129,7 @@ namespace tests
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        utils::enable_console_ouput();
+        utils::enable_console_output();
 
         comm.set_command("create_bank_account 0");
 
@@ -149,7 +149,7 @@ namespace tests
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        utils::enable_console_ouput();
+        utils::enable_console_output();
 
         EXPECT_CALL(mhub, handle_create_bank_acc(::testing::_))
             .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_create_bank_acc(comm); }));
@@ -178,7 +178,7 @@ namespace tests
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        utils::enable_console_ouput();
+        utils::enable_console_output();
 
         comm.set_command("create_card 0 0");
 
@@ -198,7 +198,7 @@ namespace tests
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        utils::enable_console_ouput();
+        utils::enable_console_output();
 
         EXPECT_CALL(mhub, handle_create_card(::testing::_))
             .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_create_card(comm); }));
@@ -227,7 +227,7 @@ namespace tests
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        utils::enable_console_ouput();
+        utils::enable_console_output();
 
         EXPECT_CALL(mhub, handle_change_balance(::testing::_))
             .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_change_balance(comm); }));
@@ -242,7 +242,7 @@ namespace tests
         ASSERT_EQ(rpl.message, "{\"id\":53,\"params\":[],\"res_msg\":\"Successful change balance\"}");
     }
 
-    TEST(ServerTest, testClearDB)
+    TEST(ServerTest, testIncorrectChangeBalance)
     {
         utils::disable_console_output();
         boost::asio::io_service io_service;
@@ -250,15 +250,34 @@ namespace tests
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        utils::enable_console_ouput();
+        utils::enable_console_output();
 
-        comm.set_command("clear_databases 0");
+        EXPECT_CALL(mhub, handle_change_balance(::testing::_))
+            .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_change_balance(comm); }));
 
-        EXPECT_CALL(mhub, handler_clear_dbs(::testing::_))
-            .WillOnce(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handler_clear_dbs(comm); }));
-
-        rpl = mhub.handler_clear_dbs(comm).value();
-
-        ASSERT_EQ(rpl.message, "{\"id\":56,\"params\":[],\"res_msg\":\"Successful database cleanup\"}");
+        //wrong numbers of params
+        comm.set_command("replenish_balance 0 0 0 0");
+        rpl = mhub.handle_change_balance(comm).value();
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Wrong numbers of parametrs\",\"id\":56,\"params\":[]}");
+        comm.params.clear();
+        //invalid symmbol
+        comm.set_command("replenish_balance !!!! !!!! !!!!");
+        rpl = mhub.handle_change_balance(comm).value();
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Invalid symmbol. Only numbers can be used\",\"id\":58,\"params\":[]}");
+        comm.params.clear();
+        //Wrong id
+        comm.set_command("replenish_balance 0 0 100");
+        rpl = mhub.handle_change_balance(comm).value();
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"User not found\",\"id\":60,\"params\":[]}");
+        comm.params.clear();
+        //Wrong card id
+        comm.set_command("replenish_balance 100 0 0");
+        rpl = mhub.handle_change_balance(comm).value();
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Card not found\",\"id\":62,\"params\":[]}");
+        comm.params.clear();
+        //Wrong sum
+        comm.set_command("debit_funds 0 1000 0");
+        rpl = mhub.handle_change_balance(comm).value();
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Amount is greater than balance\",\"id\":64,\"params\":[]}");
     }
 }
