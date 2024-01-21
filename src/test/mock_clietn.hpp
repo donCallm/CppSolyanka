@@ -22,12 +22,8 @@ namespace tests
         MOCK_METHOD0(executing, void());
         MOCK_METHOD2(handler_result, void(const core::command::type&, const core::msg&));
         MOCK_METHOD0(read_response, std::string());
-
-        void start(core::msg& rpl, const std::string& data);
     public:
         boost::asio::io_service _mock_io_service;
         boost::asio::ip::tcp::socket _mock_socket;
     };
-
-    
 }

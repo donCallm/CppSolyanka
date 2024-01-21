@@ -150,13 +150,13 @@ namespace core
     {
         msg rpl;
 
-        if (!utils::validate_params(comm.params, 3))
+        if (!validate_params(comm.params, 3))
         {
             rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
             return rpl;
         }
 
-        if (!utils::validate_params(comm.params, "^[a-zA-Z0-9]+$"))
+        if (!validate_params(comm.params, "^[a-zA-Z0-9]+$")) //Checks if params have chars besides letters/numbers
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only letters and numbers can be used"));
             return rpl;
@@ -187,19 +187,19 @@ namespace core
     {
         msg rpl;
 
-        if (!utils::validate_params(comm.params, 7))
+        if (!validate_params(comm.params, 7))
         {
             rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
             return rpl;
         }
 
-        if (!utils::validate_params(comm.params, "^[a-zA-Z0-9]+$"))
+        if (!validate_params(comm.params, "^[a-zA-Z0-9]+$")) //Checks if params have chars besides letters/numbers
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only letters and numbers can be used"));
             return rpl;
         }
 
-        if (!utils::validate_params(std::vector<std::string>{ comm.params[1], comm.params[2], comm.params[3] }, "^[a-zA-Z]+$"))
+        if (!validate_params(std::vector<std::string>{ comm.params[1], comm.params[2], comm.params[3] }, "^[a-zA-Z]+$")) //Checks if name, sername and patronymic have chars besides letters
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Last name, first name and patronymic can only have letters"));
             return rpl;
@@ -219,7 +219,7 @@ namespace core
     {
         msg rpl;
 
-        if (!utils::validate_params(comm.params, 1))
+        if (!validate_params(comm.params, 1))
         {
             rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
             return rpl;
@@ -268,7 +268,7 @@ namespace core
         {
             case command::get_balance:
             {
-                if (!utils::validate_params(comm.params, 2))
+                if (!validate_params(comm.params, 2))
                 {
                     rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
                     return rpl;
@@ -278,7 +278,7 @@ namespace core
             case command::get_cards:
             case command::get_bank_accounts:
             {
-                if (!utils::validate_params(comm.params, 1))
+                if (!validate_params(comm.params, 1))
                 {
                     rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
                     return rpl;
@@ -289,7 +289,7 @@ namespace core
                 break;
         }
 
-        if (!utils::validate_params(comm.params, "^[0-9]+$"))
+        if (!validate_params(comm.params, "^[0-9]+$") )//Checks if params have chars besides numbers
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only numbers can be used"));
             return rpl;
@@ -351,13 +351,13 @@ namespace core
     {
         msg rpl;
 
-        if (!utils::validate_params(comm.params, 3))
+        if (!validate_params(comm.params, 3))
         {
             rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
             return rpl;
         }
 
-        if (!utils::validate_params(comm.params, "^[0-9]+$"))
+        if (!validate_params(comm.params, "^[0-9]+$")) //Checks if params have chars besides numbers
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only numbers can be used"));
             return rpl;
@@ -395,13 +395,13 @@ namespace core
     {
         msg rpl;
 
-        if (!utils::validate_params(comm.params, 2))
+        if (!validate_params(comm.params, 2))
         {
             rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
             return rpl;
         }
 
-        if (!utils::validate_params(comm.params, "^[0-9]+$"))
+        if (!validate_params(comm.params, "^[0-9]+$")) //Checks if params have chars besides numbers
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only numbers can be used"));
             return rpl;
@@ -430,7 +430,7 @@ namespace core
     {
         msg rpl;
 
-        if (!utils::validate_params(comm.params, 1))
+        if (!validate_params(comm.params, 1))
         {
             rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
             return rpl;

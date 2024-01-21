@@ -138,15 +138,22 @@ namespace core
             return "Uncknow bank acc";
         bank_account acc = res_bank_acc.value();
 
-        if (operation == command::replenish_balance)
+        switch (operation)
         {
-            acc.balance += sum;
-        }
-        else if (operation == command::debit_funds)
-        {
-            if (sum > acc.balance)
-                return "Amount is greater than balance";
-            acc.balance -= sum;
+            case command::replenish_balance:
+            {
+                acc.balance += sum;
+                break;
+            }
+            case command::debit_funds:
+            {
+                if (sum > acc.balance)
+                    return "Amount is greater than balance";
+                acc.balance -= sum;
+                break;
+            }
+            default:
+                break;
         }
 
         nlohmann::json json_acc = acc;
