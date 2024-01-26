@@ -11,7 +11,6 @@ namespace core
     {
         public:
             client(bool console_mode);
-            client();
             virtual ~client() = default;
 
         public:
@@ -22,7 +21,7 @@ namespace core
             virtual void executing();
             virtual void handler_result(const command::type& comm, const core::msg& rpl);
             virtual std::string read_response();
-
+            virtual void stop();
 
         private:
             boost::asio::io_service _io_service;

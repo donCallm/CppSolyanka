@@ -155,8 +155,8 @@ namespace core
             rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
             return rpl;
         }
-
-        if (!validate_params(comm.params, "^[a-zA-Z0-9]+$")) //Checks if params have chars besides letters/numbers
+        // RGX_LTRS_NUMS - checking for missing numbers/letters in a string
+        if (!validate_params(comm.params, RGX_LTRS_NUMS))
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only letters and numbers can be used"));
             return rpl;
@@ -193,13 +193,13 @@ namespace core
             return rpl;
         }
 
-        if (!validate_params(comm.params, "^[a-zA-Z0-9]+$")) //Checks if params have chars besides letters/numbers
+        if (!validate_params(comm.params, RGX_LTRS_NUMS))
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only letters and numbers can be used"));
             return rpl;
         }
-
-        if (!validate_params(std::vector<std::string>{ comm.params[1], comm.params[2], comm.params[3] }, "^[a-zA-Z]+$")) //Checks if name, sername and patronymic have chars besides letters
+        // "^[a-zA-Z]+$" - checking for missing letters in a string
+        if (!validate_params(std::vector<std::string>{ comm.params[1], comm.params[2], comm.params[3] }, "^[a-zA-Z]+$"))
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Last name, first name and patronymic can only have letters"));
             return rpl;
@@ -288,8 +288,8 @@ namespace core
             default:
                 break;
         }
-
-        if (!validate_params(comm.params, "^[0-9]+$") )//Checks if params have chars besides numbers
+        // RGX_NUMS" - checking for missing numbers in a string
+        if (!validate_params(comm.params, RGX_NUMS) )
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only numbers can be used"));
             return rpl;
@@ -315,7 +315,7 @@ namespace core
             {
                 case command::get_balance:
                 {
-                    get_balance(usr.value(), std::stoull(comm.params[0]));
+                    res = get_balance(usr.value(), std::stoull(comm.params[0]));
                     break;
                 }
                 case command::get_cards:
@@ -357,7 +357,7 @@ namespace core
             return rpl;
         }
 
-        if (!validate_params(comm.params, "^[0-9]+$")) //Checks if params have chars besides numbers
+        if (!validate_params(comm.params, RGX_NUMS))
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only numbers can be used"));
             return rpl;
@@ -401,7 +401,7 @@ namespace core
             return rpl;
         }
 
-        if (!validate_params(comm.params, "^[0-9]+$")) //Checks if params have chars besides numbers
+        if (!validate_params(comm.params, RGX_NUMS))
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only numbers can be used"));
             return rpl;

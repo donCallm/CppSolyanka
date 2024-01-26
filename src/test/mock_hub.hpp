@@ -6,6 +6,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <server/hub.hpp>
+using namespace net;
 
 namespace tests
 {
@@ -23,7 +24,6 @@ namespace tests
         MOCK_METHOD1(handle_get_bank_info, std::optional<core::msg>(core::command& comm));
         MOCK_METHOD1(handler_get_info, std::optional<core::msg>(core::command& comm));
         MOCK_METHOD1(handler_clear_dbs, std::optional<core::msg>(core::command& comm));
-
     private:
         static std::streambuf* _original_cout;
         static std::ofstream _null_stream;

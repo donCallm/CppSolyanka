@@ -47,12 +47,9 @@ namespace core
 
     std::optional<std::string> state::create_user(user& usr)
     {
-        if (get_user(usr.id).has_value())
+        if (get_user(usr.id).has_value() || get_id(usr.pasport).has_value()
+            || _logins.find(usr.login) != _logins.end())
             return "User already exists1";
-        if (get_id(usr.pasport).has_value())
-            return "User already exists2";
-        if (_logins.find(usr.login) != _logins.end())
-            return "User already exists3";
 
         usr.id = get_new_id(last_user_id, "last_user_id");
         _logins.insert(std::make_pair( usr.login, usr.id));

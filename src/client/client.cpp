@@ -8,8 +8,6 @@ namespace core
 {
     client::client(bool console_mode): _socket(_io_service), _id(0) { start(); }
 
-    client::client() : _socket(_io_service) { connect(); }
-
     void client::read_hello_msg()
     {   
         _token = read_response();
@@ -104,7 +102,7 @@ namespace core
             comm.set_command(msg.data);
 
             if (comm.instruction == command::type::end)
-                _socket.close();
+                stop();
             
             comm.params.push_back(std::to_string(_id));
 
@@ -130,5 +128,10 @@ namespace core
         connect();
         read_hello_msg();
         std::async(std::launch::async, &client::executing, this);
+    }
+
+    void client::stop()
+    {
+        _socket.close();
     }
 }
