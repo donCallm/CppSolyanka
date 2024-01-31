@@ -11,7 +11,7 @@ namespace tests
 
     mock_app::mock_app(boost::asio::io_service& io_service) : core::app(io_service) {}
 
-    TEST(ClientTest, testConnect)
+    TEST(ClientTest, Connect)
     {
         boost::asio::io_service io_service;
         mock_app mapp(io_service);
@@ -27,7 +27,7 @@ namespace tests
         threadIoService.join();
     }
 
-    TEST(ServerTest, testRegistration)
+    TEST(ServerTest, Registration)
     {
         utils::disable_console_output();
         boost::asio::io_service io_service;
@@ -46,7 +46,7 @@ namespace tests
         ASSERT_EQ(rpl.message, "{\"id\":8,\"params\":[],\"res_msg\":\"Successful registration\"}");
     }
 
-    TEST(ServerTest, testIncorrectRegistration)
+    TEST(ServerTest, IncorrectRegistration)
     {
         utils::disable_console_output();
         boost::asio::io_service io_service;
@@ -80,7 +80,7 @@ namespace tests
         ASSERT_EQ(rpl.message, "{\"err_msg\":\"Invalid symmbol. Last name, first name and patronymic can only have letters\",\"id\":17,\"params\":[]}");
     }
 
-    TEST(ServerTest, testLogin)
+    TEST(ServerTest, Login)
     {
         utils::disable_console_output();
         boost::asio::io_service io_service;
@@ -100,7 +100,7 @@ namespace tests
         ASSERT_EQ(rpl.message, "{\"id\":20,\"params\":[],\"res_msg\":\"Successful login\"}");
     }
 
-    TEST(ServerTest, testIncorrectLogin)
+    TEST(ServerTest, IncorrectLogin)
     {
         utils::disable_console_output();
         boost::asio::io_service io_service;
@@ -140,7 +140,7 @@ namespace tests
         ASSERT_EQ(rpl.message, "{\"err_msg\":\"The user is already authorized\",\"id\":33,\"params\":[]}");
     }
 
-    TEST(ServerTest, testCreateBankAcc)
+    TEST(ServerTest, CreateBankAcc)
     {
         utils::disable_console_output();
         boost::asio::io_service io_service;
@@ -160,7 +160,7 @@ namespace tests
         ASSERT_EQ(rpl.message, "{\"id\":36,\"params\":[],\"res_msg\":\"Successful create new bank account\"}");
     }
 
-    TEST(ServerTest, testIncorrectCreateBankAcc)
+    TEST(ServerTest, IncorrectCreateBankAcc)
     {
         utils::disable_console_output();
         boost::asio::io_service io_service;
@@ -189,7 +189,7 @@ namespace tests
         ASSERT_EQ(rpl.message, "{\"err_msg\":\"Error. User not found\",\"id\":43,\"params\":[]}");
     }
 
-    TEST(ServerTest, testCreateCard)
+    TEST(ServerTest, CreateCard)
     {
         utils::disable_console_output();
         boost::asio::io_service io_service;
@@ -209,7 +209,7 @@ namespace tests
         ASSERT_EQ(rpl.message, "{\"id\":46,\"params\":[],\"res_msg\":\"Successful created\"}");
     }
 
-    TEST(ServerTest, testIncorrectCreateCard)
+    TEST(ServerTest, IncorrectCreateCard)
     {
         utils::disable_console_output();
         boost::asio::io_service io_service;
@@ -238,7 +238,7 @@ namespace tests
         ASSERT_EQ(rpl.message, "{\"err_msg\":\"User not found\",\"id\":53,\"params\":[]}");
     }
 
-    TEST(ServerTest, testChangeBalance)
+    TEST(ServerTest, ChangeBalance)
     {
         utils::disable_console_output();
         boost::asio::io_service io_service;
@@ -261,7 +261,7 @@ namespace tests
         ASSERT_EQ(rpl.message, "{\"id\":58,\"params\":[],\"res_msg\":\"Successful change balance\"}");
     }
 
-    TEST(ServerTest, testIncorrectChangeBalance)
+    TEST(ServerTest, IncorrectChangeBalance)
     {
         utils::disable_console_output();
         boost::asio::io_service io_service;
@@ -300,7 +300,7 @@ namespace tests
         ASSERT_EQ(rpl.message, "{\"err_msg\":\"Amount is greater than balance\",\"id\":69,\"params\":[]}");
     }
 
-    TEST(ServerTest, testGetBankInfo)
+    TEST(ServerTest, GetBankInfo)
     {
         utils::disable_console_output();
         boost::asio::io_service io_service;
@@ -329,7 +329,7 @@ namespace tests
         comm.params.clear();
     }
 
-    TEST(ServerTest, testGetInfo)
+    TEST(ServerTest, GetInfo)
     {
         utils::disable_console_output();
         boost::asio::io_service io_service;
