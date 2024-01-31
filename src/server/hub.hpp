@@ -21,15 +21,15 @@ namespace core
         std::string get_bank_accounts(user& usr);
     public:
         hub(app& application);
-        hub(app& application, bool second_constructor);
         virtual ~hub() = default;
         
+        void start_hub();
+
         void subscribe_on_connection(net::con_handler::ptr conn);
+        void subscribe_on_server();
 
         void on_new_msg(net::con_handler::ptr conn, command comm);
         void on_new_connection(net::con_handler::ptr conn);
-        
-        void subscribe_on_server();
 
         virtual std::optional<msg> handle_create_user(command& comm);
         virtual std::optional<msg> handle_login(command& comm);
@@ -39,7 +39,7 @@ namespace core
 
         virtual std::optional<msg> handle_get_bank_info(command& comm);
         virtual std::optional<msg> handler_get_info(command& comm);
-    private:
+    protected:
         app& _application;
         std::shared_ptr<server> _server;
     };

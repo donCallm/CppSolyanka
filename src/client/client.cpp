@@ -8,6 +8,8 @@ namespace core
 {
     client::client(bool console_mode): _socket(_io_service), _id(0) { start(); }
 
+    client::~client() { stop(); }
+
     void client::read_hello_msg()
     {   
         _token = read_response();

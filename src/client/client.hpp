@@ -11,16 +11,16 @@ namespace core
     {
         public:
             client(bool console_mode);
-            virtual ~client() = default;
+            virtual ~client();
 
         public:
-            virtual void read_hello_msg();
-            virtual void write(std::string msg);
+            void read_hello_msg();
+            void write(std::string msg);
             virtual void connect();
-            virtual void start();
-            virtual void executing();
-            virtual void handler_result(const command::type& comm, const core::msg& rpl);
-            virtual std::string read_response();
+            void start();
+            void executing();
+            void handler_result(const command::type& comm, const core::msg& rpl);
+            std::string read_response();
             virtual void stop();
 
         private:

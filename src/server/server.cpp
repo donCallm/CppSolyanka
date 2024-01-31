@@ -4,6 +4,10 @@
 
 namespace core
 {
+    server::server(boost::asio::io_service& io_service) : 
+    _acceptor(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 8080)),
+    _io_service(io_service) {}
+
     void server::start_accept()
     {
         spdlog::info("Wait new user");
@@ -13,10 +17,8 @@ namespace core
              boost::bind(&server::handle_accept, this,  connection, boost::placeholders::_1));
     }
 
-    server::server(boost::asio::io_service& io_service) : 
-    _acceptor(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 8080)),
-    _io_service(io_service)
-    {   
+    void server::start_server()
+    {
         boost::asio::ip::tcp::endpoint endpoint = _acceptor.local_endpoint();
         spdlog::info("Server - " +  endpoint.address().to_string() + ":" + std::to_string(endpoint.port()));
         start_accept();

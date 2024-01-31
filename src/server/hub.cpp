@@ -10,14 +10,15 @@ using namespace utils;
 
 namespace core
 {
-    hub::hub(app &application) : _application(application),
-                                 _server(std::make_shared<server>(_application.get_service()))
+    hub::hub(app &application) : _application(application) {}
+
+    void hub::start_hub()
     {
         spdlog::info("Start hub");
+        _server = std::make_shared<core::server>(_application.get_service());
+        _server->start_server();
         subscribe_on_server();
     }
-
-    hub::hub(app& application, bool second_constructor) : _application(application) { spdlog::info("Start hub"); }
 
     void hub::subscribe_on_server()
     {
@@ -155,7 +156,7 @@ namespace core
             rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
             return rpl;
         }
-        // RGX_LTRS_NUMS - checking for missing numbers/letters in a string
+        
         if (!validate_params(comm.params, RGX_LTRS_NUMS))
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only letters and numbers can be used"));
@@ -288,7 +289,7 @@ namespace core
             default:
                 break;
         }
-        // RGX_NUMS" - checking for missing numbers in a string
+        
         if (!validate_params(comm.params, RGX_NUMS) )
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only numbers can be used"));

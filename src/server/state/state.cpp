@@ -59,7 +59,8 @@ namespace core
         DB()->write(database::clients_id, usr.pasport, std::to_string(usr.id));
 
         {
-            std::string file_path(std::filesystem::current_path().remove_filename().generic_string() + "server/state/logins.json"); //removal so that tests can also read files
+            //removal so that tests can also read files
+            std::string file_path(std::filesystem::current_path().remove_filename().generic_string() + "server/state/logins.json");
             std::ofstream output_file(file_path);
 
             if (!output_file.is_open())

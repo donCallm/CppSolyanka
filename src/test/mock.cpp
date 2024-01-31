@@ -7,32 +7,24 @@ namespace tests
 {
     mock_client::mock_client(bool console_mode) : core::client(console_mode), _mock_socket(_mock_io_service) {}
 
-    mock_hub::mock_hub(core::app& application, bool constructor_flag) : core::hub(application, constructor_flag) {}
+    mock_hub::mock_hub(core::app& application) : core::hub(application) {}
 
     mock_app::mock_app(boost::asio::io_service& io_service) : core::app(io_service) {}
 
     TEST(ClientTest, testConnect)
     {
-        //utils::disable_console_output();
-
         boost::asio::io_service io_service;
-        mock_app::app mapp(io_service);
+        mock_app mapp(io_service);
         std::thread threadIoService([&]{ io_service.run(); });
 
         testing::NiceMock<mock_client> mclient(true);
 
-        EXPECT_CALL(mclient, stop())
-            .WillOnce(::testing::Invoke([&mclient]() { mclient.stop(); }));
-
-        std::thread threadConnect([&]{ mclient.connect(); });
+        EXPECT_CALL(mclient, connect())
+            .WillOnce(::testing::Invoke([&mclient]() { mclient.connect(); }));
 
         io_service.stop();
-        mclient.stop();
 
         threadIoService.join();
-        threadConnect.join();
-
-        //utils::enable_console_output();
     }
 
     TEST(ServerTest, testRegistration)

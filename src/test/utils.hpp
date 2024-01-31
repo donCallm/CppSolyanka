@@ -10,19 +10,27 @@ using namespace db;
 
 namespace utils
 {
+    struct StreambufDeleter
+    {
+        void operator()(std::streambuf* sb) const
+        {
+            delete sb;
+        }
+    };
+
+    inline std::unique_ptr<std::streambuf, StreambufDeleter> _original_cout(nullptr);
     inline std::ofstream _null_stream("/dev/null");
-    inline std::streambuf* _original_cout = nullptr;
 
     inline void disable_console_output()
     {
-        _original_cout = std::cout.rdbuf();
+        _original_cout.reset(std::cout.rdbuf());
         std::cout.rdbuf(_null_stream.rdbuf());
         spdlog::set_level(spdlog::level::off);
     }
 
     inline void enable_console_output()
     {
-        std::cout.rdbuf(_original_cout);
+        std::cout.rdbuf(_original_cout.release());
         spdlog::set_level(spdlog::level::info);
     }
 

@@ -16,7 +16,6 @@ namespace tests
         ~mock_client() override = default;
 
         MOCK_METHOD0(connect, void());
-        MOCK_METHOD0(stop, void());
     public:
         boost::asio::io_service _mock_io_service;
         boost::asio::ip::tcp::socket _mock_socket;
