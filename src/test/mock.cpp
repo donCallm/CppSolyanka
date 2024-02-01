@@ -3,7 +3,6 @@
 #include "mock_app.hpp"
 #include <server/utils.hpp>
 #include <vector>
-#include <spdlog/spdlog.h>
 
 namespace tests
 {
@@ -31,13 +30,11 @@ namespace tests
 
     TEST(ServerTest, Registration)
     {
-        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        spdlog::set_level(spdlog::level::info);
 
         comm.set_command("registration dontCallm egor seleznev sergeevich BM123 1111 0");
 
@@ -50,13 +47,11 @@ namespace tests
 
     TEST(ServerTest, IncorrectRegistration)
     {
-        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        spdlog::set_level(spdlog::level::info);
 
         EXPECT_CALL(mhub, handle_create_user(::testing::_))
             .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_create_user(comm); }));
@@ -84,13 +79,11 @@ namespace tests
 
     TEST(ServerTest, Login)
     {
-        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        spdlog::set_level(spdlog::level::info);
 
         comm.set_command("login dontCallm 1111 0");
 
@@ -104,13 +97,11 @@ namespace tests
 
     TEST(ServerTest, IncorrectLogin)
     {
-        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        spdlog::set_level(spdlog::level::info);
 
         EXPECT_CALL(mhub, handle_login(::testing::_))
             .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_login(comm); }));
@@ -144,13 +135,11 @@ namespace tests
 
     TEST(ServerTest, CreateBankAcc)
     {
-        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        spdlog::set_level(spdlog::level::info);
 
         comm.set_command("create_bank_account 0");
 
@@ -164,13 +153,11 @@ namespace tests
 
     TEST(ServerTest, IncorrectCreateBankAcc)
     {
-        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        spdlog::set_level(spdlog::level::info);
 
         EXPECT_CALL(mhub, handle_create_bank_acc(::testing::_))
             .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_create_bank_acc(comm); }));
@@ -193,13 +180,11 @@ namespace tests
 
     TEST(ServerTest, CreateCard)
     {
-        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        spdlog::set_level(spdlog::level::info);
 
         comm.set_command("create_card 0 0");
 
@@ -213,13 +198,11 @@ namespace tests
 
     TEST(ServerTest, IncorrectCreateCard)
     {
-        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        spdlog::set_level(spdlog::level::info);
 
         EXPECT_CALL(mhub, handle_create_card(::testing::_))
             .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_create_card(comm); }));
@@ -242,13 +225,11 @@ namespace tests
 
     TEST(ServerTest, ChangeBalance)
     {
-        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        spdlog::set_level(spdlog::level::info);
 
         EXPECT_CALL(mhub, handle_change_balance(::testing::_))
             .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_change_balance(comm); }));
@@ -265,13 +246,11 @@ namespace tests
 
     TEST(ServerTest, IncorrectChangeBalance)
     {
-        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        spdlog::set_level(spdlog::level::info);
 
         EXPECT_CALL(mhub, handle_change_balance(::testing::_))
             .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_change_balance(comm); }));
@@ -304,13 +283,11 @@ namespace tests
 
     TEST(ServerTest, GetBankInfo)
     {
-        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        spdlog::set_level(spdlog::level::info);
 
         EXPECT_CALL(mhub, handle_get_bank_info(::testing::_))
             .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_get_bank_info(comm); }));
@@ -333,13 +310,11 @@ namespace tests
 
     TEST(ServerTest, GetInfo)
     {
-        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        spdlog::set_level(spdlog::level::info);
 
         EXPECT_CALL(mhub, handler_get_info(::testing::_))
             .WillOnce(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handler_get_info(comm); }));
