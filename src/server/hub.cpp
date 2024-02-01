@@ -12,11 +12,11 @@ namespace core
 {
     hub::hub(app &application) : _application(application) {}
 
-    void hub::start_hub()
+    void hub::start()
     {
         spdlog::info("Start hub");
         _server = std::make_shared<core::server>(_application.get_service());
-        _server->start_server();
+        _server->start();
         subscribe_on_server();
     }
 

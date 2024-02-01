@@ -17,7 +17,7 @@ namespace core
              boost::bind(&server::handle_accept, this,  connection, boost::placeholders::_1));
     }
 
-    void server::start_server()
+    void server::start()
     {
         boost::asio::ip::tcp::endpoint endpoint = _acceptor.local_endpoint();
         spdlog::info("Server - " +  endpoint.address().to_string() + ":" + std::to_string(endpoint.port()));

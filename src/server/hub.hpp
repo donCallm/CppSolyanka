@@ -23,7 +23,7 @@ namespace core
         hub(app& application);
         virtual ~hub() = default;
         
-        void start_hub();
+        void start();
 
         void subscribe_on_connection(net::con_handler::ptr conn);
         void subscribe_on_server();

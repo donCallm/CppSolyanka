@@ -1,7 +1,9 @@
 #include "mock_clietn.hpp"
 #include "mock_hub.hpp"
 #include "mock_app.hpp"
-#include "utils.hpp"
+#include <server/utils.hpp>
+#include <vector>
+#include <spdlog/spdlog.h>
 
 namespace tests
 {
@@ -29,13 +31,13 @@ namespace tests
 
     TEST(ServerTest, Registration)
     {
-        utils::disable_console_output();
+        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        utils::enable_console_output();
+        spdlog::set_level(spdlog::level::info);
 
         comm.set_command("registration dontCallm egor seleznev sergeevich BM123 1111 0");
 
@@ -48,13 +50,13 @@ namespace tests
 
     TEST(ServerTest, IncorrectRegistration)
     {
-        utils::disable_console_output();
+        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        utils::enable_console_output();
+        spdlog::set_level(spdlog::level::info);
 
         EXPECT_CALL(mhub, handle_create_user(::testing::_))
             .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_create_user(comm); }));
@@ -82,13 +84,13 @@ namespace tests
 
     TEST(ServerTest, Login)
     {
-        utils::disable_console_output();
+        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        utils::enable_console_output();
+        spdlog::set_level(spdlog::level::info);
 
         comm.set_command("login dontCallm 1111 0");
 
@@ -102,13 +104,13 @@ namespace tests
 
     TEST(ServerTest, IncorrectLogin)
     {
-        utils::disable_console_output();
+        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        utils::enable_console_output();
+        spdlog::set_level(spdlog::level::info);
 
         EXPECT_CALL(mhub, handle_login(::testing::_))
             .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_login(comm); }));
@@ -142,13 +144,13 @@ namespace tests
 
     TEST(ServerTest, CreateBankAcc)
     {
-        utils::disable_console_output();
+        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        utils::enable_console_output();
+        spdlog::set_level(spdlog::level::info);
 
         comm.set_command("create_bank_account 0");
 
@@ -162,13 +164,13 @@ namespace tests
 
     TEST(ServerTest, IncorrectCreateBankAcc)
     {
-        utils::disable_console_output();
+        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        utils::enable_console_output();
+        spdlog::set_level(spdlog::level::info);
 
         EXPECT_CALL(mhub, handle_create_bank_acc(::testing::_))
             .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_create_bank_acc(comm); }));
@@ -191,13 +193,13 @@ namespace tests
 
     TEST(ServerTest, CreateCard)
     {
-        utils::disable_console_output();
+        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        utils::enable_console_output();
+        spdlog::set_level(spdlog::level::info);
 
         comm.set_command("create_card 0 0");
 
@@ -211,13 +213,13 @@ namespace tests
 
     TEST(ServerTest, IncorrectCreateCard)
     {
-        utils::disable_console_output();
+        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        utils::enable_console_output();
+        spdlog::set_level(spdlog::level::info);
 
         EXPECT_CALL(mhub, handle_create_card(::testing::_))
             .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_create_card(comm); }));
@@ -240,13 +242,13 @@ namespace tests
 
     TEST(ServerTest, ChangeBalance)
     {
-        utils::disable_console_output();
+        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        utils::enable_console_output();
+        spdlog::set_level(spdlog::level::info);
 
         EXPECT_CALL(mhub, handle_change_balance(::testing::_))
             .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_change_balance(comm); }));
@@ -263,13 +265,13 @@ namespace tests
 
     TEST(ServerTest, IncorrectChangeBalance)
     {
-        utils::disable_console_output();
+        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        utils::enable_console_output();
+        spdlog::set_level(spdlog::level::info);
 
         EXPECT_CALL(mhub, handle_change_balance(::testing::_))
             .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_change_balance(comm); }));
@@ -302,13 +304,13 @@ namespace tests
 
     TEST(ServerTest, GetBankInfo)
     {
-        utils::disable_console_output();
+        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        utils::enable_console_output();
+        spdlog::set_level(spdlog::level::info);
 
         EXPECT_CALL(mhub, handle_get_bank_info(::testing::_))
             .WillRepeatedly(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_get_bank_info(comm); }));
@@ -331,13 +333,13 @@ namespace tests
 
     TEST(ServerTest, GetInfo)
     {
-        utils::disable_console_output();
+        spdlog::set_level(spdlog::level::off);
         boost::asio::io_service io_service;
         core::app application(io_service);
         testing::NiceMock<mock_hub> mhub(application);
         core::msg rpl;
         core::command comm;
-        utils::enable_console_output();
+        spdlog::set_level(spdlog::level::info);
 
         EXPECT_CALL(mhub, handler_get_info(::testing::_))
             .WillOnce(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handler_get_info(comm); }));
@@ -348,5 +350,35 @@ namespace tests
             "\\\"cards\\\":[0],\\\"id\\\":0,\\\"login\\\":\\\"dontCallm\\\",\\\"name\\\":\\\"egor\\\","
             "\\\"pasport\\\":\\\"BM123\\\",\\\"password\\\":\\\"1111\\\",\\\"patronymic\\\":\\\"\\\","
             "\\\"surname\\\":\\\"seleznev\\\"}\"}");
+    }
+
+    TEST(ServerTest, ValidateParams)
+    {
+        std::vector<std::string> params;
+        bool rpl;
+
+        params = {"111", "111", "111"};
+        rpl = utils::validate_params(params, utils::RGX_NUMS);
+        ASSERT_EQ(rpl, true);
+
+        params = {"!!!", "!!!", "!!!"};
+        rpl = utils::validate_params(params, utils::RGX_NUMS);
+        ASSERT_EQ(rpl, false);
+
+        params = {"abc", "abc", "abc"};
+        rpl = utils::validate_params(params, utils::RGX_NUMS);
+        ASSERT_EQ(rpl, false);
+
+        params = {"abc1", "abc1", "abc1"};
+        rpl = utils::validate_params(params, utils::RGX_LTRS_NUMS);
+        ASSERT_EQ(rpl, true);
+
+        params = {"111", "111", "111"};
+        rpl = utils::validate_params(params, utils::RGX_LTRS_NUMS);
+        ASSERT_EQ(rpl, true);
+
+        params = {"!!!", "!!!", "!!!"};
+        rpl = utils::validate_params(params, utils::RGX_LTRS_NUMS);
+        ASSERT_EQ(rpl, false);
     }
 }

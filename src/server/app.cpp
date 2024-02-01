@@ -13,6 +13,6 @@ namespace core
     {
         spdlog::info("Start application");
         db::database::get_instance();
-        _hub->start_hub();
+        _hub->start();
     }
 }
