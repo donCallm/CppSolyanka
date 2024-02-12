@@ -12,12 +12,14 @@ namespace tests
     class mock_client : public core::client
     {
     public:
-        mock_client(bool console_mode);
+        mock_client();
         ~mock_client() override = default;
 
+        MOCK_METHOD2(handler_result, void(const core::command::type& comm, const core::msg& rpl));
+        MOCK_METHOD1(write, void(std::string& msg));
+        MOCK_METHOD0(read_response, std::string());
         MOCK_METHOD0(connect, void());
-    public:
-        boost::asio::io_service _mock_io_service;
-        boost::asio::ip::tcp::socket _mock_socket;
+        MOCK_METHOD0(stop, void());
+        MOCK_METHOD0(read_hello_msg, void());
     };
 }

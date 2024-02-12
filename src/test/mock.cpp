@@ -3,29 +3,77 @@
 #include "mock_app.hpp"
 #include <server/utils.hpp>
 #include <vector>
+#include <chrono>
+#include <thread>
 
 namespace tests
 {
-    mock_client::mock_client(bool console_mode) : core::client(console_mode), _mock_socket(_mock_io_service) {}
+    mock_client::mock_client() : core::client() {}
 
     mock_hub::mock_hub(core::app& application) : core::hub(application) {}
 
     mock_app::mock_app(boost::asio::io_service& io_service) : core::app(io_service) {}
 
-    TEST(ClientTest, Connect)
+    TEST(ServerTest, Connection)
     {
         boost::asio::io_service io_service;
         mock_app mapp(io_service);
-        std::thread threadIoService([&]{ io_service.run(); });
-
-        testing::NiceMock<mock_client> mclient(true);
-
+        std::thread thread_server([&]{ io_service.run(); });
+        mock_client mclient;
+        
         EXPECT_CALL(mclient, connect())
-            .WillOnce(::testing::Invoke([&mclient]() { mclient.connect(); }));
+            .WillOnce(::testing::Invoke([&mclient]() { return mclient.core::client::connect(); }));
+
+        EXPECT_CALL(mclient, read_hello_msg())
+            .WillOnce(::testing::Invoke([&mclient]() { return mclient.core::client::read_hello_msg(); }));
+
+        EXPECT_CALL(mclient, write(::testing::_))
+            .WillOnce(::testing::Invoke([&mclient](std::string& msg) { return mclient.core::client::write(msg); }));
+        
+        EXPECT_CALL(mclient, read_response())
+            .WillRepeatedly(::testing::Invoke([&mclient]() { return mclient.core::client::read_response(); }));
+
+        EXPECT_CALL(mclient, stop())
+            .WillOnce(::testing::Invoke([&mclient]() { return mclient.core::client::stop(); }));
+
+        std::thread thread_client([&]{ mclient.connect(); });
+        
+        //so that the client has time to read the message
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        mclient.read_hello_msg();
+        
+        core::command comm;
+        comm.set_command("ping");
+
+        nlohmann::json serialize_message = comm; 
+        std::string json_string = serialize_message.dump();
+        mclient.write(json_string);
+        
+        std::string rpl = mclient.read_response();
+
+        ASSERT_EQ(rpl, "{\"id\":1,\"message\":\"{\\\"id\\\":1,\\\"message\\\":\\\"pong\\\",\\\"params\\\":[]}\",\"params\":[]}");
 
         io_service.stop();
+        mclient.stop();
 
-        threadIoService.join();
+        thread_server.join();
+        thread_client.join();
+    }
+
+    TEST(ClientTest, HandlerResult)
+    {
+        mock_client mclient;
+        core::msg rpl;
+
+        EXPECT_CALL(mclient, handler_result(::testing::_, ::testing::_))
+            .WillRepeatedly(::testing::Invoke([&mclient](const core::command::type& comm, const core::msg& rpl)
+                { return mclient.core::client::handler_result(comm, rpl); }));
+        
+        rpl.message = "{\"id\":1,\"message\":\"unknown_command\",\"params\":[]}";
+        mclient.handler_result(core::command::unknown_command, rpl);
+
+        rpl.message = "{\"err_msg\":\"Wrong numbers of parametrs\",\"id\":4,\"params\":[]}";
+        mclient.handler_result(core::command::registration, rpl);
     }
 
     TEST(ServerTest, Registration)
@@ -42,7 +90,7 @@ namespace tests
             .WillOnce(::testing::Invoke([&mhub](core::command& comm) { return mhub.core::hub::handle_create_user(comm); }));
 
         rpl = mhub.handle_create_user(comm).value();
-        ASSERT_EQ(rpl.message, "{\"id\":8,\"params\":[],\"res_msg\":\"Successful registration\"}");
+        ASSERT_EQ(rpl.message, "{\"id\":4,\"params\":[],\"res_msg\":\"Successful registration\"}");
     }
 
     TEST(ServerTest, IncorrectRegistration)
@@ -59,22 +107,22 @@ namespace tests
         //re-registration
         comm.set_command("registration dontCallm egor seleznev sergeevich BM123 1111 0");
         rpl = mhub.handle_create_user(comm).value();
-        ASSERT_EQ(rpl.message, "{\"err_msg\":\"User already exists1\",\"id\":11,\"params\":[]}");
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"User already exists1\",\"id\":7,\"params\":[]}");
         comm.params.clear();
         //wrong numbers of params
         comm.set_command("registration dontCallm egor seleznev sergeevich BM123 1111 0 0");
         rpl = mhub.handle_create_user(comm).value();
-        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Wrong numbers of parametrs\",\"id\":13,\"params\":[]}");
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Wrong numbers of parametrs\",\"id\":9,\"params\":[]}");
         comm.params.clear();
         //invalid symmbol
         comm.set_command("registration !!!! egor seleznev sergeevich BM123 !!!! 0");
         rpl = mhub.handle_create_user(comm).value();
-        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Invalid symmbol. Only letters and numbers can be used\",\"id\":15,\"params\":[]}");
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Invalid symmbol. Only letters and numbers can be used\",\"id\":11,\"params\":[]}");
         comm.params.clear();
         //invalid symbol in name, patranymic, sername
         comm.set_command("registration dontCallm eg0r s0leznev s0rgeevich BM123 1111 0");
         rpl = mhub.handle_create_user(comm).value();
-        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Invalid symmbol. Last name, first name and patronymic can only have letters\",\"id\":17,\"params\":[]}");
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Invalid symmbol. Last name, first name and patronymic can only have letters\",\"id\":13,\"params\":[]}");
     }
 
     TEST(ServerTest, Login)
@@ -92,7 +140,7 @@ namespace tests
 
         rpl = mhub.handle_login(comm).value();
 
-        ASSERT_EQ(rpl.message, "{\"id\":20,\"params\":[],\"res_msg\":\"Successful login\"}");
+        ASSERT_EQ(rpl.message, "{\"id\":16,\"params\":[],\"res_msg\":\"Successful login\"}");
     }
 
     TEST(ServerTest, IncorrectLogin)
@@ -109,28 +157,28 @@ namespace tests
         //wrong numbers of params
         comm.set_command("login dontCallm 1111 0 0");
         rpl = mhub.handle_login(comm).value();
-        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Wrong numbers of parametrs\",\"id\":23,\"params\":[]}");
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Wrong numbers of parametrs\",\"id\":19,\"params\":[]}");
         comm.params.clear();
         //invalid symmbol
         comm.set_command("login dontCallm !!!! 0");
         rpl = mhub.handle_login(comm).value();
-        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Invalid symmbol. Only letters and numbers can be used\",\"id\":25,\"params\":[]}");
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Invalid symmbol. Only letters and numbers can be used\",\"id\":21,\"params\":[]}");
         comm.params.clear();
         //invalid login
         comm.set_command("login dontcallm 1111 0");
         rpl = mhub.handle_login(comm).value();
-        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Error of login\",\"id\":27,\"params\":[]}");
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Error of login\",\"id\":23,\"params\":[]}");
         comm.params.clear();
         //invalid password
         comm.set_command("login dontCallm 0000 0");
         rpl = mhub.handle_login(comm).value();
-        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Wrong password\",\"id\":29,\"params\":[]}");
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Wrong password\",\"id\":25,\"params\":[]}");
         comm.params.clear();
         //re-authorization
         comm.set_command("login dontCallm 1111 0");
         mhub.handle_login(comm);
         rpl = mhub.handle_login(comm).value();
-        ASSERT_EQ(rpl.message, "{\"err_msg\":\"The user is already authorized\",\"id\":33,\"params\":[]}");
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"The user is already authorized\",\"id\":29,\"params\":[]}");
     }
 
     TEST(ServerTest, CreateBankAcc)
@@ -148,7 +196,7 @@ namespace tests
 
         rpl = mhub.handle_create_bank_acc(comm).value();
 
-        ASSERT_EQ(rpl.message, "{\"id\":36,\"params\":[],\"res_msg\":\"Successful create new bank account\"}");
+        ASSERT_EQ(rpl.message, "{\"id\":32,\"params\":[],\"res_msg\":\"Successful create new bank account\"}");
     }
 
     TEST(ServerTest, IncorrectCreateBankAcc)
@@ -165,17 +213,17 @@ namespace tests
         //wrong numbers of params
         comm.set_command("create_bank_account 0 0");
         rpl = mhub.handle_create_bank_acc(comm).value();
-        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Wrong numbers of parametrs\",\"id\":39,\"params\":[]}");
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Wrong numbers of parametrs\",\"id\":35,\"params\":[]}");
         comm.params.clear();
         //invalid symmbol
         comm.set_command("create_bank_account !!!!");
         rpl = mhub.handle_create_bank_acc(comm).value();
-        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Error. ID would be number\",\"id\":41,\"params\":[]}");
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Error. ID would be number\",\"id\":37,\"params\":[]}");
         comm.params.clear();
         //Wrong id
         comm.set_command("create_bank_account 100");
         rpl = mhub.handle_create_bank_acc(comm).value();
-        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Error. User not found\",\"id\":43,\"params\":[]}");
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Error. User not found\",\"id\":39,\"params\":[]}");
     }
 
     TEST(ServerTest, CreateCard)
@@ -193,7 +241,7 @@ namespace tests
 
         rpl = mhub.handle_create_card(comm).value();
 
-        ASSERT_EQ(rpl.message, "{\"id\":46,\"params\":[],\"res_msg\":\"Successful created\"}");
+        ASSERT_EQ(rpl.message, "{\"id\":42,\"params\":[],\"res_msg\":\"Successful created\"}");
     }
 
     TEST(ServerTest, IncorrectCreateCard)
@@ -210,17 +258,17 @@ namespace tests
         //wrong numbers of params
         comm.set_command("create_bank_account 0 0 0");
         rpl = mhub.handle_create_card(comm).value();
-        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Wrong numbers of parametrs\",\"id\":49,\"params\":[]}");
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Wrong numbers of parametrs\",\"id\":45,\"params\":[]}");
         comm.params.clear();
         //invalid symmbol
         comm.set_command("create_bank_account !!!! !!!!");
         rpl = mhub.handle_create_card(comm).value();
-        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Invalid symmbol. Only numbers can be used\",\"id\":51,\"params\":[]}");
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Invalid symmbol. Only numbers can be used\",\"id\":47,\"params\":[]}");
         comm.params.clear();
         //Wrong id
         comm.set_command("create_bank_account 0 100");
         rpl = mhub.handle_create_card(comm).value();
-        ASSERT_EQ(rpl.message, "{\"err_msg\":\"User not found\",\"id\":53,\"params\":[]}");
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"User not found\",\"id\":49,\"params\":[]}");
     }
 
     TEST(ServerTest, ChangeBalance)
@@ -236,12 +284,12 @@ namespace tests
 
         comm.set_command("replenish_balance 0 100 0");
         rpl = mhub.handle_change_balance(comm).value();
-        ASSERT_EQ(rpl.message, "{\"id\":56,\"params\":[],\"res_msg\":\"Successful change balance\"}");
+        ASSERT_EQ(rpl.message, "{\"id\":52,\"params\":[],\"res_msg\":\"Successful change balance\"}");
         comm.params.clear();
 
         comm.set_command("debit_funds 0 50 0");
         rpl = mhub.handle_change_balance(comm).value();
-        ASSERT_EQ(rpl.message, "{\"id\":58,\"params\":[],\"res_msg\":\"Successful change balance\"}");
+        ASSERT_EQ(rpl.message, "{\"id\":54,\"params\":[],\"res_msg\":\"Successful change balance\"}");
     }
 
     TEST(ServerTest, IncorrectChangeBalance)
@@ -258,27 +306,27 @@ namespace tests
         //wrong numbers of params
         comm.set_command("replenish_balance 0 0 0 0");
         rpl = mhub.handle_change_balance(comm).value();
-        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Wrong numbers of parametrs\",\"id\":61,\"params\":[]}");
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Wrong numbers of parametrs\",\"id\":57,\"params\":[]}");
         comm.params.clear();
         //invalid symmbol
         comm.set_command("replenish_balance !!!! !!!! !!!!");
         rpl = mhub.handle_change_balance(comm).value();
-        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Invalid symmbol. Only numbers can be used\",\"id\":63,\"params\":[]}");
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Invalid symmbol. Only numbers can be used\",\"id\":59,\"params\":[]}");
         comm.params.clear();
         //Wrong id
         comm.set_command("replenish_balance 0 0 100");
         rpl = mhub.handle_change_balance(comm).value();
-        ASSERT_EQ(rpl.message, "{\"err_msg\":\"User not found\",\"id\":65,\"params\":[]}");
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"User not found\",\"id\":61,\"params\":[]}");
         comm.params.clear();
         //Wrong card id
         comm.set_command("replenish_balance 100 0 0");
         rpl = mhub.handle_change_balance(comm).value();
-        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Card not found\",\"id\":67,\"params\":[]}");
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Card not found\",\"id\":63,\"params\":[]}");
         comm.params.clear();
         //Wrong sum
         comm.set_command("debit_funds 0 1000 0");
         rpl = mhub.handle_change_balance(comm).value();
-        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Amount is greater than balance\",\"id\":69,\"params\":[]}");
+        ASSERT_EQ(rpl.message, "{\"err_msg\":\"Amount is greater than balance\",\"id\":65,\"params\":[]}");
     }
 
     TEST(ServerTest, GetBankInfo)
@@ -294,17 +342,17 @@ namespace tests
 
         comm.set_command("get_balance 0 0");
         rpl = mhub.handle_get_bank_info(comm).value();
-        ASSERT_EQ(rpl.message, "{\"id\":72,\"params\":[],\"res_msg\":\"Your balance: 50\"}");
+        ASSERT_EQ(rpl.message, "{\"id\":68,\"params\":[],\"res_msg\":\"Your balance: 50\"}");
         comm.params.clear();
 
         comm.set_command("get_cards 0");
         rpl = mhub.handle_get_bank_info(comm).value();
-        ASSERT_EQ(rpl.message, "{\"id\":74,\"params\":[],\"res_msg\":\"Id ur cards: 0 \"}");
+        ASSERT_EQ(rpl.message, "{\"id\":70,\"params\":[],\"res_msg\":\"Id ur cards: 0 \"}");
         comm.params.clear();
 
         comm.set_command("get_bank_accounts 0");
         rpl = mhub.handle_get_bank_info(comm).value();
-        ASSERT_EQ(rpl.message, "{\"id\":76,\"params\":[],\"res_msg\":\"Id ur bank accounts: 0 \"}");
+        ASSERT_EQ(rpl.message, "{\"id\":72,\"params\":[],\"res_msg\":\"Id ur bank accounts: 0 \"}");
         comm.params.clear();
     }
 
@@ -321,39 +369,10 @@ namespace tests
 
         comm.set_command("get_info 0");
         rpl = mhub.handler_get_info(comm).value();
-        ASSERT_EQ(rpl.message, "{\"id\":79,\"params\":[],\"res_msg\":\"{\\\"bank_accounts\\\":[0],"
+        ASSERT_EQ(rpl.message, "{\"id\":75,\"params\":[],\"res_msg\":\"{\\\"bank_accounts\\\":[0],"
             "\\\"cards\\\":[0],\\\"id\\\":0,\\\"login\\\":\\\"dontCallm\\\",\\\"name\\\":\\\"egor\\\","
             "\\\"pasport\\\":\\\"BM123\\\",\\\"password\\\":\\\"1111\\\",\\\"patronymic\\\":\\\"\\\","
             "\\\"surname\\\":\\\"seleznev\\\"}\"}");
     }
 
-    TEST(ServerTest, ValidateParams)
-    {
-        std::vector<std::string> params;
-        bool rpl;
-
-        params = {"111", "111", "111"};
-        rpl = utils::validate_params(params, utils::RGX_NUMS);
-        ASSERT_EQ(rpl, true);
-
-        params = {"!!!", "!!!", "!!!"};
-        rpl = utils::validate_params(params, utils::RGX_NUMS);
-        ASSERT_EQ(rpl, false);
-
-        params = {"abc", "abc", "abc"};
-        rpl = utils::validate_params(params, utils::RGX_NUMS);
-        ASSERT_EQ(rpl, false);
-
-        params = {"abc1", "abc1", "abc1"};
-        rpl = utils::validate_params(params, utils::RGX_LTRS_NUMS);
-        ASSERT_EQ(rpl, true);
-
-        params = {"111", "111", "111"};
-        rpl = utils::validate_params(params, utils::RGX_LTRS_NUMS);
-        ASSERT_EQ(rpl, true);
-
-        params = {"!!!", "!!!", "!!!"};
-        rpl = utils::validate_params(params, utils::RGX_LTRS_NUMS);
-        ASSERT_EQ(rpl, false);
-    }
 }

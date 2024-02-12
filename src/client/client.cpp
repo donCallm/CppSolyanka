@@ -8,6 +8,8 @@ namespace core
 {
     client::client(bool console_mode): _socket(_io_service), _id(0) { start(); }
 
+    client::client() : _socket(_io_service) {}
+
     client::~client() { stop(); }
 
     void client::read_hello_msg()
@@ -39,7 +41,7 @@ namespace core
         }
     }
 
-    void client::write(std::string data)
+    void client::write(std::string& data)
     {
         core::message msg;
 
