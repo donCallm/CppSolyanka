@@ -437,6 +437,12 @@ namespace core
             return rpl;
         }
 
+        if (comm.params[0] == "0") 
+        {
+            rpl.set_message(to_str<error_msg>("You need to be login"));
+            return rpl;
+        }
+
         auto usr = STATE()->get_user(std::stoull(comm.params[0]));
         if (!usr.has_value())
         {

@@ -8,8 +8,8 @@
 #include <optional>
 #include "user.hpp"
 
-#define MAX_CARDS_COUNT 20
-#define MAX_BANK_ACCS_COUNT 20
+constexpr const uint8_t MAX_CARDS_COUNT = 20;
+constexpr const uint8_t MAX_BANK_ACCS_COUNT = 20;
 
 namespace core
 {
