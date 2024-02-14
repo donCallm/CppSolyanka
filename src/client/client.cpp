@@ -1,5 +1,4 @@
 #include "client.hpp"
-#include <objects/commands.hpp>
 #include <objects/message.hpp>
 #include <objects/msg_objects.hpp>
 #include <iostream>
@@ -7,7 +6,11 @@
 
 namespace core
 {
-    client::client(bool console_mode): _socket(_io_service), _id(0) {connect();}
+    client::client(bool console_mode): _socket(_io_service), _id(0) { start(); }
+
+    client::client() : _socket(_io_service) {}
+
+    client::~client() { stop(); }
 
     void client::read_hello_msg()
     {   
@@ -25,7 +28,6 @@ namespace core
                 _recv_msg.resize(msg_size);
 
             boost::asio::read(_socket, boost::asio::buffer(_recv_msg.data(), msg_size));
-
             return std::string(_recv_msg.begin(), _recv_msg.end());
         }
         catch (const std::exception& e)
@@ -39,7 +41,7 @@ namespace core
         }
     }
 
-    void client::write(std::string data)
+    void client::write(std::string& data)
     {
         core::message msg;
 
@@ -87,7 +89,7 @@ namespace core
         }
     }
 
-    void client::start()
+    void client::executing()
     {
         core::message msg;
         core::command comm;
@@ -104,7 +106,7 @@ namespace core
             comm.set_command(msg.data);
 
             if (comm.instruction == command::type::end)
-                _socket.close();
+                stop();
             
             comm.params.push_back(std::to_string(_id));
 
@@ -123,7 +125,17 @@ namespace core
     {
         auto endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string("0.0.0.0"), 8080);
         _socket.connect(endpoint);
+    }
+
+    void client::start()
+    {
+        connect();
         read_hello_msg();
-        std::async(std::launch::async, &client::start, this);
+        std::async(std::launch::async, &client::executing, this);
+    }
+
+    void client::stop()
+    {
+        _socket.close();
     }
 }

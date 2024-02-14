@@ -16,6 +16,7 @@ namespace core
         void start_accept();    
 
     public:
+        void start();
         void handle_accept(net::con_handler::ptr connection, const boost::system::error_code& err);
 
     private:

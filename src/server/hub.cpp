@@ -7,12 +7,16 @@
 #include <spdlog/spdlog.h>
 #include <boost/bind.hpp>
 using namespace utils;
+
 namespace core
 {
-    hub::hub(app &application) : _application(application),
-                                 _server(std::make_shared<server>(_application.get_service()))
+    hub::hub(app &application) : _application(application) {}
+
+    void hub::start()
     {
         spdlog::info("Start hub");
+        _server = std::make_shared<core::server>(_application.get_service());
+        _server->start();
         subscribe_on_server();
     }
 
@@ -100,23 +104,6 @@ namespace core
         conn->send(json_string);
     }
 
-    bool hub::validate_params(const std::vector<std::string>& params, const uint64_t &number_of_params)
-    {
-        if (number_of_params != params.size())
-            return false;
-        return true;
-    }
-
-    bool hub::validate_params(const std::vector<std::string>& params, const std::string& pattern)
-    {
-        for (size_t i = 0; i < params.size(); ++i)
-        {
-            if (!is_valid_str(params[i], pattern))
-                return false;
-        }
-        return true;
-    }
-
     std::optional<user> hub::get_user(const std::string& login)
     {
         auto id = STATE()->get_id(login);
@@ -169,8 +156,8 @@ namespace core
             rpl.set_message(to_str<error_msg>("Wrong numbers of parametrs"));
             return rpl;
         }
-
-        if (!validate_params(comm.params, "^[a-zA-Z0-9]+$"))
+        
+        if (!validate_params(comm.params, RGX_LTRS_NUMS))
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only letters and numbers can be used"));
             return rpl;
@@ -207,12 +194,12 @@ namespace core
             return rpl;
         }
 
-        if (!validate_params(comm.params, "^[a-zA-Z0-9]+$"))
+        if (!validate_params(comm.params, RGX_LTRS_NUMS))
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only letters and numbers can be used"));
             return rpl;
         }
-
+        // "^[a-zA-Z]+$" - checking for missing letters in a string
         if (!validate_params(std::vector<std::string>{ comm.params[1], comm.params[2], comm.params[3] }, "^[a-zA-Z]+$"))
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Last name, first name and patronymic can only have letters"));
@@ -241,7 +228,7 @@ namespace core
 
         if (!is_number(comm.params[0]))
         {
-            rpl.set_message(to_str<error_msg>("Error of create new bank account"));
+            rpl.set_message(to_str<error_msg>("Error. ID would be number"));
             return rpl;
         }
         
@@ -250,7 +237,7 @@ namespace core
             auto usr = STATE()->get_user(std::stoull(comm.params[0]));
             if (!usr.has_value())
             {
-                rpl.set_message(to_str<error_msg>("Error of create new bank account"));
+                rpl.set_message(to_str<error_msg>("Error. User not found"));
                 return rpl;
             }
 
@@ -302,8 +289,8 @@ namespace core
             default:
                 break;
         }
-
-        if (!validate_params(comm.params, "^[0-9]+$"))
+        
+        if (!validate_params(comm.params, RGX_NUMS) )
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only numbers can be used"));
             return rpl;
@@ -329,7 +316,7 @@ namespace core
             {
                 case command::get_balance:
                 {
-                    get_balance(usr.value(), std::stoull(comm.params[0]));
+                    res = get_balance(usr.value(), std::stoull(comm.params[0]));
                     break;
                 }
                 case command::get_cards:
@@ -371,7 +358,7 @@ namespace core
             return rpl;
         }
 
-        if (!validate_params(comm.params, "^[0-9]+$"))
+        if (!validate_params(comm.params, RGX_NUMS))
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only numbers can be used"));
             return rpl;
@@ -396,10 +383,11 @@ namespace core
             rpl.set_message(to_str<error_msg>("Card not found"));
             return rpl;
         }
-        if (STATE()->change_balance(comm.instruction, std::stoull(comm.params[1]), std::stoull(comm.params[0])))
-            rpl.set_message(to_str<success_result_msg>("Successful change balance"));
+        auto res = STATE()->change_balance(comm.instruction, std::stoull(comm.params[1]), std::stoull(comm.params[0]));
+        if (res.has_value())
+            rpl.set_message(to_str<error_msg>(res.value()));
         else
-            rpl.set_message(to_str<error_msg>("Error change balance"));
+            rpl.set_message(to_str<success_result_msg>("Successful change balance"));
 
         return rpl;
     }
@@ -414,15 +402,9 @@ namespace core
             return rpl;
         }
 
-        if (!validate_params(comm.params, "^[0-9]+$"))
+        if (!validate_params(comm.params, RGX_NUMS))
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only numbers can be used"));
-            return rpl;
-        }
-
-        if (!is_number(comm.params[0]))
-        {
-            rpl.set_message(to_str<error_msg>("Error created card"));
             return rpl;
         }
 

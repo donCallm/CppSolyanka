@@ -47,9 +47,9 @@ namespace core
 
     std::optional<std::string> state::create_user(user& usr)
     {
-        if (get_user(usr.id).has_value() ||_logins.find(usr.login) != _logins.end() ||
-            get_id(usr.pasport).has_value())
-            return "User already exists";
+        if (get_user(usr.id).has_value() || get_id(usr.pasport).has_value()
+            || _logins.find(usr.login) != _logins.end())
+            return "User already exists1";
 
         usr.id = get_new_id(last_user_id, "last_user_id");
         _logins.insert(std::make_pair( usr.login, usr.id));
@@ -59,7 +59,8 @@ namespace core
         DB()->write(database::clients_id, usr.pasport, std::to_string(usr.id));
 
         {
-            std::string file_path(std::filesystem::current_path().generic_string() + "/state/logins.json");
+            //removal so that tests can also read files
+            std::string file_path(std::filesystem::current_path().remove_filename().generic_string() + "server/state/logins.json");
             std::ofstream output_file(file_path);
 
             if (!output_file.is_open())
@@ -124,37 +125,39 @@ namespace core
         return res_acc.value().balance;
     }
 
-    bool state::change_balance(command::type& operation, uint64_t sum, uint64_t card_id)
+    std::optional<std::string> state::change_balance(command::type& operation, uint64_t sum, uint64_t card_id)
     {
         std::optional<card> res_card = get_card(card_id);
         if(!res_card.has_value())
-            return false;
+            return "Wrong card id";
 
-        std::optional<bank_account> res = get_bank_account(res_card.value().bank_account_id);
-        if (!res.has_value())
-            return false;
-        bank_account acc = res.value();
+        std::optional<bank_account> res_bank_acc = get_bank_account(res_card.value().bank_account_id);
+        if (!res_bank_acc.has_value())
+            return "Uncknow bank acc";
+        bank_account acc = res_bank_acc.value();
 
-        if (operation == command::replenish_balance)
+        switch (operation)
         {
-            acc.balance += sum;
-        }
-        else if (operation == command::debit_funds)
-        {
-            if (sum > acc.balance)
-                return false;
-
-            acc.balance -= sum;
-        }
-        else
-        {
-            return false;
+            case command::replenish_balance:
+            {
+                acc.balance += sum;
+                break;
+            }
+            case command::debit_funds:
+            {
+                if (sum > acc.balance)
+                    return "Amount is greater than balance";
+                acc.balance -= sum;
+                break;
+            }
+            default:
+                break;
         }
 
         nlohmann::json json_acc = acc;
         DB()->write(database::bank_accounts, std::to_string(acc.id), json_acc.dump());
 
-        return true;
+        return std::nullopt;
     }
 
     void state::create_card(user& usr, uint64_t bank_account_id)
@@ -178,7 +181,7 @@ namespace core
                 if (elem.first == login)
                     return elem.second;
             }
-
+            
             std::string id = DB()->read(database::clients_id, login);
             if (!id.empty())
                 return std::stoull(id);
@@ -260,7 +263,7 @@ namespace core
 
     void state::set_logins()
     {
-        std::string file_path(std::filesystem::current_path().generic_string() + "/state/logins.json");
+        std::string file_path(std::filesystem::current_path().remove_filename().generic_string() + "server/state/logins.json");
         if (!std::filesystem::exists(file_path))
         {
             std::ofstream file(file_path);
