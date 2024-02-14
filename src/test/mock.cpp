@@ -38,7 +38,7 @@ namespace tests
 
         std::thread thread_client([&]{ mclient.connect(); });
         
-        //so that the client has time to read the message
+        //TODO: fix sleep
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         mclient.read_hello_msg();
         
