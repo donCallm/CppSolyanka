@@ -8,9 +8,9 @@
 
 namespace utils
 {
-    constexpr const char TOKEN[] =       "107610801084107232108310861093";
+    constexpr const char TOKEN[] =         "bf4cefbfeeaedaaefbd9af4decbbebdb";
     // RGX_NUMS" - checking for missing numbers in a string
-    constexpr const char RGX_NUMS[] =    "^[0-9]+$";
+    constexpr const char RGX_NUMS[] =      "^[0-9]+$";
     // RGX_LTRS_NUMS - checking for missing numbers/letters in a string
     constexpr const char RGX_LTRS_NUMS[] = "^[a-zA-Z0-9]+$";
     
