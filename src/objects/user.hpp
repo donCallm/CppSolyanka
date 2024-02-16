@@ -10,10 +10,11 @@ namespace core
     {
         public:
             operator nlohmann::json() const { return nlohmann::json{ {"name", name}, {"surname", surname}, {"patronymic", patronymic},
-                {"password", password}, {"pasport", pasport}, {"id", id}, {"bank_accounts", bank_accounts}, {"login", login}}; }
+                {"password", password}, {"pasport", pasport}, {"id", id}, {"login", login}, {"bank_accounts", bank_accounts},
+                {"cards", cards} }; }
             user() {}
             user(std::string& login_, std::string& name_, std::string& surname_, std::string& patronymic_,
-                std::string& pasport_, std::string password_);
+                std::string& pasport_, std::string& password_);
 
 
         public:
@@ -30,5 +31,6 @@ namespace core
             std::string pasport;
             uint64_t id;
             std::unordered_set<uint64_t> bank_accounts;
+            std::unordered_set<uint64_t> cards;
     };
 }

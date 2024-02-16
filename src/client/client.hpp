@@ -1,7 +1,5 @@
 #pragma once
-
 #include <boost/asio.hpp>
-#include <objects/user.hpp>
 #include <objects/commands.hpp>
 
 namespace core
@@ -12,17 +10,19 @@ namespace core
     class client
     {
         public:
-            client(bool console_mode = true);
+            client(bool console_mode);
+            client();
+            virtual ~client();
 
         public:
-            void ping();
-            void read_hello_msg();
-            void write(std::string msg);
-            void connect();
+            virtual void read_hello_msg();
+            virtual void write(std::string& msg);
+            virtual void connect();
             void start();
-            void handler_result(const command::type& comm, const core::msg& rpl);
-            std::string read_response();
-            std::vector<uint8_t> serialize_in_buf(std::string msg);
+            void executing();
+            virtual void handler_result(const command::type& comm, const core::msg& rpl);
+            virtual std::string read_response();
+            virtual void stop();
 
         private:
             boost::asio::io_service _io_service;

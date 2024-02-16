@@ -3,12 +3,17 @@
 #include <client/client.hpp>
 #include <optional>
 
+namespace core
+{
+    class user;
+}
+
 namespace ui
 {
     class api
     {
     public:
-        api() {}
+        api();
 
     public:
         std::optional<core::user> login(const std::string& log, const std::string& pass);

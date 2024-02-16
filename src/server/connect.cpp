@@ -11,11 +11,6 @@ namespace net
     con_handler::con_handler(boost::asio::io_service& io_service) : 
         _sock(io_service) 
     {}
-
-    con_handler::~con_handler() 
-    {
-        spdlog::info("Client disconected");
-    }
     
     boost::asio::ip::tcp::socket& con_handler::get_socket()
     {

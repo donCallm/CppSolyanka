@@ -19,13 +19,16 @@ namespace db
                 clients_info = 0,
                 transaction = 1,
                 last_id = 2,
-                bank_accounts = 3
+                bank_accounts = 3,
+                cards = 4,
+                clients_id = 5
             };
 
         public:
             static database* get_instance();
             void write(const db_list& db_name, const std::string& key, const std::string& to_write);
             std::string read(const db_list& db_name, const std::string& key);
+            bool clear_databases();
 
         private:
             void select_db(const db_list& db_name);

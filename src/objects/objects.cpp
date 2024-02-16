@@ -8,7 +8,7 @@ namespace core
     uint64_t command::id = 0;
 
     user::user(std::string& login_, std::string& name_, std::string& surname_, std::string& patronymic_,
-            std::string& pasport_, std::string password_) :
+            std::string& pasport_, std::string& password_) :
         login(login_),
         name(name_),
         surname(surname_),
@@ -22,6 +22,13 @@ namespace core
                 {"login", command::type::login},
                 {"registration", command::type::registration},
                 {"create_bank_acc", command::type::create_bank_acc},
+                {"get_cards", command::type::get_cards},
+                {"get_balance", command::type::get_balance},
+                {"replenish_balance", command::type::replenish_balance},
+                {"debit_funds", command::type::debit_funds},
+                {"get_bank_accounts", command::type::get_bank_accounts},
+                {"create_card", command::type::create_card},
+                {"get_info", command::type::get_info},
                 {"end", command::type::end}
             };
             
@@ -89,6 +96,8 @@ namespace core
         json_data.at("id").get_to(id);
         json_data.at("password").get_to(password);
         json_data.at("bank_accounts").get_to(bank_accounts);
+        json_data.at("cards").get_to(cards);
+
     }
 
     bool user::empty()

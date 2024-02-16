@@ -5,7 +5,7 @@ int main()
 {
     try
     {
-        core::client user;
+        core::client user(true);
     }
     catch(const std::exception& e)
     {

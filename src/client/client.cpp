@@ -1,5 +1,4 @@
 #include "client.hpp"
-#include <objects/commands.hpp>
 #include <objects/message.hpp>
 #include <objects/msg_objects.hpp>
 #include <iostream>
@@ -7,7 +6,11 @@
 
 namespace core
 {
-    client::client(bool console_mode): _socket(_io_service), _id(0) {connect();}
+    client::client(bool console_mode): _socket(_io_service), _id(0) { start(); }
+
+    client::client() : _socket(_io_service) {}
+
+    client::~client() { stop(); }
 
     void client::read_hello_msg()
     {   
@@ -25,7 +28,6 @@ namespace core
                 _recv_msg.resize(msg_size);
 
             boost::asio::read(_socket, boost::asio::buffer(_recv_msg.data(), msg_size));
-
             return std::string(_recv_msg.begin(), _recv_msg.end());
         }
         catch (const std::exception& e)
@@ -39,7 +41,7 @@ namespace core
         }
     }
 
-    void client::write(std::string data)
+    void client::write(std::string& data)
     {
         core::message msg;
 
@@ -60,7 +62,7 @@ namespace core
         {
             error_msg err;
             err.from_json(json_data);
-            spdlog::info("error: {}", err.message);
+            spdlog::info("<< error: {}", err.message);
         }
         else if (json_data.find("res_msg") != json_data.end())
         {
@@ -70,8 +72,10 @@ namespace core
             switch (comm)
             {
                 case command::type::login: {
-                    if (!res.params.empty())
-                        _id = std::stoull(res.params[0]);
+                    if (!rpl.params.empty())
+                    {
+                        _id = std::stoull(rpl.params[0]);
+                    }
                     break; }
                 default:
                     break;
@@ -85,7 +89,7 @@ namespace core
         }
     }
 
-    void client::start()
+    void client::executing()
     {
         core::message msg;
         core::command comm;
@@ -96,18 +100,20 @@ namespace core
         {
             std::getline(std::cin, msg.data);
 
+            if (msg.data.empty())
+                continue;
+
             comm.set_command(msg.data);
 
             if (comm.instruction == command::type::end)
-                _socket.close();
+                stop();
             
             comm.params.push_back(std::to_string(_id));
-            comm.token = _token;
 
             nlohmann::json serialize_message = comm; 
             std::string json_string = serialize_message.dump();
             write(json_string);
-
+            
             rpl.from_json(nlohmann::json::parse(read_response()));
             handler_result(comm.instruction, rpl);
 
@@ -119,7 +125,17 @@ namespace core
     {
         auto endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string("0.0.0.0"), 8080);
         _socket.connect(endpoint);
+    }
+
+    void client::start()
+    {
+        connect();
         read_hello_msg();
-        std::async(std::launch::async, &client::start, this);
+        std::async(std::launch::async, &client::executing, this);
+    }
+
+    void client::stop()
+    {
+        _socket.close();
     }
 }
