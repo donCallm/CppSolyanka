@@ -19,7 +19,6 @@ namespace core
         _tx_pool = std::make_shared<core::mempool>();
         _bnr = std::make_shared<core::binder>(*_tx_pool);
         _server->start();
-        _tx_pool->start();
         subscribe_on_server();
     }
 

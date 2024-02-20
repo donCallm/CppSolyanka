@@ -6,21 +6,18 @@
 #include <thread>
 #include "tx.hpp"
 
+constexpr const uint8_t QUEUE_SIZE_THRESHOLD = 10;
+
 namespace core
 {
 
 class mempool
 {
     public:
-        ~mempool();
-
-    public:
-        void start();
         void add(tx& new_tx);
         void executing();
 
     private:
-        std::thread _m_thread;
         std::queue<tx> _transactions;
 };
 

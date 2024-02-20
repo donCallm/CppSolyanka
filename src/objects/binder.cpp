@@ -10,6 +10,9 @@ namespace core
     void binder::validate(tx& transaction)
     {
         if (transaction.validate())
+        {
             _tx_pool.add(transaction);
+            _tx_pool.executing();
+        }
     }
 }

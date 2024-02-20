@@ -6,13 +6,6 @@ using namespace db;
 
 namespace core
 {
-    void mempool::start()
-    {
-        _m_thread = std::thread([this](){
-            this->executing();
-        });
-    }
-
     void mempool::add(tx& new_tx)
     {
         _transactions.push(new_tx);
@@ -20,9 +13,9 @@ namespace core
 
     void mempool::executing()
     {
-        while (true)
+        if (_transactions.size() == QUEUE_SIZE_THRESHOLD)
         {
-            if (!_transactions.empty())
+            while (!_transactions.empty())
             {
                 tx transaction = _transactions.front();
                 transaction.executing();
@@ -32,9 +25,6 @@ namespace core
                 
                 _transactions.pop();
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
     }
-
-    mempool::~mempool() { _m_thread.join(); }
 }
