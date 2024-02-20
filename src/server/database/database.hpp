@@ -21,7 +21,8 @@ namespace db
                 last_id = 2,
                 bank_accounts = 3,
                 cards = 4,
-                clients_id = 5
+                clients_id = 5,
+                transactions = 6
             };
 
         public:

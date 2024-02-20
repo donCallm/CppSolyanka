@@ -16,7 +16,10 @@ namespace core
     {
         spdlog::info("Start hub");
         _server = std::make_shared<core::server>(_application.get_service());
+        _tx_pool = std::make_shared<core::mempool>();
+        _bnr = std::make_shared<core::binder>(*_tx_pool);
         _server->start();
+        _tx_pool->start();
         subscribe_on_server();
     }
 
@@ -163,25 +166,25 @@ namespace core
             return rpl;
         }
 
-        auto id = STATE()->get_id(comm.params[0]);
-        if (!id.has_value())
+        auto id = STATE()->get_id(comm.params[0]);//
+        if (!id.has_value())//
         {
-            rpl.set_message(to_str<error_msg>("Error of login"));
-            return rpl;
+            rpl.set_message(to_str<error_msg>("Error of login"));//
+            return rpl;//
         }
 
-        auto res = STATE()->login(id.value(), comm.params[1]);
-        if (res.has_value())
+        auto res = STATE()->login(id.value(), comm.params[1]);//
+        if (res.has_value())//
         {
-            rpl.set_message(to_str<error_msg>(res.value()));
+            rpl.set_message(to_str<error_msg>(res.value()));//
         }
         else
         {
-            rpl.set_message((to_str<success_result_msg>("Successful login")));
-            rpl.params.push_back(std::to_string(id.value()));
+            rpl.set_message((to_str<success_result_msg>("Successful login")));//
+            rpl.params.push_back(std::to_string(id.value()));//
         }
 
-        return rpl;
+        return rpl;//
     }
 
     std::optional<msg> hub::handle_create_user(command &comm)
@@ -206,14 +209,14 @@ namespace core
             return rpl;
         }
 
-        user usr(comm.params[0], comm.params[1], comm.params[2], comm.params[3], comm.params[4], comm.params[5]);
-        auto res = STATE()->create_user(usr);
-        if (res.has_value())
-            rpl.set_message(to_str<error_msg>(res.value()));
+        user usr(comm.params[0], comm.params[1], comm.params[2], comm.params[3], comm.params[4], comm.params[5]);//
+        auto res = STATE()->create_user(usr);//
+        if (res.has_value())//
+            rpl.set_message(to_str<error_msg>(res.value()));//
         else
-            rpl.set_message((to_str<success_result_msg>("Successful registration")));
+            rpl.set_message((to_str<success_result_msg>("Successful registration")));//
 
-        return rpl;
+        return rpl;//
     }
 
     std::optional<msg> hub::handle_create_bank_acc(command &comm)
@@ -234,28 +237,28 @@ namespace core
         
         try
         {
-            auto usr = STATE()->get_user(std::stoull(comm.params[0]));
-            if (!usr.has_value())
+            auto usr = STATE()->get_user(std::stoull(comm.params[0]));//
+            if (!usr.has_value())//
             {
-                rpl.set_message(to_str<error_msg>("Error. User not found"));
-                return rpl;
+                rpl.set_message(to_str<error_msg>("Error. User not found"));//
+                return rpl;//
             }
 
-            if (usr.value().cards.size() == MAX_BANK_ACCS_COUNT)
+            if (usr.value().cards.size() == MAX_BANK_ACCS_COUNT)//
             {
-                rpl.set_message(to_str<error_msg>("You have reached your bank acc limit"));
-                return rpl;
+                rpl.set_message(to_str<error_msg>("You have reached your bank acc limit"));//
+                return rpl;//
             }
             
-            if (!STATE()->create_bank_account(usr.value()))
-                rpl.set_message(to_str<error_msg>("Error of create new bank account"));
+            if (!STATE()->create_bank_account(usr.value()))//
+                rpl.set_message(to_str<error_msg>("Error of create new bank account"));//
             else
-                rpl.set_message((to_str<success_result_msg>("Successful create new bank account")));
+                rpl.set_message((to_str<success_result_msg>("Successful create new bank account")));//
         }
         catch (const std::exception &e)
         {
-            spdlog::error("Error of create new bank account: {}", e.what());
-            rpl.set_message(to_str<error_msg>("Error of create new bank account"));
+            spdlog::error("Error of create new bank account: {}", e.what());//
+            rpl.set_message(to_str<error_msg>("Error of create new bank account"));//
             return rpl;
         }
         return rpl;
@@ -304,44 +307,44 @@ namespace core
 
         try
         {
-            auto usr = STATE()->get_user(std::stoull(comm.params[comm.params.size() - 1]));
-            if (!usr.has_value())
+            auto usr = STATE()->get_user(std::stoull(comm.params[comm.params.size() - 1]));//
+            if (!usr.has_value())//
             {
-                rpl.set_message(to_str<error_msg>("User not found"));
-                return rpl;
+                rpl.set_message(to_str<error_msg>("User not found"));//
+                return rpl;//
             }
-            std::string res;
+            std::string res;//
 
-            switch (comm.instruction)
+            switch (comm.instruction)//
             {
-                case command::get_balance:
+                case command::get_balance://
                 {
-                    res = get_balance(usr.value(), std::stoull(comm.params[0]));
+                    res = get_balance(usr.value(), std::stoull(comm.params[0]));//
                     break;
                 }
-                case command::get_cards:
+                case command::get_cards://
                 {
-                    res = get_cards(usr.value());
+                    res = get_cards(usr.value());//
                     break;
                 }
-                case command::get_bank_accounts:
+                case command::get_bank_accounts://
                 {
-                    res = get_bank_accounts(usr.value());
+                    res = get_bank_accounts(usr.value());//
                     break;
                 }
                 default:
                 {
-                    res = "Error of geting info";
+                    res = "Error of geting info";//
                     break;
                 }
             }
 
-            rpl.set_message((to_str<success_result_msg>(res)));
+            rpl.set_message((to_str<success_result_msg>(res)));//
         }
         catch (const std::exception &e)
         {
-            spdlog::error("Error of geting info: {}", e.what());
-            rpl.set_message(to_str<error_msg>("Error of geting info"));
+            spdlog::error("Error of geting info: {}", e.what());//
+            rpl.set_message(to_str<error_msg>("Error of geting info"));//
             return rpl;
         }
 
@@ -377,18 +380,15 @@ namespace core
             return rpl;
         }
 
-        auto iter = usr.value().cards.find(std::stoull(comm.params[0]));
-        if (iter == usr.value().cards.end())
-        {
-            rpl.set_message(to_str<error_msg>("Card not found"));
-            return rpl;
-        }
-        auto res = STATE()->change_balance(comm.instruction, std::stoull(comm.params[1]), std::stoull(comm.params[0]));
-        if (res.has_value())
-            rpl.set_message(to_str<error_msg>(res.value()));
+        tx transaction(*STATE(), STATE()->get_new_id(state::last_tx_id, LAST_TX_ID), comm.params, usr.value());
+        if (comm.instruction == command::replenish_balance)
+            transaction.tx_type = tx::replenish_balance;
         else
-            rpl.set_message(to_str<success_result_msg>("Successful change balance"));
-
+            transaction.tx_type = tx::debit_funds;
+        
+        _bnr->validate(transaction);
+        rpl.set_message((to_str<success_result_msg>("Transaction accepted for processing")));
+        
         return rpl;
     }
 
@@ -414,7 +414,7 @@ namespace core
             rpl.set_message(to_str<error_msg>("User not found"));
             return rpl;
         }
-        
+    
         if (usr.value().cards.size() == MAX_CARDS_COUNT)
         {
             rpl.set_message(to_str<error_msg>("You have reached your card limit"));
@@ -424,7 +424,7 @@ namespace core
         STATE()->create_card(usr.value(), std::stoull(comm.params[0]));
         rpl.set_message((to_str<success_result_msg>("Successful created")));
 
-        return rpl;
+        return rpl;//
     }
 
     std::optional<msg> hub::handler_get_info(command& comm)
@@ -443,15 +443,15 @@ namespace core
             return rpl;
         }
 
-        auto usr = STATE()->get_user(std::stoull(comm.params[0]));
-        if (!usr.has_value())
+        auto usr = STATE()->get_user(std::stoull(comm.params[0]));//
+        if (!usr.has_value())//
         {
-            rpl.set_message(to_str<error_msg>("User not found"));
-            return rpl;
+            rpl.set_message(to_str<error_msg>("User not found"));//
+            return rpl;//
         }
 
-        nlohmann::json json_usr = usr.value();
-        rpl.set_message(to_str<success_result_msg>(json_usr.dump()));
-        return rpl;
+        nlohmann::json json_usr = usr.value();//
+        rpl.set_message(to_str<success_result_msg>(json_usr.dump()));//
+        return rpl;//
     }
 }

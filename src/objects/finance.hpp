@@ -19,7 +19,7 @@ class bank_account
     public:
         operator nlohmann::json() const { return nlohmann::json{ {"id", id}, {"balance", balance}, {"transactions_id", transactions_id} }; }
         explicit bank_account(uint64_t id_);
-        bank_account() {};
+        bank_account() {}
 
     public:
         void from_json(const nlohmann::json& json_data);
@@ -30,13 +30,12 @@ class bank_account
         std::unordered_set<uint64_t> transactions_id;
 };
 
-
 class card
 {
     public:
         operator nlohmann::json() const { return nlohmann::json{ {"id", id}, {"bank_account_id", bank_account_id} }; }
         card(uint64_t id_, uint64_t bank_account_id_);
-        card() {};
+        card() {}
         
     public:
         void from_json(const nlohmann::json& json_data);

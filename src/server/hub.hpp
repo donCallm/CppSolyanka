@@ -2,6 +2,8 @@
 #include <boost/signals2.hpp>
 #include <server/connect.hpp>
 #include <memory>
+#include <objects/mempool.hpp>
+#include <objects/binder.hpp>
 #include "app.hpp"
 
 #define STATE() (_application.get_state())
@@ -11,6 +13,8 @@ namespace core
     class app;
     class server;
     class msg;
+    class mempool;
+    class binder;
 
     class hub : std::enable_shared_from_this<hub>
     {
@@ -41,6 +45,8 @@ namespace core
         virtual std::optional<msg> handler_get_info(command& comm);
     protected:
         app& _application;
-        std::shared_ptr<server> _server;
+        std::shared_ptr<server>     _server;
+        std::shared_ptr<mempool>    _tx_pool;
+        std::shared_ptr<binder>     _bnr;
     };
 }
