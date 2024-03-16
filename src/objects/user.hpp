@@ -31,6 +31,5 @@ namespace core
             uint64_t id;
             std::unordered_set<uint64_t> bank_accounts;
             std::unordered_set<uint64_t> cards;
-            std::unordered_set<uint64_t> transaction;
     };
 }

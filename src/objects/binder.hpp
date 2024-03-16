@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <server/state/state.hpp>
 #include "tx.hpp"
 #include "mempool.hpp"
 
@@ -8,22 +9,20 @@ namespace core
 {
 
 class tx;
+class mempool;
+class state;
 
 class binder
 {
-    friend class mempool;
-
     public:
-        binder(mempool& tx_pool_);
-
-    private:
-        void add(tx& transaction_);
+        binder(mempool& tx_pool_, state& st_);
         
     public:
-        void validate(tx& transaction);
+        void validate(std::unique_ptr<tx>&& new_tx);
 
     private:
         mempool& _tx_pool;
+        state& _st;
 };
 
 }

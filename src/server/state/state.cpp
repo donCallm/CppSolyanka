@@ -31,21 +31,24 @@ namespace core
         switch (type)
         {
             case identifier_type::last_user_id: {
-                tmp = _last_user_id.fetch_add(1);
+                _last_user_id.fetch_add(1);
+                tmp = _last_user_id.load();
                 break; }
             case identifier_type::last_bank_acc_id: {
-                tmp = _last_bank_acc_id.fetch_add(1);
+                _last_bank_acc_id.fetch_add(1);
+                tmp = _last_bank_acc_id.load();
                 break; }
             case identifier_type::last_card_id: {
-                tmp = _last_card_id.fetch_add(1);
+                _last_card_id.fetch_add(1);
+                tmp = _last_card_id.load();
                 break; }
             case identifier_type::last_tx_id: {
-                tmp = _last_tx_id.fetch_add(1);
+                _last_tx_id.fetch_add(1);
+                tmp = _last_tx_id.load();
                 break; }
             default:
                 break;
         }
-
         DB()->write(database::last_id, key, std::to_string(tmp));
         return tmp; 
     }
@@ -54,7 +57,7 @@ namespace core
     {
         if (get_user(usr.id).has_value() || get_id(usr.pasport).has_value()
             || _logins.find(usr.login) != _logins.end())
-            return "User already exists1";
+            return "User already exists";
 
         usr.id = get_new_id(last_user_id, LAST_USER_ID);
         _logins.insert(std::make_pair( usr.login, usr.id));
@@ -245,7 +248,7 @@ namespace core
             std::ofstream file(file_path);
             if (file.is_open())
             {
-                spdlog::info("Successful read file");
+                spdlog::info("Successful create file");
                 file << utils::to_str(_logins);
                 file.close();
             }
@@ -260,6 +263,7 @@ namespace core
 
             if (file.is_open())
             {
+                spdlog::info("Successful read file");
                 nlohmann::json json_data;
                 file >> json_data;
                 for (const auto& [key, value] : json_data.items()) {
