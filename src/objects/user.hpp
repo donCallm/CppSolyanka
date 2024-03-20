@@ -16,7 +16,6 @@ namespace core
             user(std::string& login_, std::string& name_, std::string& surname_, std::string& patronymic_,
                 std::string& pasport_, std::string& password_);
 
-
         public:
             void from_json(const nlohmann::json& json_data);
 

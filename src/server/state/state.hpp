@@ -13,6 +13,7 @@ namespace core
 {
     class bank_account;
     class card;
+    class transaction;
 
     class state
     {   
@@ -22,7 +23,8 @@ namespace core
         {
             last_user_id = 0,
             last_bank_acc_id = 1,
-            last_card_id = 2
+            last_card_id = 2,
+            last_tx_id = 3
         };
 
     public:
@@ -50,6 +52,7 @@ namespace core
         std::atomic<uint64_t> _last_user_id;
         std::atomic<uint64_t> _last_bank_acc_id;
         std::atomic<uint64_t> _last_card_id;
+        std::atomic<uint64_t> _last_tx_id;
         std::mutex _m;
     };
 }

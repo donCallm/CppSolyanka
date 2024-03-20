@@ -15,16 +15,15 @@ namespace core
             registration = 1,
             login = 2,
             create_bank_acc = 3,
-            balace = 4,
-            get_cards = 5,
-            get_balance = 6,
-            replenish_balance = 7,
-            debit_funds = 8,
-            get_bank_accounts = 9,
-            create_card = 10,
-            get_info = 11,
-            end = 12,
-            unknown_command = 13
+            get_cards = 4,
+            get_balance = 5,
+            replenish_balance = 6,
+            debit_funds = 7,
+            get_bank_accounts = 8,
+            create_card = 9,
+            get_info = 10,
+            end = 11,
+            unknown_command = 12
         };
 
     public:

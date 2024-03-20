@@ -9,13 +9,15 @@
 #include <fstream>
 
 using namespace db;
+using namespace utils;
 
 namespace core
 {
     state::state() : 
         _last_user_id(0),
         _last_bank_acc_id(0),
-        _last_card_id(0)
+        _last_card_id(0),
+        _last_tx_id(0)
     {
         spdlog::info("Start state");
         setup();
@@ -29,18 +31,24 @@ namespace core
         switch (type)
         {
             case identifier_type::last_user_id: {
-                tmp = _last_user_id.fetch_add(1);
+                _last_user_id.fetch_add(1);
+                tmp = _last_user_id.load();
                 break; }
             case identifier_type::last_bank_acc_id: {
-                tmp = _last_bank_acc_id.fetch_add(1);
+                _last_bank_acc_id.fetch_add(1);
+                tmp = _last_bank_acc_id.load();
                 break; }
             case identifier_type::last_card_id: {
-                tmp = _last_card_id.fetch_add(1);
+                _last_card_id.fetch_add(1);
+                tmp = _last_card_id.load();
+                break; }
+            case identifier_type::last_tx_id: {
+                _last_tx_id.fetch_add(1);
+                tmp = _last_tx_id.load();
                 break; }
             default:
                 break;
         }
-
         DB()->write(database::last_id, key, std::to_string(tmp));
         return tmp; 
     }
@@ -49,9 +57,9 @@ namespace core
     {
         if (get_user(usr.id).has_value() || get_id(usr.pasport).has_value()
             || _logins.find(usr.login) != _logins.end())
-            return "User already exists1";
+            return "User already exists";
 
-        usr.id = get_new_id(last_user_id, "last_user_id");
+        usr.id = get_new_id(last_user_id, LAST_USER_ID);
         _logins.insert(std::make_pair( usr.login, usr.id));
 
         nlohmann::json json_usr = usr;
@@ -80,7 +88,7 @@ namespace core
         if (usr.empty())
             return false;
 
-        bank_account new_acc(get_new_id(last_bank_acc_id, "last_bank_acc_id"));
+        bank_account new_acc(get_new_id(last_bank_acc_id, LAST_BANK_ACC_ID));
         nlohmann::json json_acc = new_acc;
         DB()->write(database::bank_accounts, std::to_string(new_acc.id), json_acc.dump());
 
@@ -97,7 +105,7 @@ namespace core
             return "The user is already authorized";
 
         std::optional<user> res = get_user(id);
-        if (res.has_value())
+        if (res.has_value())//
         {
             core::user usr = res.value();
             if (_active_users.find(usr.id) != _active_users.end())
@@ -125,44 +133,9 @@ namespace core
         return res_acc.value().balance;
     }
 
-    std::optional<std::string> state::change_balance(command::type& operation, uint64_t sum, uint64_t card_id)
-    {
-        std::optional<card> res_card = get_card(card_id);
-        if(!res_card.has_value())
-            return "Wrong card id";
-
-        std::optional<bank_account> res_bank_acc = get_bank_account(res_card.value().bank_account_id);
-        if (!res_bank_acc.has_value())
-            return "Uncknow bank acc";
-        bank_account acc = res_bank_acc.value();
-
-        switch (operation)
-        {
-            case command::replenish_balance:
-            {
-                acc.balance += sum;
-                break;
-            }
-            case command::debit_funds:
-            {
-                if (sum > acc.balance)
-                    return "Amount is greater than balance";
-                acc.balance -= sum;
-                break;
-            }
-            default:
-                break;
-        }
-
-        nlohmann::json json_acc = acc;
-        DB()->write(database::bank_accounts, std::to_string(acc.id), json_acc.dump());
-
-        return std::nullopt;
-    }
-
     void state::create_card(user& usr, uint64_t bank_account_id)
     {   
-        card new_card(get_new_id(last_card_id, "last_card_id"), bank_account_id);
+        card new_card(get_new_id(last_card_id, LAST_CARD_ID), bank_account_id);
         usr.cards.insert(new_card.id);
 
         nlohmann::json json_usr = usr;
@@ -192,7 +165,7 @@ namespace core
     std::optional<user> state::get_user(uint64_t id)
     {
         std::string res = DB()->read(database::clients_info, std::to_string(id));
-        if (res.empty()) 
+        if (res.empty())
             return std::nullopt;
 
         user usr;
@@ -215,7 +188,7 @@ namespace core
     std::optional<card> state::get_card(uint64_t card_id)
     {
         std::string res = DB()->read(database::cards, std::to_string(card_id));
-        if(res.empty())
+        if(res.empty())//
             return std::nullopt;
         
         card crd;
@@ -230,13 +203,16 @@ namespace core
             switch (type)
             {
                 case identifier_type::last_user_id: {
-                    DB()->write(database::last_id, "last_user_id", std::to_string(_last_user_id));
+                    DB()->write(database::last_id, LAST_USER_ID, std::to_string(_last_user_id));
                     break; }
                 case identifier_type::last_bank_acc_id: {
-                    DB()->write(database::last_id, "last_bank_acc_id", std::to_string(_last_bank_acc_id));
+                    DB()->write(database::last_id, LAST_BANK_ACC_ID, std::to_string(_last_bank_acc_id));
                     break; }
                 case identifier_type::last_card_id: {
-                    DB()->write(database::last_id, "last_card_id", std::to_string(_last_card_id));
+                    DB()->write(database::last_id, LAST_CARD_ID, std::to_string(_last_card_id));
+                    break; }
+                case identifier_type::last_tx_id: {
+                    DB()->write(database::last_id, LAST_TX_ID, std::to_string(_last_tx_id));
                     break; }
                 default:
                     break;
@@ -255,6 +231,9 @@ namespace core
                 case identifier_type::last_card_id: {
                     _last_card_id = std::stoull(value);
                     break; }
+                case identifier_type::last_tx_id: {
+                    _last_tx_id = std::stoull(value);
+                    break; }
                 default:
                     break;
             }
@@ -269,7 +248,7 @@ namespace core
             std::ofstream file(file_path);
             if (file.is_open())
             {
-                spdlog::info("Successful read file");
+                spdlog::info("Successful create file");
                 file << utils::to_str(_logins);
                 file.close();
             }
@@ -284,6 +263,7 @@ namespace core
 
             if (file.is_open())
             {
+                spdlog::info("Successful read file");
                 nlohmann::json json_data;
                 file >> json_data;
                 for (const auto& [key, value] : json_data.items()) {
@@ -300,9 +280,10 @@ namespace core
 
     void state::setup()
     {
-        set_value(DB()->read(database::last_id, "last_user_id"), last_user_id);
-        set_value(DB()->read(database::last_id, "last_bank_acc_id"), last_bank_acc_id);
-        set_value(DB()->read(database::last_id, "last_card_id"), last_card_id);
+        set_value(DB()->read(database::last_id, LAST_USER_ID), last_user_id);
+        set_value(DB()->read(database::last_id, LAST_BANK_ACC_ID), last_bank_acc_id);
+        set_value(DB()->read(database::last_id, LAST_CARD_ID), last_card_id);
+        set_value(DB()->read(database::last_id, LAST_TX_ID), last_tx_id);
 
         set_logins();
     }

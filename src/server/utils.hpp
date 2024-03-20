@@ -8,11 +8,16 @@
 
 namespace utils
 {
-    constexpr const char TOKEN[] =         "bf4cefbfeeaedaaefbd9af4decbbebdb";
+    constexpr const char TOKEN[] =              "bf4cefbfeeaedaaefbd9af4decbbebdb";
     // RGX_NUMS" - checking for missing numbers in a string
-    constexpr const char RGX_NUMS[] =      "^[0-9]+$";
+    constexpr const char RGX_NUMS[] =            "^[0-9]+$";
     // RGX_LTRS_NUMS - checking for missing numbers/letters in a string
-    constexpr const char RGX_LTRS_NUMS[] = "^[a-zA-Z0-9]+$";
+    constexpr const char RGX_LTRS_NUMS[] =       "^[a-zA-Z0-9]+$";
+    
+    constexpr const char LAST_CARD_ID[] =       "last_card_id";
+    constexpr const char LAST_BANK_ACC_ID[] =   "last_bank_acc_id";
+    constexpr const char LAST_USER_ID[] =       "last_user_id";
+    constexpr const char LAST_TX_ID[] =         "last_tx_id";
     
     template <typename T>
     inline std::string to_str(const std::string& msg, const std::vector<int>& prms = {})

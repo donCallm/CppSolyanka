@@ -20,7 +20,6 @@ void bank_account::from_json(const nlohmann::json& json_data)
 
     json_data.at("id").get_to(id);
     json_data.at("balance").get_to(balance);
-    json_data.at("transactions_id").get_to(transactions_id);
 }
 
 void card::from_json(const nlohmann::json& json_data)

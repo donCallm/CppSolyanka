@@ -199,7 +199,7 @@ namespace core
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Only letters and numbers can be used"));
             return rpl;
         }
-        // "^[a-zA-Z]+$" - checking for missing letters in a string
+        
         if (!validate_params(std::vector<std::string>{ comm.params[1], comm.params[2], comm.params[3] }, "^[a-zA-Z]+$"))
         {
             rpl.set_message(to_str<error_msg>("Invalid symmbol. Last name, first name and patronymic can only have letters"));
@@ -364,12 +364,6 @@ namespace core
             return rpl;
         }
 
-        if (!is_number(comm.params[2]))
-        {
-            rpl.set_message(to_str<error_msg>("Error change balance"));
-            return rpl;
-        }
-
         auto usr = STATE()->get_user(std::stoull(comm.params[2]));
         if (!usr.has_value())
         {
@@ -377,18 +371,17 @@ namespace core
             return rpl;
         }
 
-        auto iter = usr.value().cards.find(std::stoull(comm.params[0]));
-        if (iter == usr.value().cards.end())
-        {
-            rpl.set_message(to_str<error_msg>("Card not found"));
-            return rpl;
-        }
-        auto res = STATE()->change_balance(comm.instruction, std::stoull(comm.params[1]), std::stoull(comm.params[0]));
-        if (res.has_value())
-            rpl.set_message(to_str<error_msg>(res.value()));
-        else
-            rpl.set_message(to_str<success_result_msg>("Successful change balance"));
+        std::unique_ptr<tx_send> transaction = std::make_unique<tx_send>(STATE()->get_new_id(state::last_tx_id, LAST_TX_ID),
+            std::stoull(comm.params[1]), usr.value().id, std::stoull(comm.params[0]));
 
+        if (comm.instruction == command::replenish_balance)
+            transaction->snd_type = tx_send::replenish_balance;
+        else
+            transaction->snd_type = tx_send::debit_funds;
+
+        _application.get_binder()->validate(std::move(transaction));
+        rpl.set_message((to_str<success_result_msg>("Transaction accepted for processing")));
+        
         return rpl;
     }
 
@@ -414,7 +407,7 @@ namespace core
             rpl.set_message(to_str<error_msg>("User not found"));
             return rpl;
         }
-        
+    
         if (usr.value().cards.size() == MAX_CARDS_COUNT)
         {
             rpl.set_message(to_str<error_msg>("You have reached your card limit"));

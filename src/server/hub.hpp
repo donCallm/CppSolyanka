@@ -2,6 +2,9 @@
 #include <boost/signals2.hpp>
 #include <server/connect.hpp>
 #include <memory>
+#include <objects/mempool.hpp>
+#include <objects/binder.hpp>
+#include <objects/tx.hpp>
 #include "app.hpp"
 
 #define STATE() (_application.get_state())
@@ -11,6 +14,9 @@ namespace core
     class app;
     class server;
     class msg;
+    class tx;
+    class mempool;
+    class binder;
 
     class hub : std::enable_shared_from_this<hub>
     {
@@ -19,6 +25,8 @@ namespace core
         std::string get_balance(user& usr, uint64_t card_id);
         std::string get_cards(user& usr);
         std::string get_bank_accounts(user& usr);
+
+        boost::signals2::signal<void( core::tx new_tx)> on_new_tx;
     public:
         hub(app& application);
         virtual ~hub() = default;
@@ -40,7 +48,7 @@ namespace core
         virtual std::optional<msg> handle_get_bank_info(command& comm);
         virtual std::optional<msg> handler_get_info(command& comm);
     protected:
-        app& _application;
-        std::shared_ptr<server> _server;
+        app&                        _application;
+        std::shared_ptr<server>     _server;
     };
 }
