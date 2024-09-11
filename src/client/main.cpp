@@ -3,17 +3,18 @@
 #include <string>
 
 int main(int argc, char** argv) {
-    if (argc != 2) {
-        spdlog::error("Usage: ./app <port>");
+    if (argc != 3) {
+        spdlog::error("Usage: ./client <name> <port>");
         return 1;
     }
 
     try {
-        int port = std::stoi(argv[1]); // Используем argv вместо argv
+        int port = std::stoi(argv[2]);
         if (port <= 0 || port > 65535) {
             throw std::invalid_argument("Invalid port number");
         }
-        core::client cli(port);
+
+        core::client cli(argv[1], port);
     } catch (const std::exception& e) {
         spdlog::error("unhandled exception: {}", e.what());
         return EXIT_FAILURE;

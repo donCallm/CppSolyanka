@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-
+#include <stdint.h>
 namespace core
 {
     class msg

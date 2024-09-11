@@ -4,7 +4,6 @@
 #include <objects/msg_objects.hpp>
 #include <iostream>
 #include <spdlog/spdlog.h>
-#include "utils.hpp"
 
 namespace net
 {
@@ -19,21 +18,40 @@ namespace net
 
     std::string con_handler::get_adress()
     {
-        boost::asio::ip::tcp::endpoint remote_endpoint = _sock.remote_endpoint();
-        return remote_endpoint.address().to_string() + ":" + std::to_string(remote_endpoint.port());
+        return _addr;
     }
 
     void con_handler::on_msg_ready()
     {
         core::message msg = core::deserialize_message(_read_buff, _msg_size);
         
-        spdlog::info("Response {}", msg.data);
+        spdlog::info("Response: {}", msg.data);
         on_msg(shared_from_this(), msg.data);
     }
 
     void con_handler::say_hello()
     {
-        spdlog::info("client {} connected", get_adress());
+        boost::asio::ip::tcp::endpoint remote_endpoint = _sock.remote_endpoint();
+        _addr = remote_endpoint.address().to_string() + ":" + std::to_string(remote_endpoint.port());
+        spdlog::info("Client {} connected", get_adress());
+        send("auth_message");
+    }
+    std::string con_handler::parse_auth(const std::string& message) {
+        const std::string prefix = "auth_name:";
+        const size_t prefix_length = prefix.length();
+        
+        if (message.substr(0, prefix_length) == prefix) {
+            std::string value = message.substr(prefix_length);
+
+            if (value.length() > 30) {
+                spdlog::error("Error: Value exceeds 30 characters.");
+                return ""; 
+            }
+
+            return value;
+        }
+        
+        spdlog::error("Message does not start with 'auth_name:'.");
     }
 
     void con_handler::read_message()
@@ -46,8 +64,9 @@ namespace net
             [self](const boost::system::error_code& e, std::size_t transferred)
             {
                 if (e)
-                    spdlog::error("error: {}", e.message());
+                    spdlog::error("{}", e.message());
 
+                spdlog::warn("{} == {}", transferred, self->_msg_size);
                 assert(transferred == self->_msg_size);
                 self->on_msg_ready();
             });
@@ -96,7 +115,7 @@ namespace net
     {
         if (err)
         {
-            spdlog::error("write error: {}", err.message());
+            spdlog::error("Write error: {}", err.message());
             _sock.close();
         }
     }

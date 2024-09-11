@@ -1,11 +1,9 @@
 #!/bin/bash
 
-cd build/src/client
-
-EXECUTABLE="./client"
+EXECUTABLE="./build/src/client/client"
 
 if [ -x "$EXECUTABLE" ]; then
-    $EXECUTABLE
+    $EXECUTABLE Name1 8080
 else
     echo "Error: Executable file not found."
 fi

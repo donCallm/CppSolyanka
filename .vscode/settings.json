@@ -86,6 +86,8 @@
         "qwidget": "cpp",
         "charconv": "cpp",
         "span": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "format": "cpp",
+        "stdfloat": "cpp"
     }
 }

@@ -2,8 +2,7 @@
 
 #include <string>
 #include <vector>
-#include <cstring>
-#include <stdexcept>
+#include <stdint.h>
 
 namespace core
 {

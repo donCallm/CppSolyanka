@@ -12,7 +12,8 @@ namespace core
         enum type
         {
             ping = 0,
-            end = 12,
+            end = 1,
+            auth = 2,
             unknown_command = 13
         };
 
@@ -23,14 +24,16 @@ namespace core
         static const std::unordered_map<std::string, type> command_map;
         type instruction;
         std::vector<std::string> params;
-        static uint64_t id;
     };
 
     static inline command::type to_command(const std::string& input) {
+        static const std::string prefix = "auth_message:";
         if (input == "ping") {
             return command::type::ping;
         } else if (input == "end") {
             return command::type::end;
+        } else if (input.compare(0, prefix.size(), prefix) == 0) {
+            return command::type::auth;
         } else {
             return command::type::unknown_command;
         }

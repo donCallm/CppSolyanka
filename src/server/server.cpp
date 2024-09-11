@@ -11,7 +11,7 @@ namespace core
 
     void server::start_accept()
     {
-        spdlog::info("Wait new user");
+        spdlog::info("Wait new user...");
         net::con_handler::ptr connection = net::con_handler::create(_io_service);
         
         _acceptor.async_accept(connection->get_socket(), 
@@ -21,7 +21,7 @@ namespace core
     void server::start()
     {
         boost::asio::ip::tcp::endpoint endpoint = _acceptor.local_endpoint();
-        spdlog::info("Server - " +  endpoint.address().to_string() + ":" + std::to_string(endpoint.port()));
+        spdlog::info("Server addr - " +  endpoint.address().to_string() + ":" + std::to_string(endpoint.port()));
         start_accept();
     }
 

@@ -1,12 +1,10 @@
 #include "hub.hpp"
 #include "app.hpp"
 #include "server.hpp"
-#include "utils.hpp"
 #include <objects/commands.hpp>
 #include <objects/msg_objects.hpp>
 #include <spdlog/spdlog.h>
 #include <boost/bind.hpp>
-using namespace utils;
 
 namespace core
 {
@@ -51,6 +49,11 @@ namespace core
             {
                 spdlog::info("Client {} disconnect", conn->get_adress());
                 conn->drop();
+                return;
+            }
+            case command::auth:
+            {
+                spdlog::info("Get auth message");
                 return;
             }
             default:

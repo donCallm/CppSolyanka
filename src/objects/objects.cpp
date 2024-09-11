@@ -4,8 +4,6 @@
 #include <sstream>
 namespace core
 {
-    uint64_t command::id = 0;
-
     const std::unordered_map<std::string, command::type> command::command_map = {
                 {"ping", command::type::ping},
                 {"end", command::type::end}
@@ -53,7 +51,6 @@ namespace core
             instruction = unknown_command;
         
         while (std::getline(iss, token, ' ')) { params.push_back(token); }
-        id++;
     }
 
 }

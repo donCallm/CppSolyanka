@@ -23,6 +23,7 @@ namespace net
         void read_message();
         void on_msg_ready();
         void say_hello();
+        std::string parse_auth(const std::string& message);
 
     public:
         void start();
@@ -33,6 +34,8 @@ namespace net
         void drop();
 
     private:
+        std::string _name;
+        std::string _addr;
         boost::asio::ip::tcp::socket _sock;
         boost::asio::streambuf _buf;
         std::vector<uint8_t> _read_buff;
