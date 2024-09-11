@@ -10,16 +10,6 @@ namespace net
     con_handler::con_handler(boost::asio::io_service& io_service) : 
         _sock(io_service) 
     {}
-    
-    boost::asio::ip::tcp::socket& con_handler::get_socket()
-    {
-        return _sock;
-    } 
-
-    std::string con_handler::get_adress()
-    {
-        return _addr;
-    }
 
     void con_handler::on_msg_ready()
     {
@@ -36,23 +26,7 @@ namespace net
         spdlog::info("Client {} connected", get_adress());
         send("auth_message");
     }
-    std::string con_handler::parse_auth(const std::string& message) {
-        const std::string prefix = "auth_name:";
-        const size_t prefix_length = prefix.length();
-        
-        if (message.substr(0, prefix_length) == prefix) {
-            std::string value = message.substr(prefix_length);
 
-            if (value.length() > 30) {
-                spdlog::error("Error: Value exceeds 30 characters.");
-                return ""; 
-            }
-
-            return value;
-        }
-        
-        spdlog::error("Message does not start with 'auth_name:'.");
-    }
 
     void con_handler::read_message()
     {

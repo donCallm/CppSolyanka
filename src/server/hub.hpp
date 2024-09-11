@@ -3,6 +3,7 @@
 #include <server/connect.hpp>
 #include <memory>
 #include "app.hpp"
+#include <spdlog/spdlog.h>
 
 namespace core
 {
@@ -28,5 +29,8 @@ namespace core
     protected:
         app& _application;
         std::shared_ptr<server> _server;
+        std::shared_ptr<spdlog::logger> _log;
     };
+    
+    std::string parse_auth(const std::string& message);
 }

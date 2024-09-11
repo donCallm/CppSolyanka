@@ -23,15 +23,17 @@ namespace net
         void read_message();
         void on_msg_ready();
         void say_hello();
-        std::string parse_auth(const std::string& message);
 
     public:
         void start();
         static ptr create(boost::asio::io_service& io_service);
         void send(const std::string& message);
-        boost::asio::ip::tcp::socket& get_socket();
-        std::string get_adress();
         void drop();
+
+        boost::asio::ip::tcp::socket& get_socket() { return _sock; }
+        std::string get_adress() { return _addr;}
+        std::string get_name() { return _name; }
+        void set_name(const std::string& name) { _name = name; }
 
     private:
         std::string _name;

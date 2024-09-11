@@ -1,6 +1,7 @@
 #include "app.hpp"
 #include <server/hub.hpp>
 #include <spdlog/spdlog.h>
+#include "logger.hpp"
 
 namespace core
 {
@@ -22,6 +23,7 @@ namespace core
     void app::start()
     {
         spdlog::info("Start application");
+        logger_wrap::init("log.txt");
         _hub->start();
         create_thread_pool();
     }

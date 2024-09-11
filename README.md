@@ -1,28 +1,20 @@
 ___Buil project___
 ```
-cd CppSolyanka
-./build.sh
+./configure.sh
 ```
 ___Server start___
 ```
-cd CppSolyanka
-./start_server.sh
+./build/src/server/server 8080
 ```
 ___Client start___
 ```
-cd CppSolyanka
-./start_client.sh
+./build/src/client/client Name1 8080
 ```
-__Commands__
+__Client commands__
 
-|                                  Commnad                                  |              Description             |
-|---------------------------------------------------------------------------|--------------------------------------|
-| `registration <login> <name> <sername> <patranimyc> <pasport> <password>` | registering a new account            |
-| `login <login> <password>`                                                | authorization                        |
-| `create_bank_account`                                                     | create a new bank account            |
-| `create_card <bank_acc_id>`                                               | create a new bank card               |
-| `get_bank_accounts`                                                       | return list with user bank accounts  |
-| `get_cards`                                                               | return list with user cards          |
-| `get_balance <card_id>`                                                   | return user balnce on a bank account |
-| `replenish_balance <card_id> <sum>`                                       | put money into the account           |
-| `debit_funds <card_id> <sum>`                                             | debits money from account            |
+|                                  Commnad              |              Description             |
+|-------------------------------------------------------|--------------------------------------|
+| `end`                                                 | disconnect client                    |
+| `ping`                                                | ping pong message                    |
+
+![alt text](image.png)

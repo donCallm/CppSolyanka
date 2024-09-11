@@ -59,6 +59,8 @@ namespace core
         while (true)
         {
             std::getline(std::cin, msg.data);
+            if (msg.data.empty())
+                continue;
 
             comm.set_command(msg.data);
             comm.params.push_back(std::to_string(_id));
@@ -79,8 +81,7 @@ namespace core
                 }
                 default:
                 {
-                    std::string tmp("unknown command");
-                    write(tmp);
+                    write(msg.data);
                     break;
                 }
             }
