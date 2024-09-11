@@ -83,6 +83,9 @@
         "valarray": "cpp",
         "qlineedit": "cpp",
         "qmessagebox": "cpp",
-        "qwidget": "cpp"
+        "qwidget": "cpp",
+        "charconv": "cpp",
+        "span": "cpp",
+        "filesystem": "cpp"
     }
 }

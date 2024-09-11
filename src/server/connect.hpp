@@ -4,7 +4,6 @@
 #include <boost/signals2.hpp>
 #include <boost/bind/bind.hpp>
 #include <objects/commands.hpp>
-#include <server/state/state.hpp>
 #include <server/connect.hpp>
 
 namespace net
@@ -15,8 +14,8 @@ namespace net
         typedef std::shared_ptr<con_handler> ptr;
         explicit con_handler(boost::asio::io_service& io_service);
         ~con_handler() {}
-
-        boost::signals2::signal<void(ptr conn, core::command comm)> on_msg;
+        
+        boost::signals2::signal<void(ptr conn, std::string)> on_msg;
 
     private:
         void handle_write(const boost::system::error_code& err, size_t byte_transferred);

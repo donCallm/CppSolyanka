@@ -8,7 +8,7 @@ namespace core
     class server
     {
     public:
-        server(boost::asio::io_service& io_service);
+        server(boost::asio::io_service& io_service, int port);
 
         boost::signals2::signal<void(net::con_handler::ptr conn)> on_accept_connection;
         
@@ -22,5 +22,6 @@ namespace core
     private:
         boost::asio::ip::tcp::acceptor _acceptor;
         boost::asio::io_service& _io_service;
+        int _port;
     };
 }

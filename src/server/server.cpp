@@ -4,9 +4,10 @@
 
 namespace core
 {
-    server::server(boost::asio::io_service& io_service) : 
-    _acceptor(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 8080)),
-    _io_service(io_service) {}
+    server::server(boost::asio::io_service& io_service, int port) : 
+    _acceptor(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)),
+    _io_service(io_service),
+    _port(port) {}
 
     void server::start_accept()
     {

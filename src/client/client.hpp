@@ -10,29 +10,25 @@ namespace core
     class client
     {
         public:
-            client(bool console_mode);
-            client();
-            virtual ~client();
+            client(int con_port);
+            ~client();
 
         public:
-            virtual void read_hello_msg();
-            virtual void write(std::string& msg);
-            virtual void connect();
+            void write(std::string& msg);
+            void connect();
+            void handler_result(const command::type& comm, const core::msg& rpl);
+            std::string read_response();
+            void stop();
             void start();
             void executing();
-            virtual void handler_result(const command::type& comm, const core::msg& rpl);
-            virtual std::string read_response();
-            virtual void stop();
 
         private:
             boost::asio::io_service _io_service;
             boost::asio::ip::tcp::socket _socket;
             boost::asio::streambuf _buf;
-            uint8_t _read_size;
             std::vector<uint8_t> _recv_msg;
             std::vector<uint8_t> _write_buff;
-            std::string _token;
-            bool _console_mode;
             uint64_t _id;
+            int _port;
     };
 }

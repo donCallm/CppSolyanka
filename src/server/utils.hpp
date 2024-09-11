@@ -3,37 +3,10 @@
 #include <iostream>
 #include <unordered_map>
 #include <vector>
-#include <nlohmann/json.hpp>
 #include <regex>
 
 namespace utils
 {
-    constexpr const char TOKEN[] =       "107610801084107232108310861093";
-    // RGX_NUMS" - checking for missing numbers in a string
-    constexpr const char RGX_NUMS[] =    "^[0-9]+$";
-    // RGX_LTRS_NUMS - checking for missing numbers/letters in a string
-    constexpr const char RGX_LTRS_NUMS[] = "^[a-zA-Z0-9]+$";
-    
-    template <typename T>
-    inline std::string to_str(const std::string& msg, const std::vector<int>& prms = {})
-    {
-        T message(msg);
-        nlohmann::json json_message = message;
-        return json_message.dump();
-    }
-
-    inline std::string to_str(const std::unordered_map<std::string, uint64_t>& map)
-    {
-        nlohmann::json json;
-
-        for (const auto& element : map)
-        {
-            json[element.first] = element.second;
-        }
-
-        return json.dump();
-    }
-
     inline bool is_number(const std::string& str)
     {
         return !str.empty() && std::all_of(str.begin(), str.end(), [](unsigned char c) { return std::isdigit(c); });

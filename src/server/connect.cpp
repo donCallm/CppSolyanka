@@ -25,19 +25,15 @@ namespace net
 
     void con_handler::on_msg_ready()
     {
-        core::command comm;
         core::message msg = core::deserialize_message(_read_buff, _msg_size);
-        comm.from_json(nlohmann::json::parse(msg.data));
         
-        spdlog::info("<< {}", msg.data);
-        on_msg(shared_from_this(), comm);
+        spdlog::info("Response {}", msg.data);
+        on_msg(shared_from_this(), msg.data);
     }
 
     void con_handler::say_hello()
     {
         spdlog::info("client {} connected", get_adress());
-        spdlog::info("server say hello");
-        send(utils::TOKEN);
     }
 
     void con_handler::read_message()

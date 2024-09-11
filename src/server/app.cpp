@@ -1,18 +1,28 @@
 #include "app.hpp"
-#include <server/state/state.hpp>
 #include <server/hub.hpp>
 #include <spdlog/spdlog.h>
-#include <server/database/database.hpp>
 
 namespace core
 {
-    app::app(boost::asio::io_service& io_service) :
-        _io_service(io_service),
+    app::app(int port) :
+        _ioc(THREADS),
         _hub(std::make_shared<hub>(*this)),
-        _state(std::make_shared<state>())
+        _port(port)
+    {}
+
+    void app::create_thread_pool()
+    {
+        for(auto i = 4 - 1; i > 0; --i)
+        {
+            _threads.emplace_back([this]{ _ioc.run(); });
+        }
+        _ioc.run();
+    }
+
+    void app::start()
     {
         spdlog::info("Start application");
-        db::database::get_instance();
         _hub->start();
+        create_thread_pool();
     }
 }

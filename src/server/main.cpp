@@ -3,23 +3,31 @@
 
 int main(int argc, char** argv)
 {
+    if (argc != 2) {
+        spdlog::error("Usage: ./app <port>");
+        return 1;
+    }
+
     try
     {
-        boost::asio::io_service io_service;
-        boost::asio::io_service::work work(io_service);
-        core::app application(io_service);
-        io_service.run();
+        int port = std::stoi(argv[1]);
+        if (port <= 0 || port > 65535) {
+            throw std::invalid_argument("Invalid port number");
+        }
+
+        core::app application(port);
+        application.start();
     }
     catch(const std::exception& e)
     {
         spdlog::error("unhandled exception: {}", e.what());
-        return 1; 
+        return EXIT_FAILURE; 
     }
     catch(...)
     {
         spdlog::error("unhandled exception");
-        return 1; 
+        return EXIT_FAILURE; 
     }
     
-    return 0;
+    return EXIT_SUCCESS;
 }
